@@ -1,0 +1,2 @@
+candidate,N,q,isolated_winner_path,isolated_runner_up,isolated_gap_pct,e2e_winner_path,e2e_runner_up,e2e_gap_pct,isolated_winner_family,e2e_winner_family,isolated_best_us,e2e_best_us,reversal_flag,notes
+C0_DEFAULT,4096,16,DC_PUSHSIG_ONLY,,,D0_FCOLLECT_SERIAL,DS_PUSHSIG_SERIAL,25.050,DUSHMEM,DUSHMEM,14402.254,18357.384,CONSISTENT,

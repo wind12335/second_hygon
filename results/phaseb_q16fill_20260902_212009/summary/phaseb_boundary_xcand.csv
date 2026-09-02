@@ -1,0 +1,2 @@
+N,q,isolated_ranking_top3,isolated_winner_label,isolated_best_us,e2e_ranking_top3,e2e_winner_label,e2e_best_us,iso_winner_family,e2e_winner_family,substrate_reversal_flag,comm_C2_vs_C0_iso_pct,r1_C2_vs_C0_e2e_pct,rccl_config_flag
+4096,16,dc_pushsig_only_c0_default:14402,dc_pushsig_only_c0_default,14402.254,d0_fcollect_serial_c0_default:18357 < ds_pushsig_serial_c0_default:24493 < d1_pushsig_overlap_c0_default:25847,d0_fcollect_serial_c0_default,18357.384,DUSHMEM,DUSHMEM,CONSISTENT,,,N/A
