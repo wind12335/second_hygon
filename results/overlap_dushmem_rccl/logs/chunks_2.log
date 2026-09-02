@@ -1,0 +1,37 @@
+/data/jenkins_workspace/workspace/dushmem-hip_release/src/device/init/init_device.cu:dushmemi_get_mem_handle:123: Unable to access device state. 218
+
+/data/jenkins_workspace/workspace/dushmem-hip_release/src/device/init/init_device.cu:dushmemi_get_mem_handle:129: Unable to access ibgda device state. 218
+
+/data/jenkins_workspace/workspace/dushmem-hip_release/src/host/init/init.cu:dushmemi_update_device_state:155: Bad device pointer callback registered 0x208440. Skipping
+
+/data/jenkins_workspace/workspace/dushmem-hip_release/src/device/init/init_device.cu:dushmemi_get_mem_handle:123: Unable to access device state. 218
+
+/data/jenkins_workspace/workspace/dushmem-hip_release/src/device/init/init_device.cu:dushmemi_get_mem_handle:129: Unable to access ibgda device state. 218
+
+/data/jenkins_workspace/workspace/dushmem-hip_release/src/host/init/init.cu:dushmemi_update_device_state:155: Bad device pointer callback registered 0x208440. Skipping
+
+/data/jenkins_workspace/workspace/dushmem-hip_release/src/device/init/init_device.cu:dushmemi_get_mem_handle:123: Unable to access device state. 218
+
+/data/jenkins_workspace/workspace/dushmem-hip_release/src/device/init/init_device.cu:dushmemi_get_mem_handle:129: Unable to access ibgda device state. 218
+
+/data/jenkins_workspace/workspace/dushmem-hip_release/src/host/init/init.cu:dushmemi_update_device_state:155: Bad device pointer callback registered 0x208440. Skipping
+
+/data/jenkins_workspace/workspace/dushmem-hip_release/src/device/init/init_device.cu:dushmemi_get_mem_handle:123: Unable to access device state. 218
+
+/data/jenkins_workspace/workspace/dushmem-hip_release/src/device/init/init_device.cu:dushmemi_get_mem_handle:129: Unable to access ibgda device state. 218
+
+/data/jenkins_workspace/workspace/dushmem-hip_release/src/host/init/init.cu:dushmemi_update_device_state:155: Bad device pointer callback registered 0x208440. Skipping
+
+# AG-GEMM baseline(RCCL allgather+rocBLAS) vs ours(DUSHMEM cp_engine overlap), 4 PEs, target_chunks=2
+# case                    RCCL_base DUSHMEM_ovl  speedup
+  m8192_n29568_k8192     base=81.8 ours=89.5 (0.91x) | GEMM整块=65.5 分块=59.8 (分块慢0.91x)
+  m8192_n49152_k12288    base=184.0 ours=1292.1 (0.14x) | GEMM整块=159.0 分块=1248.5 (分块慢7.85x)
+/data/jenkins_workspace/workspace/dushmem-hip_release/src/device/init/init_device.cu:dushmemi_finalize:173: Unable to properly unregister device state.
+
+/data/jenkins_workspace/workspace/dushmem-hip_release/src/device/init/init_device.cu:dushmemi_finalize:173: Unable to properly unregister device state.
+
+/data/jenkins_workspace/workspace/dushmem-hip_release/src/device/init/init_device.cu:dushmemi_finalize:173: Unable to properly unregister device state.
+
+/data/jenkins_workspace/workspace/dushmem-hip_release/src/device/init/init_device.cu:dushmemi_finalize:173: Unable to properly unregister device state.
+
+# EXIT_STATUS 0

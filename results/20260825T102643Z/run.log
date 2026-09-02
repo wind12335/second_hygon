@@ -1,0 +1,5 @@
+[2026-08-25T10:26:43Z] output directory: /root/private_data/lyc/2ndpaper/results/k500sm_ai_gfx928_4gpu/20260825T102643Z
+[2026-08-25T10:26:43Z] capturing platform facts into /root/private_data/lyc/2ndpaper/results/k500sm_ai_gfx928_4gpu/20260825T102643Z/platform
+[2026-08-25T10:26:44Z] platform capture complete
+[2026-08-25T10:26:44Z] running channel sweep at representative sizes
+[2026-08-25T10:42:41Z] completed mode=channels; manifest=/root/private_data/lyc/2ndpaper/results/k500sm_ai_gfx928_4gpu/20260825T102643Z/manifest.tsv

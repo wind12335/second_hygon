@@ -1,0 +1,2 @@
+numCycle,collective,ranks,rankspernode,gpusperrank,size,type,redop,inplace,time,algbw,busbw,#wrong
+0,"AllGather",1,4,4,1,67108864,"float","none",0,12465.692480,5.383485,4.037613,"0"

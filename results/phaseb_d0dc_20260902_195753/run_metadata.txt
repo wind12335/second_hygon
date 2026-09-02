@@ -1,0 +1,10 @@
+mode=d0dc
+reason=merge d-family comparisons need d0/dc on the dsfix binary (enqueue-order A/B)
+result_root=/root/private_data/lyc/2ndpaper/results/k500sm_ai_gfx928_4gpu/phaseb_d0dc_20260902_195753
+started_utc=2026-09-02T11:57:53Z
+host=crdnotebook-2076293935161401346-scnv1ejp8d-80011
+binary=/root/private_data/lyc/2ndpaper/20260902_PhaseB_跨基座对照/ag_gemm_phaseb
+binary_sha256=f17aae1d1b1dd52e2a7fd37d8fce07a979908b4186b6583af49072afd2c04f6d
+finished_utc=2026-09-02T12:24:05Z
+total_cases=100
+failed_cases=0

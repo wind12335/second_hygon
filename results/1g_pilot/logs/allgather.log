@@ -1,0 +1,21 @@
+# Collective test starting: all_gather_perf
+# nThread 1 nGpus 1 minBytes 1073741824 maxBytes 1073741824 step: 1048576(bytes) warmup iters: 10 iters: 50 agg iters: 1 validation: 1 graph: 0
+#
+rccl-tests: Version develop_deprecated:40b1b17+
+# Using devices
+#  Rank  0 Group  0 Pid   3007 on crdnotebook-2076293935161401346-scnv1ejp8d-97304 device  0 [0000:04:00] K500SM_AI
+#  Rank  1 Group  0 Pid   3008 on crdnotebook-2076293935161401346-scnv1ejp8d-97304 device  1 [0000:27:00] K500SM_AI
+#  Rank  2 Group  0 Pid   3009 on crdnotebook-2076293935161401346-scnv1ejp8d-97304 device  2 [0000:43:00] K500SM_AI
+#  Rank  3 Group  0 Pid   3010 on crdnotebook-2076293935161401346-scnv1ejp8d-97304 device  3 [0000:63:00] K500SM_AI
+#
+#                                                              out-of-place         
+#       size         count      type   redop    root     time   algbw   busbw #wrong                               
+#        (B)    (elements)                               (us)  (GB/s)  (GB/s)                                       
+  1073741824      67108864     float    none      -1    62892   17.07   12.80      0
+# Errors with asterisks indicate errors that have exceeded the maximum threshold.
+# Out of bounds values : 0 OK
+# Avg bus bandwidth    : 12.8045 
+#
+# Collective test concluded: all_gather_perf
+
+# EXIT_STATUS 0

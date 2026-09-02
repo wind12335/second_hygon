@@ -1,0 +1,5 @@
+[2026-08-25T10:07:31Z] output directory: /root/private_data/lyc/2ndpaper/results/k500sm_ai_gfx928_4gpu/20260825T100731Z
+[2026-08-25T10:07:31Z] capturing platform facts into /root/private_data/lyc/2ndpaper/results/k500sm_ai_gfx928_4gpu/20260825T100731Z/platform
+[2026-08-25T10:07:31Z] platform capture complete
+[2026-08-25T10:07:31Z] running 4-GPU preflight; failures are retained in logs and do not overwrite earlier runs
+[2026-08-25T10:07:45Z] completed mode=preflight; manifest=/root/private_data/lyc/2ndpaper/results/k500sm_ai_gfx928_4gpu/20260825T100731Z/manifest.tsv

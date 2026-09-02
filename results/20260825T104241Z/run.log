@@ -1,0 +1,5 @@
+[2026-08-25T10:42:41Z] output directory: /root/private_data/lyc/2ndpaper/results/k500sm_ai_gfx928_4gpu/20260825T104241Z
+[2026-08-25T10:42:41Z] capturing platform facts into /root/private_data/lyc/2ndpaper/results/k500sm_ai_gfx928_4gpu/20260825T104241Z/platform
+[2026-08-25T10:42:42Z] platform capture complete
+[2026-08-25T10:42:42Z] running rank/device mapping comparison; each mapping has its own subdirectory
+[2026-08-25T10:43:41Z] completed mode=mapping; manifest=/root/private_data/lyc/2ndpaper/results/k500sm_ai_gfx928_4gpu/20260825T104241Z/manifest.tsv

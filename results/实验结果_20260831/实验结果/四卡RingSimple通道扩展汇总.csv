@@ -1,0 +1,73 @@
+backend_platform,collective,size_bytes,channel,raw_record_count,mean_busbw_gbps,relative_to_channel_1,aggregation_note
+NCCL_RTX4090,AllGather,1048576,1,3,7.963333,1.000000,Three requested repeats are averaged when present.
+NCCL_RTX4090,AllGather,1048576,2,3,8.966667,1.125994,Three requested repeats are averaged when present.
+NCCL_RTX4090,AllGather,1048576,4,3,9.053333,1.136877,Three requested repeats are averaged when present.
+NCCL_RTX4090,AllGather,1048576,8,3,7.676667,0.964002,Three requested repeats are averaged when present.
+NCCL_RTX4090,AllGather,8388608,1,3,10.853333,1.000000,Three requested repeats are averaged when present.
+NCCL_RTX4090,AllGather,8388608,2,3,12.740000,1.173833,Three requested repeats are averaged when present.
+NCCL_RTX4090,AllGather,8388608,4,3,12.773333,1.176904,Three requested repeats are averaged when present.
+NCCL_RTX4090,AllGather,8388608,8,3,12.386667,1.141278,Three requested repeats are averaged when present.
+NCCL_RTX4090,AllGather,67108864,1,3,13.903333,1.000000,Three requested repeats are averaged when present.
+NCCL_RTX4090,AllGather,67108864,2,3,16.753333,1.204987,Three requested repeats are averaged when present.
+NCCL_RTX4090,AllGather,67108864,4,3,17.510000,1.259410,Three requested repeats are averaged when present.
+NCCL_RTX4090,AllGather,67108864,8,3,17.500000,1.258691,Three requested repeats are averaged when present.
+NCCL_RTX4090,AllReduce,1048576,1,3,8.983333,1.000000,Three requested repeats are averaged when present.
+NCCL_RTX4090,AllReduce,1048576,2,3,9.476667,1.054917,Three requested repeats are averaged when present.
+NCCL_RTX4090,AllReduce,1048576,4,3,10.573333,1.176994,Three requested repeats are averaged when present.
+NCCL_RTX4090,AllReduce,1048576,8,3,7.756667,0.863451,Three requested repeats are averaged when present.
+NCCL_RTX4090,AllReduce,8388608,1,3,11.693333,1.000000,Three requested repeats are averaged when present.
+NCCL_RTX4090,AllReduce,8388608,2,3,15.436667,1.320125,Three requested repeats are averaged when present.
+NCCL_RTX4090,AllReduce,8388608,4,3,15.996667,1.368016,Three requested repeats are averaged when present.
+NCCL_RTX4090,AllReduce,8388608,8,3,14.526667,1.242303,Three requested repeats are averaged when present.
+NCCL_RTX4090,AllReduce,67108864,1,3,14.816667,1.000000,Three requested repeats are averaged when present.
+NCCL_RTX4090,AllReduce,67108864,2,3,17.456667,1.178178,Three requested repeats are averaged when present.
+NCCL_RTX4090,AllReduce,67108864,4,3,19.190000,1.295163,Three requested repeats are averaged when present.
+NCCL_RTX4090,AllReduce,67108864,8,3,19.413333,1.310236,Three requested repeats are averaged when present.
+NCCL_RTX4090,ReduceScatter,1048576,1,3,9.613333,1.000000,Three requested repeats are averaged when present.
+NCCL_RTX4090,ReduceScatter,1048576,2,3,10.780000,1.121359,Three requested repeats are averaged when present.
+NCCL_RTX4090,ReduceScatter,1048576,4,3,11.063333,1.150832,Three requested repeats are averaged when present.
+NCCL_RTX4090,ReduceScatter,1048576,8,3,9.623333,1.001040,Three requested repeats are averaged when present.
+NCCL_RTX4090,ReduceScatter,8388608,1,3,10.650000,1.000000,Three requested repeats are averaged when present.
+NCCL_RTX4090,ReduceScatter,8388608,2,3,12.550000,1.178404,Three requested repeats are averaged when present.
+NCCL_RTX4090,ReduceScatter,8388608,4,3,12.420000,1.166197,Three requested repeats are averaged when present.
+NCCL_RTX4090,ReduceScatter,8388608,8,3,12.853333,1.206886,Three requested repeats are averaged when present.
+NCCL_RTX4090,ReduceScatter,67108864,1,3,14.223333,1.000000,Three requested repeats are averaged when present.
+NCCL_RTX4090,ReduceScatter,67108864,2,3,15.880000,1.116475,Three requested repeats are averaged when present.
+NCCL_RTX4090,ReduceScatter,67108864,4,3,17.253333,1.213030,Three requested repeats are averaged when present.
+NCCL_RTX4090,ReduceScatter,67108864,8,3,17.583333,1.236232,Three requested repeats are averaged when present.
+RCCL_K500SM_AI,AllGather,1048576,1,6,3.555285,1.000000,Repeated case IDs are averaged; inspect rccl_4gpu_caseid_audit.csv for span.
+RCCL_K500SM_AI,AllGather,1048576,2,6,5.318616,1.495974,Repeated case IDs are averaged; inspect rccl_4gpu_caseid_audit.csv for span.
+RCCL_K500SM_AI,AllGather,1048576,4,6,6.420494,1.805901,Repeated case IDs are averaged; inspect rccl_4gpu_caseid_audit.csv for span.
+RCCL_K500SM_AI,AllGather,1048576,8,6,6.526974,1.835851,Repeated case IDs are averaged; inspect rccl_4gpu_caseid_audit.csv for span.
+RCCL_K500SM_AI,AllGather,8388608,1,6,4.703650,1.000000,Repeated case IDs are averaged; inspect rccl_4gpu_caseid_audit.csv for span.
+RCCL_K500SM_AI,AllGather,8388608,2,6,9.422205,2.003169,Repeated case IDs are averaged; inspect rccl_4gpu_caseid_audit.csv for span.
+RCCL_K500SM_AI,AllGather,8388608,4,6,11.244030,2.390490,Repeated case IDs are averaged; inspect rccl_4gpu_caseid_audit.csv for span.
+RCCL_K500SM_AI,AllGather,8388608,8,6,11.367602,2.416762,Repeated case IDs are averaged; inspect rccl_4gpu_caseid_audit.csv for span.
+RCCL_K500SM_AI,AllGather,67108864,1,6,4.955960,1.000000,Repeated case IDs are averaged; inspect rccl_4gpu_caseid_audit.csv for span.
+RCCL_K500SM_AI,AllGather,67108864,2,6,9.874485,1.992446,Repeated case IDs are averaged; inspect rccl_4gpu_caseid_audit.csv for span.
+RCCL_K500SM_AI,AllGather,67108864,4,6,12.186689,2.458996,Repeated case IDs are averaged; inspect rccl_4gpu_caseid_audit.csv for span.
+RCCL_K500SM_AI,AllGather,67108864,8,6,12.712095,2.565011,Repeated case IDs are averaged; inspect rccl_4gpu_caseid_audit.csv for span.
+RCCL_K500SM_AI,AllReduce,1048576,1,6,4.185494,1.000000,Repeated case IDs are averaged; inspect rccl_4gpu_caseid_audit.csv for span.
+RCCL_K500SM_AI,AllReduce,1048576,2,6,6.128153,1.464141,Repeated case IDs are averaged; inspect rccl_4gpu_caseid_audit.csv for span.
+RCCL_K500SM_AI,AllReduce,1048576,4,6,7.948565,1.899075,Repeated case IDs are averaged; inspect rccl_4gpu_caseid_audit.csv for span.
+RCCL_K500SM_AI,AllReduce,1048576,8,6,7.491240,1.789810,Repeated case IDs are averaged; inspect rccl_4gpu_caseid_audit.csv for span.
+RCCL_K500SM_AI,AllReduce,8388608,1,6,5.398505,1.000000,Repeated case IDs are averaged; inspect rccl_4gpu_caseid_audit.csv for span.
+RCCL_K500SM_AI,AllReduce,8388608,2,6,10.311733,1.910109,Repeated case IDs are averaged; inspect rccl_4gpu_caseid_audit.csv for span.
+RCCL_K500SM_AI,AllReduce,8388608,4,6,12.174664,2.255192,Repeated case IDs are averaged; inspect rccl_4gpu_caseid_audit.csv for span.
+RCCL_K500SM_AI,AllReduce,8388608,8,6,12.300252,2.278455,Repeated case IDs are averaged; inspect rccl_4gpu_caseid_audit.csv for span.
+RCCL_K500SM_AI,AllReduce,67108864,1,3,5.406651,1.000000,Repeated case IDs are averaged; inspect rccl_4gpu_caseid_audit.csv for span.
+RCCL_K500SM_AI,AllReduce,67108864,2,3,10.532560,1.948075,Repeated case IDs are averaged; inspect rccl_4gpu_caseid_audit.csv for span.
+RCCL_K500SM_AI,AllReduce,67108864,4,3,12.778932,2.363558,Repeated case IDs are averaged; inspect rccl_4gpu_caseid_audit.csv for span.
+RCCL_K500SM_AI,AllReduce,67108864,8,3,13.085962,2.420345,Repeated case IDs are averaged; inspect rccl_4gpu_caseid_audit.csv for span.
+RCCL_K500SM_AI,ReduceScatter,1048576,1,3,3.616932,1.000000,Repeated case IDs are averaged; inspect rccl_4gpu_caseid_audit.csv for span.
+RCCL_K500SM_AI,ReduceScatter,1048576,2,3,5.056300,1.397953,Repeated case IDs are averaged; inspect rccl_4gpu_caseid_audit.csv for span.
+RCCL_K500SM_AI,ReduceScatter,1048576,4,3,6.044154,1.671072,Repeated case IDs are averaged; inspect rccl_4gpu_caseid_audit.csv for span.
+RCCL_K500SM_AI,ReduceScatter,1048576,8,3,6.241587,1.725658,Repeated case IDs are averaged; inspect rccl_4gpu_caseid_audit.csv for span.
+RCCL_K500SM_AI,ReduceScatter,8388608,1,3,5.051695,1.000000,Repeated case IDs are averaged; inspect rccl_4gpu_caseid_audit.csv for span.
+RCCL_K500SM_AI,ReduceScatter,8388608,2,3,9.024170,1.786365,Repeated case IDs are averaged; inspect rccl_4gpu_caseid_audit.csv for span.
+RCCL_K500SM_AI,ReduceScatter,8388608,4,3,10.812187,2.140309,Repeated case IDs are averaged; inspect rccl_4gpu_caseid_audit.csv for span.
+RCCL_K500SM_AI,ReduceScatter,8388608,8,3,11.390616,2.254811,Repeated case IDs are averaged; inspect rccl_4gpu_caseid_audit.csv for span.
+RCCL_K500SM_AI,ReduceScatter,67108864,1,3,5.110300,1.000000,Repeated case IDs are averaged; inspect rccl_4gpu_caseid_audit.csv for span.
+RCCL_K500SM_AI,ReduceScatter,67108864,2,3,9.642697,1.886914,Repeated case IDs are averaged; inspect rccl_4gpu_caseid_audit.csv for span.
+RCCL_K500SM_AI,ReduceScatter,67108864,4,3,11.599239,2.269777,Repeated case IDs are averaged; inspect rccl_4gpu_caseid_audit.csv for span.
+RCCL_K500SM_AI,ReduceScatter,67108864,8,3,12.427964,2.431944,Repeated case IDs are averaged; inspect rccl_4gpu_caseid_audit.csv for span.

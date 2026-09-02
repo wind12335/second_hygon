@@ -1,0 +1,9 @@
+mode=formal
+result_root=/root/private_data/lyc/2ndpaper/results/k500sm_ai_gfx928_4gpu/phaseb_formal_20260902_160115
+started_utc=2026-09-02T08:01:15Z
+host=crdnotebook-2076293935161401346-scnv1ejp8d-80011
+binary=/root/private_data/lyc/2ndpaper/20260902_PhaseB_跨基座对照/ag_gemm_phaseb
+binary_sha256=53cd361c0faae8f588fd1b79c5673a6ee8fe26c2aa9fe3d84d8fd9dcc6a290af
+finished_utc=2026-09-02T10:31:49Z
+total_cases=585
+failed_cases=0

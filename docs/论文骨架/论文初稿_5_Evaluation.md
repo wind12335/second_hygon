@@ -1,0 +1,68 @@
+# Paper draft — §5 Evaluation（v0 结构，2026-09-02）
+
+> 与 §3 同口径：英文正文、⟨formal⟩ 回填位。图表编号对齐 plot_phaseb_figures.py 输出
+> （fig_F1_money / F2a_winner_map / F2b_decay / F3_stretch / F4_crossover / F5b_capability / F6_release）。
+> 已确认的部分数据（7/10 格）用 ✅ 标注，formal 完成后复核数字不变即转正。
+
+## 5. Evaluation
+
+### 5.1 Setup（一小段 + 矩阵表）
+- 平台：K500SM_AI / gfx928 / 4 GPUs / all-to-all PCIe (3 hops) / DTK 26.04 / RCCL 2.22.3 / DUSHMEM 3.2.5；对照 RTX 4090 / sm_89 / 4 GPUs / PCIe（⟨NVSHMEM/NCCL 版本⟩）。
+- 矩阵：11 路径 × N∈{512,2048,4096} × q∈{2,4,8}（+N2048/q16）× C0/C2 on {comm,r1} × 5 reps × 80 iters = ⟨formal:590⟩ cases, all PASS。
+- 统计：tie-corrected MW U + 5/5 direction consistency（T1 全表）。
+
+### 5.2 R1 资源轴反转：isolated 赢家不是 e2e 赢家（F1, F2a, F2b）
+- isolated 层：C2 在全部 9 格快 +2.1%→+3.2%（q2/q4/q8 平均 ≈2.9/2.1/1.7%）✅
+- e2e 层全矩阵（C2 vs C0，+ : C2 快）✅ 含 q16：
+  - N512: +5.2 → +1.7 → +0.2（未穿零，近耗尽）
+  - N2048: +5.7 → +1.7 → **−5.5** → **−5.4 @q16**（反转持续但饱和）
+  - N4096: +4.1 → +0.1 → **+1.8（回弹！）**
+- **平衡律（本节核心，预注册 P2 MISS 后发现，q16 加固）**：q8 行 e2e Δ 随 comm/gemm isolated 比值非单调——2.32→+0.2、**1.12→−5.5**、0.59→+1.8；带内全列（N2048 ratio≈1.2 恒定）**+5.65→+1.69→−5.49→−5.37**：q 阈值在 8、16 处饱和（P3 MISS 的正面解读）
+  - 机理三段论：通信主导（ratio≫1）C2 带宽优势传导 e2e；**平衡（≈1）双资源饱和，通道竞争偷 GEMM 关键路径→反转**；计算主导（≪1）GEMM 阴影淹没配置
+  - 反转只活在真重叠区=重叠策略最重要工作点（论文点题）
+- iso_gap 与 N 无关（q8 三格 1.64/1.65/1.72）但随 q 单调变薄（N2048: 2.98/2.12/1.65/0.73）→ gap 是 q 传感器、ratio 是 N 传感器，单 gap 传感器原理上不可分离，必须双特征
+- 反转边界=（q, ratio, gap）三特征带，非 (N,q) 单调曲面；**预注册 P2/P3/P4 三次单调外推全 MISS**（回弹/饱和/stretch 见顶）——"有界共振带"是被证伪逼出来的正确描述（F2b 保留作衰减视角，叙事重心移至 F2c）
+
+### 5.3 R2 结构轴反转 + 语义代价（F3, F4）
+- d1_vs_d0 增益随 q 翻负，**q8 全列** ✅：N512 +30.3→+28.8→**−45.4**；N2048 +26.5→+23.9→**−41.1**；N4096 q2 +21.4→q4 +26.7→**−19.4**（P7 真空点解出：d0 也赢——d0 的 fcollect 惩罚 < d1 的释放病理）
+- "重叠策略"在深切片下退化为反模式：分片释放的 stretch 非线性且**非单调** ✅
+  - stretch(d1 vs dc)：N512 17→18→64%；N2048 41→44→**93（q8 峰）**→**53（q16 回落）**——q16 处 dc 自身恶化 +42% 快于 d1 +13%；"代价无限增长"叙事改为"与传输代价纠缠、见顶"
+- 对照：r1_vs_rs 同向增长为正（N512 8.5→14.8→24.5）——重叠本身有效，是**释放语义**在 DUSHMEM 路径上失效（连到 5.4）
+- 原语级翻转（Phase A）：4KiB fcollect 赢 ↔ 1/64MiB put-signal 赢；16MiB 处 fcollect 全局最慢（fc≈2.8×comm）✅
+
+### 5.4 M1 wait placement：release 语义兑现的决定变量（F6）
+- dc 首个 release ≈ ⟨1.25ms@N512/q8⟩ vs d1 首个 ≈ ⟨14.6ms⟩（晚于 dc 全部传完 ~11ms）✅
+- d1 的 consumer 等待放在承载数据的 compute_stream → 首个 release 被推迟到全部传输完成后，切片按 GEMM 节奏放行 → d1 实际没在重叠（解释 5.3 的 stretch）
+- d1w（等待放 wait_stream + 事件桥）：⟨dsfix⟩ 若 GEMM0 提前到 dc 首个 release 时刻且 d1w_vs_d0 在 q8 回正 → 机理→修复→验证闭环
+- release→GEMM 延迟梯子：d1 5.4us / d0 16.2 / r1 10-47 —— 语义档位数据 ✅
+
+### 5.5 Selector：双轨评估与诚实的 LOO（F5）
+- Track A（策略轴）：本基座退化（C0 池 r1 全胜 9/9 ✅）；带宽直觉规则 P2 top1 2/9、worst 33.7%（反面教材全面恶化）✅
+- Track B（配置轴，全 10 格实测含 q16 ✅）：
+  - B0 isolated-winner（=带宽思维）：top1 8/10，worst regret **5.49%**
+  - B2 (q≥8 & gap≤2%)：top1 8/10，worst 1.80%——gap 传感器 N 盲，误打 N4096/q8（回弹格）
+  - **B3 平衡带 (q≥8 & 0.9≤ratio≤1.35 & gap≤2%)：top1 10/10，worst 0.00%**（q16 第二正例也命中）
+  - **嵌套 LOO 诚实性** ✅：2 个正例后仍 7/10、worst 5.49%——q8 折的阈值被 q16 拉到 q≥16/gap≤1 → 留出格选错。B3 = 机先验（双资源饱和才有干扰）+ 单点标定，非数据驱动学习，论文如实措辞
+- 判别实验（dsfix 批内）：N4096/q16 四件套（ratio 恒 0.59、q 加倍）——B3 预测 delta 仍正（q 无独立效应）；若转负则修规则。N2048/q16 已验：B3 ✓（P3 判定见记分牌）
+- 跨基座：策略轴判别性预期在 NVIDIA 侧（⟨4090 数据⟩）；本基座选择器价值 = 配置轴 + 平衡带设计 + 死区安全网（M1 滞回落地）
+- 安全网：外推置信度低 → 回退保守基线（r0/d0），worst regret 与 safe-default 合并叙述
+
+### 5.6 Capability vector B 与跨基座对照（F5b）
+- 本基座：comm 4.0-4.2ms / dc 7.4-11.1 / fc 11.5（16MiB, q8 恶化 dc）✅
+- B 的用途：可部署观测量（isolated microbenchmark 即得），回答"它决定多少 e2e 排序、何处误导"
+- NVIDIA 对照 ⟨4090⟩：B' 与边界曲线位移本身是结果（同 PCIe 等级、跨厂商）
+
+### 5.7 Overheads & threats（引用骨架 §6，补实测）
+- 选择器运行时开销：查表 O(1) + 阈值比较，纳秒级 ⟨若需，加测⟩
+- 全部 threats 见骨架 §6；DS 缺陷案例进 §3.6
+
+---
+
+### 回填清单
+- [x] formal 全矩阵：N4096/q4,q8 两行反转符号 + 新 boundary 表（2026-09-02 深夜完成）
+- [x] q16 边界格：N2048/q16 = −5.37（持续不加深）；iso_gap 0.73% 全矩阵最薄
+- [x] stretch formal 复核值（5.3）：N2048 41/44/93/53（q16 回落）
+- [ ] dsfix：d1w 曲线 + d1w_vs_d0 + 真串行 ds + N4096/q16 四件套（DX）
+- [ ] NVIDIA：B'、Track A 判别性、版本串
+- [ ] T1 表引用编号
+- [ ] 5.1 的 case 数：585（= 450 + 90 + 45，fc@q16 未跑）

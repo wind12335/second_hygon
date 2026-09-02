@@ -1,0 +1,6 @@
+# UTC 2026-08-25T10:15:57Z
+# COMMAND mpirun --version
+mpirun (Open MPI) 5.0.3
+
+Report bugs to https://www.open-mpi.org/community/help/
+# EXIT_STATUS 0

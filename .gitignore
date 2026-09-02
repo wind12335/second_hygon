@@ -1,0 +1,13 @@
+# 二进制与中间产物
+__pycache__/
+*.o
+ag_gemm_phaseb
+ag_gemm_rccl
+ag_gemm_phaseb_nv
+build/
+# 原始逐迭代数据不入 git（留在本机 results/ 树）
+results/**/cases/
+# 打包产物
+*.tar.gz
+*.sha256
+nohup.out

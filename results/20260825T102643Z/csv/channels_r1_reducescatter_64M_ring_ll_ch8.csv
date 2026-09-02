@@ -1,0 +1,2 @@
+numCycle,collective,ranks,rankspernode,gpusperrank,size,type,redop,inplace,time,algbw,busbw,#wrong
+0,"ReduceScatter",1,4,4,1,67108864,"float","sum",0,8974.858160,7.477429,5.608072,"0"

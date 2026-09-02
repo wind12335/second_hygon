@@ -1,0 +1,15 @@
+# case_id,mode,payload_bytes,epochs,slots,credit,quiet,credit_quiet,timeout_seconds
+A2_put_signal_4K,put_signal,4096,10000,1,0,0,1,600
+A2_put_signal_64K,put_signal,65536,10000,1,0,0,1,900
+A2_put_signal_1M,put_signal,1048576,10000,1,0,0,1,1800
+A2_put_signal_8M,put_signal,8388608,1000,1,0,0,1,1800
+A2_put_signal_64M,put_signal,67108864,100,1,0,0,1,1800
+A2_put_signal_quiet_4K,put_signal,4096,10000,1,0,1,1,600
+A2_put_signal_quiet_1M,put_signal,1048576,10000,1,0,1,1,1800
+A2_put_signal_quiet_64M,put_signal,67108864,100,1,0,1,1,1800
+A3_credit_slot1_4K,put_signal,4096,10000,1,1,0,1,900
+A3_credit_slot2_64K,put_signal,65536,10000,2,1,0,1,1200
+A3_credit_slot4_1M,put_signal,1048576,5000,4,1,0,1,1800
+A4_fcollect_4K,fcollect,4096,10000,1,0,0,1,900
+A4_fcollect_1M,fcollect,1048576,5000,1,0,0,1,1800
+A4_fcollect_64M,fcollect,67108864,100,1,0,0,1,1800

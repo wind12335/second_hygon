@@ -1,0 +1,139 @@
+N,q,pair,axis_note,metric,source_a,source_b,median_a_us,median_b_us,delta_pct_pos_a_faster,reps_a,reps_b,rep_direction_consistency,mw_p_all_iters,verdict
+512,2,comm_C2_vs_C0,"resource axis, isolated",t_done_max_us,formal,formal,3893.7,4007.6,2.843,5,5,5/5,0.00e+00,SIG
+512,2,r1_C2_vs_C0,"resource axis, e2e",e2e_max_us,formal,formal,4535.7,4782.8,5.165,5,5,5/5,0.00e+00,SIG
+512,2,r1_vs_rs,"overlap gain, RCCL",e2e_max_us,formal,formal,4782.8,5230.9,8.566,5,5,5/5,0.00e+00,SIG
+512,2,r1_vs_r0,"overlap gain vs bulk, RCCL",e2e_max_us,formal,formal,4782.8,5099.2,6.206,5,5,5/5,0.00e+00,SIG
+512,2,d1_vs_ds,overlap gain vs TRUE serial (post-fix),e2e_max_us,dsfix,dsfix,8804.4,8819.0,0.165,5,5,4/5,1.77e-05,SIG
+512,2,d1w_vs_ds,wait-stream overlap gain vs TRUE serial,e2e_max_us,dsfix,dsfix,8828.3,8819.0,-0.105,5,5,4/5,6.71e-05,SIG
+512,2,d1_vs_d0,"release semantics flip, DUSHMEM",e2e_max_us,dsfix,formal,8804.4,12578.7,30.005,5,5,5/5,0.00e+00,SIG
+512,2,d1w_vs_d0,wait-stream vs bulk fcollect,e2e_max_us,dsfix,formal,8828.3,12578.7,29.816,5,5,5/5,0.00e+00,SIG
+512,2,d1w_vs_d1,wait-placement effect,e2e_max_us,dsfix,dsfix,8828.3,8804.4,-0.271,5,5,5/5,1.04e-13,SIG
+512,2,ds_vs_d0,"true serial baselines, put-signal vs fcollect",e2e_max_us,dsfix,formal,8819.0,12578.7,29.889,5,5,5/5,0.00e+00,SIG
+512,2,r1_vs_d1,substrate gap under overlap,e2e_max_us,formal,dsfix,4782.8,8804.4,45.678,5,5,5/5,0.00e+00,SIG
+512,2,r1_vs_d1w,substrate gap under fixed overlap,e2e_max_us,formal,dsfix,4782.8,8828.3,45.825,5,5,5/5,0.00e+00,SIG
+512,2,d1_stretch_vs_dc,sliced-release stretch (d1 done vs pure transport),t_done_max_us,dsfix,formal,8803.1,7458.9,-18.022,5,5,5/5,0.00e+00,SIG
+512,2,d1w_stretch_vs_dc,sliced-release stretch post wait-placement fix,t_done_max_us,dsfix,formal,8826.4,7458.9,-18.334,5,5,5/5,0.00e+00,SIG
+512,4,comm_C2_vs_C0,"resource axis, isolated",t_done_max_us,formal,formal,3985.4,4072.7,2.145,5,5,5/5,0.00e+00,SIG
+512,4,r1_C2_vs_C0,"resource axis, e2e",e2e_max_us,formal,formal,4475.7,4556.5,1.773,5,5,5/5,0.00e+00,SIG
+512,4,r1_vs_rs,"overlap gain, RCCL",e2e_max_us,formal,formal,4556.5,5335.8,14.605,5,5,5/5,0.00e+00,SIG
+512,4,r1_vs_r0,"overlap gain vs bulk, RCCL",e2e_max_us,formal,formal,4556.5,5099.8,10.652,5,5,5/5,0.00e+00,SIG
+512,4,d1_vs_ds,overlap gain vs TRUE serial (post-fix),e2e_max_us,dsfix,dsfix,9142.0,9123.3,-0.205,5,5,3/5,4.44e-01,NS
+512,4,d1w_vs_ds,wait-stream overlap gain vs TRUE serial,e2e_max_us,dsfix,dsfix,9150.7,9123.3,-0.301,5,5,3/5,3.03e-01,NS
+512,4,d1_vs_d0,"release semantics flip, DUSHMEM",e2e_max_us,dsfix,formal,9142.0,12569.3,27.267,5,5,5/5,0.00e+00,SIG
+512,4,d1w_vs_d0,wait-stream vs bulk fcollect,e2e_max_us,dsfix,formal,9150.7,12569.3,27.198,5,5,5/5,0.00e+00,SIG
+512,4,d1w_vs_d1,wait-placement effect,e2e_max_us,dsfix,dsfix,9150.7,9142.0,-0.095,5,5,3/5,8.01e-01,NS
+512,4,ds_vs_d0,"true serial baselines, put-signal vs fcollect",e2e_max_us,dsfix,formal,9123.3,12569.3,27.416,5,5,5/5,0.00e+00,SIG
+512,4,r1_vs_d1,substrate gap under overlap,e2e_max_us,formal,dsfix,4556.5,9142.0,50.158,5,5,5/5,0.00e+00,SIG
+512,4,r1_vs_d1w,substrate gap under fixed overlap,e2e_max_us,formal,dsfix,4556.5,9150.7,50.205,5,5,5/5,0.00e+00,SIG
+512,4,d1_stretch_vs_dc,sliced-release stretch (d1 done vs pure transport),t_done_max_us,dsfix,formal,9142.1,7578.7,-20.629,5,5,5/5,0.00e+00,SIG
+512,4,d1w_stretch_vs_dc,sliced-release stretch post wait-placement fix,t_done_max_us,dsfix,formal,9151.8,7578.7,-20.757,5,5,5/5,0.00e+00,SIG
+512,8,comm_C2_vs_C0,"resource axis, isolated",t_done_max_us,formal,formal,4157.0,4227.3,1.661,5,5,5/5,0.00e+00,SIG
+512,8,r1_C2_vs_C0,"resource axis, e2e",e2e_max_us,formal,formal,4682.2,4690.0,0.165,5,5,5/5,1.78e-15,SIG
+512,8,r1_vs_rs,"overlap gain, RCCL",e2e_max_us,formal,formal,4690.0,6212.9,24.513,5,5,5/5,0.00e+00,SIG
+512,8,r1_vs_r0,"overlap gain vs bulk, RCCL",e2e_max_us,formal,formal,4690.0,5098.1,8.006,5,5,5/5,0.00e+00,SIG
+512,8,d1_vs_ds,overlap gain vs TRUE serial (post-fix),e2e_max_us,dsfix,dsfix,17578.1,17804.1,1.269,5,5,4/5,2.25e-01,NS
+512,8,d1w_vs_ds,wait-stream overlap gain vs TRUE serial,e2e_max_us,dsfix,dsfix,17901.7,17804.1,-0.549,5,5,4/5,2.80e-01,NS
+512,8,d1_vs_d0,"release semantics flip, DUSHMEM",e2e_max_us,dsfix,formal,17578.1,12566.3,-39.883,5,5,5/5,0.00e+00,SIG
+512,8,d1w_vs_d0,wait-stream vs bulk fcollect,e2e_max_us,dsfix,formal,17901.7,12566.3,-42.458,5,5,5/5,0.00e+00,SIG
+512,8,d1w_vs_d1,wait-placement effect,e2e_max_us,dsfix,dsfix,17901.7,17578.1,-1.841,5,5,4/5,3.01e-02,WEAK
+512,8,ds_vs_d0,"true serial baselines, put-signal vs fcollect",e2e_max_us,dsfix,formal,17804.1,12566.3,-41.680,5,5,5/5,0.00e+00,SIG
+512,8,r1_vs_d1,substrate gap under overlap,e2e_max_us,formal,dsfix,4690.0,17578.1,73.319,5,5,5/5,0.00e+00,SIG
+512,8,r1_vs_d1w,substrate gap under fixed overlap,e2e_max_us,formal,dsfix,4690.0,17901.7,73.801,5,5,5/5,0.00e+00,SIG
+512,8,d1_stretch_vs_dc,sliced-release stretch (d1 done vs pure transport),t_done_max_us,dsfix,formal,17575.2,11096.6,-58.384,5,5,5/5,0.00e+00,SIG
+512,8,d1w_stretch_vs_dc,sliced-release stretch post wait-placement fix,t_done_max_us,dsfix,formal,17898.4,11096.6,-61.297,5,5,5/5,0.00e+00,SIG
+2048,2,comm_C2_vs_C0,"resource axis, isolated",t_done_max_us,formal,formal,3899.0,4019.3,2.994,5,5,5/5,0.00e+00,SIG
+2048,2,r1_C2_vs_C0,"resource axis, e2e",e2e_max_us,formal,formal,5741.8,6087.4,5.677,5,5,5/5,0.00e+00,SIG
+2048,2,r1_vs_rs,"overlap gain, RCCL",e2e_max_us,formal,formal,6087.4,6988.5,12.893,5,5,5/5,0.00e+00,SIG
+2048,2,r1_vs_r0,"overlap gain vs bulk, RCCL",e2e_max_us,formal,formal,6087.4,6848.9,11.118,5,5,5/5,0.00e+00,SIG
+2048,2,d1_vs_ds,overlap gain vs TRUE serial (post-fix),e2e_max_us,dsfix,dsfix,10209.6,10211.2,0.015,5,5,3/5,6.11e-01,NS
+2048,2,d1w_vs_ds,wait-stream overlap gain vs TRUE serial,e2e_max_us,dsfix,dsfix,10217.4,10211.2,-0.061,5,5,2/5,7.21e-03,WEAK
+2048,2,d1_vs_d0,"release semantics flip, DUSHMEM",e2e_max_us,dsfix,formal,10209.6,14339.4,28.800,5,5,5/5,0.00e+00,SIG
+2048,2,d1w_vs_d0,wait-stream vs bulk fcollect,e2e_max_us,dsfix,formal,10217.4,14339.4,28.746,5,5,5/5,0.00e+00,SIG
+2048,2,d1w_vs_d1,wait-placement effect,e2e_max_us,dsfix,dsfix,10217.4,10209.6,-0.076,5,5,3/5,2.89e-02,WEAK
+2048,2,ds_vs_d0,"true serial baselines, put-signal vs fcollect",e2e_max_us,dsfix,formal,10211.2,14339.4,28.789,5,5,5/5,0.00e+00,SIG
+2048,2,r1_vs_d1,substrate gap under overlap,e2e_max_us,formal,dsfix,6087.4,10209.6,40.375,5,5,5/5,0.00e+00,SIG
+2048,2,r1_vs_d1w,substrate gap under fixed overlap,e2e_max_us,formal,dsfix,6087.4,10217.4,40.421,5,5,5/5,0.00e+00,SIG
+2048,2,d1_stretch_vs_dc,sliced-release stretch (d1 done vs pure transport),t_done_max_us,dsfix,formal,10207.9,7481.4,-36.444,5,5,5/5,0.00e+00,SIG
+2048,2,d1w_stretch_vs_dc,sliced-release stretch post wait-placement fix,t_done_max_us,dsfix,formal,10216.1,7481.4,-36.554,5,5,5/5,0.00e+00,SIG
+2048,4,comm_C2_vs_C0,"resource axis, isolated",t_done_max_us,formal,formal,3994.1,4080.4,2.114,5,5,5/5,0.00e+00,SIG
+2048,4,r1_C2_vs_C0,"resource axis, e2e",e2e_max_us,formal,formal,5036.4,5121.7,1.664,5,5,5/5,0.00e+00,SIG
+2048,4,r1_vs_rs,"overlap gain, RCCL",e2e_max_us,formal,formal,5121.7,7189.9,28.766,5,5,5/5,0.00e+00,SIG
+2048,4,r1_vs_r0,"overlap gain vs bulk, RCCL",e2e_max_us,formal,formal,5121.7,6846.8,25.196,5,5,5/5,0.00e+00,SIG
+2048,4,d1_vs_ds,overlap gain vs TRUE serial (post-fix),e2e_max_us,dsfix,dsfix,10301.7,10286.6,-0.148,5,5,3/5,3.32e-01,NS
+2048,4,d1w_vs_ds,wait-stream overlap gain vs TRUE serial,e2e_max_us,dsfix,dsfix,10332.6,10286.6,-0.448,5,5,4/5,1.20e-06,SIG
+2048,4,d1_vs_d0,"release semantics flip, DUSHMEM",e2e_max_us,dsfix,formal,10301.7,14334.7,28.134,5,5,5/5,0.00e+00,SIG
+2048,4,d1w_vs_d0,wait-stream vs bulk fcollect,e2e_max_us,dsfix,formal,10332.6,14334.7,27.919,5,5,5/5,0.00e+00,SIG
+2048,4,d1w_vs_d1,wait-placement effect,e2e_max_us,dsfix,dsfix,10332.6,10301.7,-0.300,5,5,5/5,1.90e-05,SIG
+2048,4,ds_vs_d0,"true serial baselines, put-signal vs fcollect",e2e_max_us,dsfix,formal,10286.6,14334.7,28.240,5,5,5/5,0.00e+00,SIG
+2048,4,r1_vs_d1,substrate gap under overlap,e2e_max_us,formal,dsfix,5121.7,10301.7,50.283,5,5,5/5,0.00e+00,SIG
+2048,4,r1_vs_d1w,substrate gap under fixed overlap,e2e_max_us,formal,dsfix,5121.7,10332.6,50.432,5,5,5/5,0.00e+00,SIG
+2048,4,d1_stretch_vs_dc,sliced-release stretch (d1 done vs pure transport),t_done_max_us,dsfix,formal,10300.6,7587.0,-35.767,5,5,5/5,0.00e+00,SIG
+2048,4,d1w_stretch_vs_dc,sliced-release stretch post wait-placement fix,t_done_max_us,dsfix,formal,10331.2,7587.0,-36.170,5,5,5/5,0.00e+00,SIG
+2048,8,comm_C2_vs_C0,"resource axis, isolated",t_done_max_us,formal,formal,4164.7,4233.5,1.624,5,5,5/5,0.00e+00,SIG
+2048,8,r1_C2_vs_C0,"resource axis, e2e",e2e_max_us,formal,formal,5696.2,5400.2,-5.481,5,5,5/5,0.00e+00,SIG
+2048,8,r1_vs_rs,"overlap gain, RCCL",e2e_max_us,formal,formal,5400.2,7965.0,32.201,5,5,5/5,0.00e+00,SIG
+2048,8,r1_vs_r0,"overlap gain vs bulk, RCCL",e2e_max_us,formal,formal,5400.2,6847.2,21.133,5,5,5/5,0.00e+00,SIG
+2048,8,d1_vs_ds,overlap gain vs TRUE serial (post-fix),e2e_max_us,dsfix,dsfix,18281.4,18372.6,0.496,5,5,2/5,6.39e-01,NS
+2048,8,d1w_vs_ds,wait-stream overlap gain vs TRUE serial,e2e_max_us,dsfix,dsfix,18462.9,18372.6,-0.491,5,5,3/5,1.85e-01,NS
+2048,8,d1_vs_d0,"release semantics flip, DUSHMEM",e2e_max_us,dsfix,formal,18281.4,14333.4,-27.544,5,5,5/5,0.00e+00,SIG
+2048,8,d1w_vs_d0,wait-stream vs bulk fcollect,e2e_max_us,dsfix,formal,18462.9,14333.4,-28.810,5,5,5/5,0.00e+00,SIG
+2048,8,d1w_vs_d1,wait-placement effect,e2e_max_us,dsfix,dsfix,18462.9,18281.4,-0.993,5,5,2/5,4.04e-01,NS
+2048,8,ds_vs_d0,"true serial baselines, put-signal vs fcollect",e2e_max_us,dsfix,formal,18372.6,14333.4,-28.180,5,5,5/5,0.00e+00,SIG
+2048,8,r1_vs_d1,substrate gap under overlap,e2e_max_us,formal,dsfix,5400.2,18281.4,70.461,5,5,5/5,0.00e+00,SIG
+2048,8,r1_vs_d1w,substrate gap under fixed overlap,e2e_max_us,formal,dsfix,5400.2,18462.9,70.751,5,5,5/5,0.00e+00,SIG
+2048,8,d1_stretch_vs_dc,sliced-release stretch (d1 done vs pure transport),t_done_max_us,dsfix,formal,18278.7,10740.4,-70.186,5,5,5/5,0.00e+00,SIG
+2048,8,d1w_stretch_vs_dc,sliced-release stretch post wait-placement fix,t_done_max_us,dsfix,formal,18461.4,10740.4,-71.887,5,5,5/5,0.00e+00,SIG
+2048,16,comm_C2_vs_C0,"resource axis, isolated",t_done_max_us,formal,formal,4520.1,4551.3,0.686,5,5,5/5,0.00e+00,SIG
+2048,16,r1_C2_vs_C0,"resource axis, e2e",e2e_max_us,formal,formal,6144.2,5830.1,-5.388,5,5,5/5,0.00e+00,SIG
+2048,16,r1_vs_rs,"overlap gain, RCCL",e2e_max_us,formal,formal,5830.1,8337.0,30.070,5,5,5/5,0.00e+00,SIG
+2048,16,d1_vs_ds,overlap gain vs TRUE serial (post-fix),e2e_max_us,dsfix,dsfix,23923.7,24460.4,2.194,5,5,4/5,7.70e-01,NS
+2048,16,d1w_vs_ds,wait-stream overlap gain vs TRUE serial,e2e_max_us,dsfix,dsfix,23822.9,24460.4,2.606,5,5,3/5,8.59e-01,NS
+2048,16,d1w_vs_d1,wait-placement effect,e2e_max_us,dsfix,dsfix,23822.9,23923.7,0.421,5,5,3/5,8.46e-01,NS
+2048,16,r1_vs_d1,substrate gap under overlap,e2e_max_us,formal,dsfix,5830.1,23923.7,75.631,5,5,5/5,0.00e+00,SIG
+2048,16,r1_vs_d1w,substrate gap under fixed overlap,e2e_max_us,formal,dsfix,5830.1,23822.9,75.527,5,5,5/5,0.00e+00,SIG
+2048,16,d1_stretch_vs_dc,sliced-release stretch (d1 done vs pure transport),t_done_max_us,dsfix,formal,23921.0,14920.0,-60.328,5,5,5/5,0.00e+00,SIG
+2048,16,d1w_stretch_vs_dc,sliced-release stretch post wait-placement fix,t_done_max_us,dsfix,formal,23821.8,14920.0,-59.663,5,5,5/5,0.00e+00,SIG
+4096,2,comm_C2_vs_C0,"resource axis, isolated",t_done_max_us,formal,formal,3899.8,4025.9,3.132,5,5,5/5,0.00e+00,SIG
+4096,2,r1_C2_vs_C0,"resource axis, e2e",e2e_max_us,formal,formal,8464.6,8798.5,3.795,5,5,5/5,0.00e+00,SIG
+4096,2,r1_vs_rs,"overlap gain, RCCL",e2e_max_us,formal,formal,8798.5,10968.6,19.785,5,5,5/5,0.00e+00,SIG
+4096,2,r1_vs_r0,"overlap gain vs bulk, RCCL",e2e_max_us,formal,formal,8798.5,10833.7,18.786,5,5,5/5,0.00e+00,SIG
+4096,2,d1_vs_ds,overlap gain vs TRUE serial (post-fix),e2e_max_us,dsfix,dsfix,13926.4,13911.9,-0.105,5,5,4/5,2.54e-01,NS
+4096,2,d1w_vs_ds,wait-stream overlap gain vs TRUE serial,e2e_max_us,dsfix,dsfix,13953.0,13911.9,-0.296,5,5,5/5,1.58e-03,WEAK
+4096,2,d1_vs_d0,"release semantics flip, DUSHMEM",e2e_max_us,dsfix,formal,13926.4,18344.2,24.083,5,5,5/5,0.00e+00,SIG
+4096,2,d1w_vs_d0,wait-stream vs bulk fcollect,e2e_max_us,dsfix,formal,13953.0,18344.2,23.938,5,5,5/5,0.00e+00,SIG
+4096,2,d1w_vs_d1,wait-placement effect,e2e_max_us,dsfix,dsfix,13953.0,13926.4,-0.191,5,5,3/5,4.05e-02,WEAK
+4096,2,ds_vs_d0,"true serial baselines, put-signal vs fcollect",e2e_max_us,dsfix,formal,13911.9,18344.2,24.162,5,5,5/5,0.00e+00,SIG
+4096,2,r1_vs_d1,substrate gap under overlap,e2e_max_us,formal,dsfix,8798.5,13926.4,36.822,5,5,5/5,0.00e+00,SIG
+4096,2,r1_vs_d1w,substrate gap under fixed overlap,e2e_max_us,formal,dsfix,8798.5,13953.0,36.942,5,5,5/5,0.00e+00,SIG
+4096,2,d1_stretch_vs_dc,sliced-release stretch (d1 done vs pure transport),t_done_max_us,dsfix,formal,13925.5,7491.1,-85.893,5,5,5/5,0.00e+00,SIG
+4096,2,d1w_stretch_vs_dc,sliced-release stretch post wait-placement fix,t_done_max_us,dsfix,formal,13951.9,7491.1,-86.246,5,5,5/5,0.00e+00,SIG
+4096,4,comm_C2_vs_C0,"resource axis, isolated",t_done_max_us,formal,formal,3995.0,4082.9,2.154,5,5,5/5,0.00e+00,SIG
+4096,4,r1_C2_vs_C0,"resource axis, e2e",e2e_max_us,formal,formal,8261.9,8284.6,0.273,5,5,5/5,4.78e-02,WEAK
+4096,4,r1_vs_rs,"overlap gain, RCCL",e2e_max_us,formal,formal,8284.6,9770.8,15.211,5,5,5/5,0.00e+00,SIG
+4096,4,r1_vs_r0,"overlap gain vs bulk, RCCL",e2e_max_us,formal,formal,8284.6,10840.1,23.575,5,5,5/5,0.00e+00,SIG
+4096,4,d1_vs_ds,overlap gain vs TRUE serial (post-fix),e2e_max_us,dsfix,dsfix,12885.2,12886.9,0.013,5,5,3/5,9.08e-01,NS
+4096,4,d1w_vs_ds,wait-stream overlap gain vs TRUE serial,e2e_max_us,dsfix,dsfix,12939.2,12886.9,-0.406,5,5,5/5,0.00e+00,SIG
+4096,4,d1_vs_d0,"release semantics flip, DUSHMEM",e2e_max_us,dsfix,formal,12885.2,18355.9,29.804,5,5,5/5,0.00e+00,SIG
+4096,4,d1w_vs_d0,wait-stream vs bulk fcollect,e2e_max_us,dsfix,formal,12939.2,18355.9,29.509,5,5,5/5,0.00e+00,SIG
+4096,4,d1w_vs_d1,wait-placement effect,e2e_max_us,dsfix,dsfix,12939.2,12885.2,-0.419,5,5,5/5,0.00e+00,SIG
+4096,4,ds_vs_d0,"true serial baselines, put-signal vs fcollect",e2e_max_us,dsfix,formal,12886.9,18355.9,29.795,5,5,5/5,0.00e+00,SIG
+4096,4,r1_vs_d1,substrate gap under overlap,e2e_max_us,formal,dsfix,8284.6,12885.2,35.705,5,5,5/5,0.00e+00,SIG
+4096,4,r1_vs_d1w,substrate gap under fixed overlap,e2e_max_us,formal,dsfix,8284.6,12939.2,35.973,5,5,5/5,0.00e+00,SIG
+4096,4,d1_stretch_vs_dc,sliced-release stretch (d1 done vs pure transport),t_done_max_us,dsfix,formal,12883.3,7577.2,-70.027,5,5,5/5,0.00e+00,SIG
+4096,4,d1w_stretch_vs_dc,sliced-release stretch post wait-placement fix,t_done_max_us,dsfix,formal,12938.0,7577.2,-70.749,5,5,5/5,0.00e+00,SIG
+4096,8,comm_C2_vs_C0,"resource axis, isolated",t_done_max_us,formal,formal,4165.3,4238.5,1.726,5,5,5/5,0.00e+00,SIG
+4096,8,r1_C2_vs_C0,"resource axis, e2e",e2e_max_us,formal,formal,8614.1,8771.5,1.794,5,5,5/5,0.00e+00,SIG
+4096,8,r1_vs_rs,"overlap gain, RCCL",e2e_max_us,formal,formal,8771.5,11017.1,20.383,5,5,5/5,0.00e+00,SIG
+4096,8,r1_vs_r0,"overlap gain vs bulk, RCCL",e2e_max_us,formal,formal,8771.5,10833.9,19.037,5,5,5/5,0.00e+00,SIG
+4096,8,d1_vs_ds,overlap gain vs TRUE serial (post-fix),e2e_max_us,dsfix,dsfix,14484.4,14461.2,-0.160,5,5,4/5,6.60e-02,NS
+4096,8,d1w_vs_ds,wait-stream overlap gain vs TRUE serial,e2e_max_us,dsfix,dsfix,14543.4,14461.2,-0.569,5,5,4/5,9.95e-04,WEAK
+4096,8,d1_vs_d0,"release semantics flip, DUSHMEM",e2e_max_us,dsfix,formal,14484.4,18352.8,21.078,5,5,5/5,0.00e+00,SIG
+4096,8,d1w_vs_d0,wait-stream vs bulk fcollect,e2e_max_us,dsfix,formal,14543.4,18352.8,20.756,5,5,5/5,0.00e+00,SIG
+4096,8,d1w_vs_d1,wait-placement effect,e2e_max_us,dsfix,dsfix,14543.4,14484.4,-0.408,5,5,4/5,8.67e-02,NS
+4096,8,ds_vs_d0,"true serial baselines, put-signal vs fcollect",e2e_max_us,dsfix,formal,14461.2,18352.8,21.204,5,5,5/5,0.00e+00,SIG
+4096,8,r1_vs_d1,substrate gap under overlap,e2e_max_us,formal,dsfix,8771.5,14484.4,39.442,5,5,5/5,0.00e+00,SIG
+4096,8,r1_vs_d1w,substrate gap under fixed overlap,e2e_max_us,formal,dsfix,8771.5,14543.4,39.688,5,5,5/5,0.00e+00,SIG
+4096,8,d1_stretch_vs_dc,sliced-release stretch (d1 done vs pure transport),t_done_max_us,dsfix,formal,14482.2,11293.2,-28.238,5,5,5/5,0.00e+00,SIG
+4096,8,d1w_stretch_vs_dc,sliced-release stretch post wait-placement fix,t_done_max_us,dsfix,formal,14541.5,11293.2,-28.764,5,5,5/5,0.00e+00,SIG
+4096,16,comm_C2_vs_C0,"resource axis, isolated",t_done_max_us,dsfix,dsfix,4523.5,4562.8,0.861,5,5,5/5,0.00e+00,SIG
+4096,16,r1_C2_vs_C0,"resource axis, e2e",e2e_max_us,dsfix,dsfix,8911.8,8850.1,-0.697,5,5,5/5,0.00e+00,SIG

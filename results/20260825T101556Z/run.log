@@ -1,0 +1,4 @@
+[2026-08-25T10:15:57Z] output directory: /root/private_data/lyc/2ndpaper/results/k500sm_ai_gfx928_4gpu/20260825T101556Z
+[2026-08-25T10:15:57Z] capturing platform facts into /root/private_data/lyc/2ndpaper/results/k500sm_ai_gfx928_4gpu/20260825T101556Z/platform
+[2026-08-25T10:15:57Z] platform capture complete
+[2026-08-25T10:15:57Z] running representative 4-GPU matrix

@@ -1,0 +1,254 @@
+Mon Aug 31 09:45:42 AM UTC 2026
+crdnotebook-2076293935161401346-scnv1ejp8d-22684
+
+-- rocminfo agents --
+17:Agent 1                  
+19:  Name:                    Hygon C86 7185 32-core Processor   
+20:  Uuid:                    CPU-XX                             
+21:  Marketing Name:          Hygon C86 7185 32-core Processor   
+22:  Vendor Name:             HygonGenuine                       
+23:  Feature:                 None specified                     
+70:Agent 2                  
+72:  Name:                    Hygon C86 7185 32-core Processor   
+73:  Uuid:                    CPU-XX                             
+74:  Marketing Name:          Hygon C86 7185 32-core Processor   
+75:  Vendor Name:             HygonGenuine                       
+76:  Feature:                 None specified                     
+123:Agent 3                  
+125:  Name:                    Hygon C86 7185 32-core Processor   
+126:  Uuid:                    CPU-XX                             
+127:  Marketing Name:          Hygon C86 7185 32-core Processor   
+128:  Vendor Name:             HygonGenuine                       
+129:  Feature:                 None specified                     
+176:Agent 4                  
+178:  Name:                    Hygon C86 7185 32-core Processor   
+179:  Uuid:                    CPU-XX                             
+180:  Marketing Name:          Hygon C86 7185 32-core Processor   
+181:  Vendor Name:             HygonGenuine                       
+182:  Feature:                 None specified                     
+229:Agent 5                  
+231:  Name:                    gfx928                             
+232:  Uuid:                    GPU-714e6a2ca6c83841               
+233:  Marketing Name:          K500SM_AI                          
+234:  Vendor Name:             C-3000                             
+235:  Feature:                 KERNEL_DISPATCH                    
+260:  Wavefront Size:          64(0x40)                           
+268:  Grid Max Size:           4294967295(0xffffffff)             
+269:  Grid Max Size per Dimension:
+308:      Name:                    amdgcn-amd-amdhsa--gfx928:sramecc+:xnack-
+319:      Grid Max Size:           4294967295(0xffffffff)             
+320:      Grid Max Size per Dimension:
+326:Agent 6                  
+328:  Name:                    gfx928                             
+329:  Uuid:                    GPU-714e6a2ca6ce4121               
+330:  Marketing Name:          K500SM_AI                          
+331:  Vendor Name:             C-3000                             
+332:  Feature:                 KERNEL_DISPATCH                    
+357:  Wavefront Size:          64(0x40)                           
+365:  Grid Max Size:           4294967295(0xffffffff)             
+366:  Grid Max Size per Dimension:
+405:      Name:                    amdgcn-amd-amdhsa--gfx928:sramecc+:xnack-
+416:      Grid Max Size:           4294967295(0xffffffff)             
+417:      Grid Max Size per Dimension:
+423:Agent 7                  
+425:  Name:                    gfx928                             
+426:  Uuid:                    GPU-714e872b32c408c1               
+427:  Marketing Name:          K500SM_AI                          
+428:  Vendor Name:             C-3000                             
+429:  Feature:                 KERNEL_DISPATCH                    
+454:  Wavefront Size:          64(0x40)                           
+462:  Grid Max Size:           4294967295(0xffffffff)             
+463:  Grid Max Size per Dimension:
+502:      Name:                    amdgcn-amd-amdhsa--gfx928:sramecc+:xnack-
+513:      Grid Max Size:           4294967295(0xffffffff)             
+514:      Grid Max Size per Dimension:
+520:Agent 8                  
+522:  Name:                    gfx928                             
+523:  Uuid:                    GPU-714e872b32c448a1               
+524:  Marketing Name:          K500SM_AI                          
+525:  Vendor Name:             C-3000                             
+526:  Feature:                 KERNEL_DISPATCH                    
+551:  Wavefront Size:          64(0x40)                           
+559:  Grid Max Size:           4294967295(0xffffffff)             
+560:  Grid Max Size per Dimension:
+599:      Name:                    amdgcn-amd-amdhsa--gfx928:sramecc+:xnack-
+610:      Grid Max Size:           4294967295(0xffffffff)             
+611:      Grid Max Size per Dimension:
+
+-- rocm-smi --
+
+================================= System Management Interface ==================================
+================================================================================================
+HCU[0]		: Card Series:		 K500SM_AI
+HCU[0]		: Card Vendor:		 Chengdu C-3000 IC Design Co., Ltd.
+HCU[1]		: Card Series:		 K500SM_AI
+HCU[1]		: Card Vendor:		 Chengdu C-3000 IC Design Co., Ltd.
+HCU[2]		: Card Series:		 K500SM_AI
+HCU[2]		: Card Vendor:		 Chengdu C-3000 IC Design Co., Ltd.
+HCU[3]		: Card Series:		 K500SM_AI
+HCU[3]		: Card Vendor:		 Chengdu C-3000 IC Design Co., Ltd.
+================================================================================================
+================================================================================================
+HCU[0]		: Unique ID: 714e6a2ca6c83841
+HCU[1]		: Unique ID: 714e6a2ca6ce4121
+HCU[2]		: Unique ID: 714e872b32c408c1
+HCU[3]		: Unique ID: 714e872b32c448a1
+================================================================================================
+================================================================================================
+Link Type between HCUs
+          HCU[0]    HCU[1]    HCU[2]    HCU[3]    
+HCU[0]    None      PCIE      PCIE      PCIE      
+HCU[1]    PCIE      None      PCIE      PCIE      
+HCU[2]    PCIE      PCIE      None      PCIE      
+HCU[3]    PCIE      PCIE      PCIE      None      
+================================================================================================
+======================================== End of SMI Log ========================================
+
+
+-- runtime --
+dcc version: 25.10.0-0
+clang version 17.0.0 (http://10.4.0.1/dcutoolkit/driverruntime/llvm-project.git ff5bf917a679c83afe927af051a20b86fef7b07d)
+Target: x86_64-unknown-linux-gnu
+Thread model: posix
+InstalledDir: /opt/dtk-26.04/llvm/bin
+
+-- libraries --
+	linux-vdso.so.1 (0x00007ffd011b2000)
+	libm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x00007efe11849000)
+	librccl.so.1 => /opt/dtk/lib/librccl.so.1 (0x00007efe0722c000)
+	librocblas.so.4 => /opt/dtk/lib/librocblas.so.4 (0x00007efdde684000)
+	libgalaxyhip.so.5 => /opt/dtk/hip/lib/libgalaxyhip.so.5 (0x00007efdddaac000)
+	libmpi.so.40 => /opt/mpi/lib/libmpi.so.40 (0x00007efddd6ff000)
+	libstdc++.so.6 => /lib/x86_64-linux-gnu/libstdc++.so.6 (0x00007efddd481000)
+	libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007efddd461000)
+	libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007efddd24f000)
+	/lib64/ld-linux-x86-64.so.2 (0x00007efe11942000)
+	libpthread.so.0 => /lib/x86_64-linux-gnu/libpthread.so.0 (0x00007efddd248000)
+	librt.so.1 => /lib/x86_64-linux-gnu/librt.so.1 (0x00007efddd243000)
+	libdl.so.2 => /lib/x86_64-linux-gnu/libdl.so.2 (0x00007efddd23e000)
+	librocm_smi64.so.2 => /opt/hyhal/lib/librocm_smi64.so.2 (0x00007efddce00000)
+	libnuma.so.1 => /lib/x86_64-linux-gnu/libnuma.so.1 (0x00007efddd231000)
+	libhcoll.so.1 => /opt/mellanox/hcoll/lib/libhcoll.so.1 (0x00007efddccc5000)
+	libopen-pal.so.80 => /opt/mpi/lib/libopen-pal.so.80 (0x00007efddcbb0000)
+	libucp.so.0 => /opt/ucx/lib/libucp.so.0 (0x00007efddca44000)
+	libucs.so.0 => /opt/ucx/lib/libucs.so.0 (0x00007efddd1bc000)
+	libpmix.so.2 => /opt/mpi/lib/libpmix.so.2 (0x00007efddc80c000)
+	libevent_core-2.1.so.7 => /opt/mpi/lib/libevent_core-2.1.so.7 (0x00007efddd183000)
+	libevent_pthreads-2.1.so.7 => /opt/mpi/lib/libevent_pthreads-2.1.so.7 (0x00007efddd17c000)
+	libhwloc.so.15 => /opt/hwloc/lib/libhwloc.so.15 (0x00007efddc7a8000)
+	libocoms.so.0 => /opt/mellanox/hcoll/lib/libocoms.so.0 (0x00007efddc75a000)
+	libibverbs.so.1 => /lib/x86_64-linux-gnu/libibverbs.so.1 (0x00007efddd158000)
+	libuct.so.0 => /opt/ucx/lib/libuct.so.0 (0x00007efddc70c000)
+	libucm.so.0 => /opt/ucx/lib/libucm.so.0 (0x00007efddc6ed000)
+	libudev.so.1 => /lib/x86_64-linux-gnu/libudev.so.1 (0x00007efddc6ba000)
+	libpciaccess.so.0 => /lib/x86_64-linux-gnu/libpciaccess.so.0 (0x00007efddd14b000)
+	libOpenCL.so.1 => /opt/dtk/opencl/lib/libOpenCL.so.1 (0x00007efddc6b0000)
+	libnl-route-3.so.200 => /lib/x86_64-linux-gnu/libnl-route-3.so.200 (0x00007efddc62d000)
+	libnl-3.so.200 => /lib/x86_64-linux-gnu/libnl-3.so.200 (0x00007efddc60a000)
+	libcap.so.2 => /lib/x86_64-linux-gnu/libcap.so.2 (0x00007efddc5ff000)
+	libz.so.1 => /lib/x86_64-linux-gnu/libz.so.1 (0x00007efddc5e3000)
+
+-- env --
+ALLREDUCE_STREAM_WITH_COMPUTE=1
+AMDGPU_TARGETS=gfx906;gfx926;gfx928;gfx936;gfx938
+CHOWN_HOME_OPTS=-R
+CHOWN_HOME=yes
+C_INCLUDE_PATH=/opt/dtk/dcc/gcvm/include:/opt/dtk/include:/opt/hyhal/include:/opt/dtk/llvm/include:/opt/dtk/opencl/include:/opt/dtk-26.04/dcc/gcvm/include:/opt/dtk-26.04/include:/opt/hyhal/include:/opt/dtk-26.04/llvm/include:/opt/dtk-26.04/opencl/include:/opt/dtk/dcc/gcvm/include:/opt/dtk/include:/opt/hyhal/include:/opt/dtk/llvm/include:/opt/dtk/opencl/include:
+CMAKE_PREFIX_PATH=/opt/hyhal:/opt/hyhal:/opt/hyhal:
+CODEX_CI=1
+CODEX_MANAGED_BY_NPM=1
+CODEX_MANAGED_PACKAGE_ROOT=/usr/lib/node_modules/@openai/codex
+CODEX_PERMISSION_PROFILE=:danger-full-access
+CODEX_SESSION_ID=01a03817-c7fa-7ac3-bafc-22186b2c3898
+CODEX_THREAD_ID=01a03817-c7fa-7ac3-bafc-22186b2c3898
+COLORTERM=
+COLUMNS=205
+CPLUS_INCLUDE_PATH=/opt/dtk/dcc/gcvm/include:/opt/dtk/include:/opt/hyhal/include:/opt/dtk/llvm/include:/opt/dtk/dushmem/include:/opt/dtk/opencl/include:/opt/dtk-26.04/dcc/gcvm/include:/opt/dtk-26.04/include:/opt/hyhal/include:/opt/dtk-26.04/llvm/include:/opt/dtk-26.04/dushmem/include:/opt/dtk-26.04/opencl/include:/opt/dtk/dcc/gcvm/include:/opt/dtk/include:/opt/hyhal/include:/opt/dtk/llvm/include:/opt/dtk/dushmem/include:/opt/dtk/opencl/include:
+CRD_NOTEBOOK_2076293935161401346_PORT_22_TCP_ADDR=10.68.6.67
+CRD_NOTEBOOK_2076293935161401346_PORT_22_TCP_PORT=22
+CRD_NOTEBOOK_2076293935161401346_PORT_22_TCP_PROTO=tcp
+CRD_NOTEBOOK_2076293935161401346_PORT_22_TCP=tcp://10.68.6.67:22
+CRD_NOTEBOOK_2076293935161401346_PORT_6666_TCP_ADDR=10.68.6.67
+CRD_NOTEBOOK_2076293935161401346_PORT_6666_TCP_PORT=6666
+CRD_NOTEBOOK_2076293935161401346_PORT_6666_TCP_PROTO=tcp
+CRD_NOTEBOOK_2076293935161401346_PORT_6666_TCP=tcp://10.68.6.67:6666
+CRD_NOTEBOOK_2076293935161401346_PORT_7777_TCP_ADDR=10.68.6.67
+CRD_NOTEBOOK_2076293935161401346_PORT_7777_TCP_PORT=7777
+CRD_NOTEBOOK_2076293935161401346_PORT_7777_TCP_PROTO=tcp
+CRD_NOTEBOOK_2076293935161401346_PORT_7777_TCP=tcp://10.68.6.67:7777
+CRD_NOTEBOOK_2076293935161401346_PORT_8888_TCP_ADDR=10.68.6.67
+CRD_NOTEBOOK_2076293935161401346_PORT_8888_TCP_PORT=8888
+CRD_NOTEBOOK_2076293935161401346_PORT_8888_TCP_PROTO=tcp
+CRD_NOTEBOOK_2076293935161401346_PORT_8888_TCP=tcp://10.68.6.67:8888
+CRD_NOTEBOOK_2076293935161401346_PORT=tcp://10.68.6.67:22
+CRD_NOTEBOOK_2076293935161401346_SERVICE_HOST=10.68.6.67
+CRD_NOTEBOOK_2076293935161401346_SERVICE_PORT=22
+CRD_NOTEBOOK_2076293935161401346_SERVICE_PORT_CUSTOMSIZE=6666
+CRD_NOTEBOOK_2076293935161401346_SERVICE_PORT_NOTEBOOK=8888
+CRD_NOTEBOOK_2076293935161401346_SERVICE_PORT_SSH=22
+CRD_NOTEBOOK_2076293935161401346_SERVICE_PORT_TENSORBOARD=7777
+CUDA_HOME=/usr/local/cuda
+DEBIAN_FRONTEND=noninteractive
+DEBUGINFOD_URLS=
+DTKROOT=/opt/dtk
+ftp_proxy=http://scnv1ejp8d:3718643a@10.15.100.43:3120
+GH_PAGER=cat
+GIT_PAGER=cat
+HF_ENDPOINT=https://hf-mirror.com
+HIP_PATH=/opt/dtk/hip
+HOME=/root
+HOSTNAME=crdnotebook-2076293935161401346-scnv1ejp8d-22684
+http_proxy=http://scnv1ejp8d:3718643a@10.15.100.43:3120
+https_proxy=http://scnv1ejp8d:3718643a@10.15.100.43:3120
+HYHAL_PATH=/opt/hyhal
+JUPYTER_CONFIG_PATH=/etc
+JUPYTER_ENABLE_LAB=yes
+JUPYTERLAB_WORKSPACES_DIR=/tmp/
+JUPYTER_SERVER_ROOT=/
+JUPYTER_SERVER_URL=http://crdnotebook-2076293935161401346-scnv1ejp8d-22684:8888/jupyter-forward/2076293935161401346/
+JUPYTER=/usr/local/bin/jupyter
+KUBERNETES_PORT_443_TCP_ADDR=10.68.0.1
+KUBERNETES_PORT_443_TCP_PORT=443
+KUBERNETES_PORT_443_TCP_PROTO=tcp
+KUBERNETES_PORT_443_TCP=tcp://10.68.0.1:443
+KUBERNETES_PORT=tcp://10.68.0.1:443
+KUBERNETES_SERVICE_HOST=10.68.0.1
+KUBERNETES_SERVICE_PORT=443
+KUBERNETES_SERVICE_PORT_HTTPS=443
+LANG=en_US.UTF-8
+LANGUAGE=en_US.UTF-8
+LC_ALL=en_US.UTF-8
+LC_CTYPE=C.UTF-8
+LD_LIBRARY_PATH=/usr/local/lib/:/usr/local/lib64/:/opt/mpi/lib:/opt/hwloc/lib:/usr/local/lib/:/usr/local/lib64/:/opt/mpi/lib:/opt/hwloc/lib:/usr/local/lib/:/usr/local/lib64/:/opt/mpi/lib:/opt/hwloc/lib:/opt/dtk/dcc/gcvm/lib:/opt/dtk/hip/lib:/opt/dtk/llvm/lib:/opt/dtk/lib:/opt/dtk/lib64:/opt/hyhal/lib:/opt/hyhal/lib64:/opt/dtk/dushmem/lib:/opt/dtk/opencl/lib:/opt/dtk-26.04/dcc/gcvm/lib:/opt/dtk-26.04/hip/lib:/opt/dtk-26.04/llvm/lib:/opt/dtk-26.04/lib:/opt/dtk-26.04/lib64:/opt/hyhal/lib:/opt/hyhal/lib64:/opt/dtk-26.04/dushmem/lib:/opt/dtk-26.04/opencl/lib:/opt/ucx/lib:/opt/dtk/dcc/gcvm/lib:/opt/dtk/hip/lib:/opt/dtk/llvm/lib:/opt/dtk/lib:/opt/dtk/lib64:/opt/hyhal/lib:/opt/hyhal/lib64:/opt/dtk/dushmem/lib:/opt/dtk/opencl/lib:/opt/mpi/lib:/opt/hwloc/lib:/usr/local/lib/:/usr/local/lib64/:
+LIBRARY_PATH=/opt/hyhal/lib:/opt/dtk/opencl/lib:/opt/dtk/dushmem/lib:/opt/hyhal/lib:/opt/dtk-26.04/opencl/lib:/opt/dtk-26.04/dushmem/lib:/opt/hyhal/lib:/opt/dtk/opencl/lib:/opt/dtk/dushmem/lib:
+LINES=55
+LS_COLORS=rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.webp=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:
+MANPATH=/opt/mpi/share/man:
+MIOPEN_FIND_MODE=3
+MOFED_VERSION=23.10-4.0.9.1
+NB_USER=scnv1ejp8d
+NO_COLOR=1
+no_proxy=*.ksai.scnet.cn,ksai.scnet.cn,localhost,127.0.0.1
+NOTEBOOK_ACCELERATOR_MEMORY=64GB
+NOTEBOOK_ACCELERATOR_MODE=DCU ：异构加速卡AI 256GB，4
+NOTEBOOK_CPU_NUM=24
+NOTEBOOK_RAM_SIZE=460GB
+OLDPWD=/workspace
+OS_VERSION=ubuntu22.04
+PAGER=cat
+PATH=/usr/lib/node_modules/@openai/codex/node_modules/@openai/codex-linux-x64/vendor/x86_64-unknown-linux-musl/codex-path:/usr/local/bin:/opt/mpi/bin:/opt/hwloc/bin/:/root/.codex/tmp/arg0/codex-arg0oViOxH:/usr/lib/node_modules/@openai/codex/node_modules/@openai/codex-linux-x64/vendor/x86_64-unknown-linux-musl/codex-path:/usr/local/bin:/opt/mpi/bin:/opt/hwloc/bin/:/usr/local/bin:/opt/ucx/bin:/opt/dtk/bin:/opt/dtk/llvm/bin:/opt/dtk/hip/bin:/opt/dtk/hip/bin/hipify:/opt/hyhal/bin:/opt/dtk/opencl/bin:/opt/mpi/bin:/opt/hwloc/bin/:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/conda/bin:/opt/conda/bin:/opt/conda/bin
+PLATFORM=x86_64
+PWD=/root/private_data/lyc
+PYTHONPATH=/usr/local/:/usr/local/:/usr/local/:/usr/local/:
+PYXTERM_DIMENSIONS=80x25
+ROCM_PATH=/opt/dtk
+SCNET_SHARING_CENTER=/public/SothisAI/sharingCenter
+SCNET_TEAM_SHARE=/public/share/ac8au2a5p6
+SCNET_USER_HOME=/public/home/scnv1ejp8d
+SHELL=/bin/bash
+SHLVL=2
+TASK_PATH=/public/home/scnv1ejp8d/.SothisAI/k8s_instance/jupyter/crdNotebook-2076293935161401346/2094345959415246849/
+TERM=xterm-256color
+TZ=CST-8
+UCX_HOME=/opt/ucx
+_=/usr/bin/env

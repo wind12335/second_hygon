@@ -1,0 +1,13 @@
+candidate,N,q,r1_vs_rs_gain_pct,r1_vs_r0_gain_pct,r0_vs_rs_gain_pct,d1_vs_ds_gain_pct,d1_vs_d0_gain_pct,d0_vs_ds_gain_pct,r1_vs_d1_gain_pct,d1_vs_dc_done_stretch_pct,gemm_only_vs_r0_gemm_pct
+C0_DEFAULT,512,2,,,,0.270,,,,,
+C0_DEFAULT,512,4,,,,0.221,,,,,
+C0_DEFAULT,512,8,,,,1.051,,,,,
+C0_DEFAULT,2048,2,,,,0.064,,,,,
+C0_DEFAULT,2048,4,,,,-0.069,,,,,
+C0_DEFAULT,2048,8,,,,-1.067,,,,,
+C0_DEFAULT,2048,16,,,,1.580,,,,,
+C0_DEFAULT,4096,2,,,,-0.358,,,,,
+C0_DEFAULT,4096,4,,,,0.009,,,,,
+C0_DEFAULT,4096,8,,,,-0.234,,,,,
+C0_DEFAULT,4096,16,,,,,,,,,
+C2_RING_SIMPLE_CH8,4096,16,,,,,,,,,

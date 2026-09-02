@@ -1,0 +1,306 @@
+Mon Aug 31 09:31:50 AM UTC 2026
+crdnotebook-2076293935161401346-scnv1ejp8d-22684
+
+-- rocminfo --
+[37mC-3000 hycu module is loaded[0m
+=====================    
+HSA System Attributes    
+=====================    
+Runtime Version:         1.11
+System Timestamp Freq.:  1000.000000MHz
+Sig. Max Wait Duration:  18446744073709551615 (0xFFFFFFFFFFFFFFFF) (timestamp count)
+Machine Model:           LARGE                              
+System Endianness:       LITTLE                             
+Mwaitx:                  DISABLED
+DMAbuf Support:          YES
+
+==========               
+HSA Agents               
+==========               
+*******                  
+Agent 1                  
+*******                  
+  Name:                    Hygon C86 7185 32-core Processor   
+  Uuid:                    CPU-XX                             
+  Marketing Name:          Hygon C86 7185 32-core Processor   
+  Vendor Name:             HygonGenuine                       
+  Feature:                 None specified                     
+  Profile:                 FULL_PROFILE                       
+  Float Round Mode:        NEAR                               
+  Max Queue Number:        0(0x0)                             
+  Queue Min Size:          0(0x0)                             
+  Queue Max Size:          0(0x0)                             
+  Queue Type:              MULTI                              
+  Node:                    0                                  
+  Device Type:             CPU                                
+  Cache Info:              
+    L1:                      32768(0x8000) KB                   
+  Chip ID:                 0(0x0)                             
+  ASIC Revision:           0(0x0)                             
+  Cacheline Size:          64(0x40)                           
+  Max Clock Freq. (MHz):   2000                               
+  BDFID:                   0                                  
+  Internal Node ID:        0                                  
+  Compute Unit:            8                                  
+  SIMDs per CU:            0                                  
+  Shader Engines:          0                                  
+  Shader Arrs. per Eng.:   0                                  
+  WatchPts on Addr. Ranges:1                                  
+  Features:                None
+  Pool Info:               
+    Pool 1                   
+      Segment:                 GLOBAL; FLAGS: FINE GRAINED        
+      Size:                    131762184(0x7da8808) KB            
+      Allocatable:             TRUE                               
+      Alloc Granule:           4KB                                
+      Alloc Alignment:         4KB                                
+      Accessible by all:       TRUE                               
+    Pool 2                   
+      Segment:                 GLOBAL; FLAGS: KERNARG, FINE GRAINED
+      Size:                    131762184(0x7da8808) KB            
+      Allocatable:             TRUE                               
+      Alloc Granule:           4KB                                
+      Alloc Alignment:         4KB                                
+      Accessible by all:       TRUE                               
+    Pool 3                   
+      Segment:                 GLOBAL; FLAGS: COARSE GRAINED      
+      Size:                    131762184(0x7da8808) KB            
+      Allocatable:             TRUE                               
+      Alloc Granule:           4KB                                
+      Alloc Alignment:         4KB                                
+      Accessible by all:       TRUE                               
+  ISA Info:                
+*******                  
+Agent 2                  
+*******                  
+  Name:                    Hygon C86 7185 32-core Processor   
+  Uuid:                    CPU-XX                             
+  Marketing Name:          Hygon C86 7185 32-core Processor   
+  Vendor Name:             HygonGenuine                       
+  Feature:                 None specified                     
+  Profile:                 FULL_PROFILE                       
+  Float Round Mode:        NEAR                               
+  Max Queue Number:        0(0x0)                             
+  Queue Min Size:          0(0x0)                             
+  Queue Max Size:          0(0x0)                             
+  Queue Type:              MULTI                              
+  Node:                    1                                  
+  Device Type:             CPU                                
+  Cache Info:              
+    L1:                      32768(0x8000) KB                   
+  Chip ID:                 0(0x0)                             
+  ASIC Revision:           0(0x0)                             
+  Cacheline Size:          64(0x40)                           
+  Max Clock Freq. (MHz):   2000                               
+  BDFID:                   0                                  
+  Internal Node ID:        1                                  
+  Compute Unit:            8                                  
+  SIMDs per CU:            0                                  
+  Shader Engines:          0                                  
+  Shader Arrs. per Eng.:   0                                  
+  WatchPts on Addr. Ranges:1                                  
+  Features:                None
+  Pool Info:               
+    Pool 1                   
+      Segment:                 GLOBAL; FLAGS: FINE GRAINED        
+      Size:                    132102732(0x7dfba4c) KB            
+      Allocatable:             TRUE                               
+      Alloc Granule:           4KB                                
+      Alloc Alignment:         4KB                                
+      Accessible by all:       TRUE                               
+    Pool 2                   
+      Segment:                 GLOBAL; FLAGS: KERNARG, FINE GRAINED
+      Size:                    132102732(0x7dfba4c) KB            
+      Allocatable:             TRUE                               
+      Alloc Granule:           4KB                                
+      Alloc Alignment:         4KB                                
+      Accessible by all:       TRUE                               
+    Pool 3                   
+      Segment:                 GLOBAL; FLAGS: COARSE GRAINED      
+      Size:                    132102732(0x7dfba4c) KB            
+      Allocatable:             TRUE                               
+      Alloc Granule:           4KB                                
+      Alloc Alignment:         4KB                                
+      Accessible by all:       TRUE                               
+  ISA Info:                
+*******                  
+Agent 3                  
+*******                  
+  Name:                    Hygon C86 7185 32-core Processor   
+  Uuid:                    CPU-XX                             
+  Marketing Name:          Hygon C86 7185 32-core Processor   
+  Vendor Name:             HygonGenuine                       
+  Feature:                 None specified                     
+  Profile:                 FULL_PROFILE                       
+  Float Round Mode:        NEAR                               
+  Max Queue Number:        0(0x0)                             
+  Queue Min Size:          0(0x0)                             
+  Queue Max Size:          0(0x0)                             
+  Queue Type:              MULTI                              
+  Node:                    2                                  
+  Device Type:             CPU                                
+  Cache Info:              
+    L1:                      32768(0x8000) KB                   
+  Chip ID:                 0(0x0)                             
+  ASIC Revision:           0(0x0)                             
+  Cacheline Size:          64(0x40)                           
+  Max Clock Freq. (MHz):   2000                               
+  BDFID:                   0                                  
+  Internal Node ID:        2                                  
+  Compute Unit:            8                                  
+  SIMDs per CU:            0                                  
+  Shader Engines:          0                                  
+  Shader Arrs. per Eng.:   0                                  
+  WatchPts on Addr. Ranges:1                                  
+  Features:                None
+  Pool Info:               
+    Pool 1                   
+      Segment:                 GLOBAL; FLAGS: FINE GRAINED        
+      Size:                    132118520(0x7dff7f8) KB            
+      Allocatable:             TRUE                               
+      Alloc Granule:           4KB                                
+      Alloc Alignment:         4KB                                
+      Accessible by all:       TRUE                               
+    Pool 2                   
+      Segment:                 GLOBAL; FLAGS: KERNARG, FINE GRAINED
+      Size:                    132118520(0x7dff7f8) KB            
+      Allocatable:             TRUE                               
+      Alloc Granule:           4KB                                
+      Alloc Alignment:         4KB                                
+      Accessible by all:       TRUE                               
+    Pool 3                   
+      Segment:                 GLOBAL; FLAGS: COARSE GRAINED      
+      Size:                    132118520(0x7dff7f8) KB            
+      Allocatable:             TRUE                               
+      Alloc Granule:           4KB                                
+      Alloc Alignment:         4KB                                
+      Accessible by all:       TRUE                               
+  ISA Info:                
+*******                  
+Agent 4                  
+*******                  
+  Name:                    Hygon C86 7185 32-core Processor   
+  Uuid:                    CPU-XX                             
+  Marketing Name:          Hygon C86 7185 32-core Processor   
+
+-- rocm-smi product --
+
+================================= System Management Interface ==================================
+================================================================================================
+HCU[0]		: Card Series:		 K500SM_AI
+HCU[0]		: Card Vendor:		 Chengdu C-3000 IC Design Co., Ltd.
+HCU[1]		: Card Series:		 K500SM_AI
+HCU[1]		: Card Vendor:		 Chengdu C-3000 IC Design Co., Ltd.
+HCU[2]		: Card Series:		 K500SM_AI
+HCU[2]		: Card Vendor:		 Chengdu C-3000 IC Design Co., Ltd.
+HCU[3]		: Card Series:		 K500SM_AI
+HCU[3]		: Card Vendor:		 Chengdu C-3000 IC Design Co., Ltd.
+================================================================================================
+================================================================================================
+HCU[0]		: Unique ID: 714e6a2ca6c83841
+HCU[1]		: Unique ID: 714e6a2ca6ce4121
+HCU[2]		: Unique ID: 714e872b32c408c1
+HCU[3]		: Unique ID: 714e872b32c448a1
+================================================================================================
+================================================================================================
+Link Type between HCUs
+          HCU[0]    HCU[1]    HCU[2]    HCU[3]    
+HCU[0]    None      PCIE      PCIE      PCIE      
+HCU[1]    PCIE      None      PCIE      PCIE      
+HCU[2]    PCIE      PCIE      None      PCIE      
+HCU[3]    PCIE      PCIE      PCIE      None      
+================================================================================================
+======================================== End of SMI Log ========================================
+
+
+-- hipcc --
+dcc version: 25.10.0-0
+clang version 17.0.0 (http://10.4.0.1/dcutoolkit/driverruntime/llvm-project.git ff5bf917a679c83afe927af051a20b86fef7b07d)
+Target: x86_64-unknown-linux-gnu
+Thread model: posix
+InstalledDir: /opt/dtk-26.04/llvm/bin
+
+-- ldd dushmem --
+	linux-vdso.so.1 (0x00007ffc50e74000)
+	libm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x00007f7f5182f000)
+	libdushmem_host.so.3 => /opt/dtk/dushmem/lib/libdushmem_host.so.3 (0x00007f7f47528000)
+	librocblas.so.4 => /opt/dtk/lib/librocblas.so.4 (0x00007f7f1e980000)
+	librccl.so.1 => /opt/dtk/lib/librccl.so.1 (0x00007f7f14361000)
+	libmpi.so.40 => /opt/mpi/lib/libmpi.so.40 (0x00007f7f13fb4000)
+	libgalaxyhip.so.5 => /opt/dtk/hip/lib/libgalaxyhip.so.5 (0x00007f7f133de000)
+	libstdc++.so.6 => /lib/x86_64-linux-gnu/libstdc++.so.6 (0x00007f7f13160000)
+	libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007f7f13140000)
+	libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f7f12f2e000)
+	/lib64/ld-linux-x86-64.so.2 (0x00007f7f51928000)
+	libpthread.so.0 => /lib/x86_64-linux-gnu/libpthread.so.0 (0x00007f7f12f27000)
+	librt.so.1 => /lib/x86_64-linux-gnu/librt.so.1 (0x00007f7f12f22000)
+	libdl.so.2 => /lib/x86_64-linux-gnu/libdl.so.2 (0x00007f7f12f1d000)
+	librocm_smi64.so.2 => /opt/hyhal/lib/librocm_smi64.so.2 (0x00007f7f12a00000)
+	libhcoll.so.1 => /opt/mellanox/hcoll/lib/libhcoll.so.1 (0x00007f7f12de2000)
+	libopen-pal.so.80 => /opt/mpi/lib/libopen-pal.so.80 (0x00007f7f128eb000)
+	libucp.so.0 => /opt/ucx/lib/libucp.so.0 (0x00007f7f1277f000)
+	libucs.so.0 => /opt/ucx/lib/libucs.so.0 (0x00007f7f12d6d000)
+	libpmix.so.2 => /opt/mpi/lib/libpmix.so.2 (0x00007f7f12547000)
+	libevent_core-2.1.so.7 => /opt/mpi/lib/libevent_core-2.1.so.7 (0x00007f7f1250e000)
+	libevent_pthreads-2.1.so.7 => /opt/mpi/lib/libevent_pthreads-2.1.so.7 (0x00007f7f12d68000)
+	libhwloc.so.15 => /opt/hwloc/lib/libhwloc.so.15 (0x00007f7f124aa000)
+	libnuma.so.1 => /lib/x86_64-linux-gnu/libnuma.so.1 (0x00007f7f12d59000)
+	libocoms.so.0 => /opt/mellanox/hcoll/lib/libocoms.so.0 (0x00007f7f1245c000)
+	libibverbs.so.1 => /lib/x86_64-linux-gnu/libibverbs.so.1 (0x00007f7f12438000)
+	libuct.so.0 => /opt/ucx/lib/libuct.so.0 (0x00007f7f123ea000)
+	libucm.so.0 => /opt/ucx/lib/libucm.so.0 (0x00007f7f123cb000)
+	libudev.so.1 => /lib/x86_64-linux-gnu/libudev.so.1 (0x00007f7f12398000)
+	libpciaccess.so.0 => /lib/x86_64-linux-gnu/libpciaccess.so.0 (0x00007f7f12d4c000)
+	libOpenCL.so.1 => /opt/dtk/opencl/lib/libOpenCL.so.1 (0x00007f7f1238e000)
+	libnl-route-3.so.200 => /lib/x86_64-linux-gnu/libnl-route-3.so.200 (0x00007f7f1230b000)
+	libnl-3.so.200 => /lib/x86_64-linux-gnu/libnl-3.so.200 (0x00007f7f122e8000)
+	libcap.so.2 => /lib/x86_64-linux-gnu/libcap.so.2 (0x00007f7f122dd000)
+	libz.so.1 => /lib/x86_64-linux-gnu/libz.so.1 (0x00007f7f122c1000)
+
+-- topology --
+
+================================= System Management Interface ==================================
+================================================================================================
+Link accessible between HCUs
+          HCU[0]    HCU[1]    HCU[2]    HCU[3]    
+HCU[0]    TRUE      TRUE      TRUE      TRUE      
+HCU[1]    TRUE      TRUE      TRUE      TRUE      
+HCU[2]    TRUE      TRUE      TRUE      TRUE      
+HCU[3]    TRUE      TRUE      TRUE      TRUE      
+================================================================================================
+================================================================================================
+Weight between HCUs
+          HCU[0]    HCU[1]    HCU[2]    HCU[3]    
+HCU[0]    0         0         0         0         
+HCU[1]    0         0         0         0         
+HCU[2]    0         0         0         0         
+HCU[3]    0         0         0         0         
+================================================================================================
+================================================================================================
+Hops between HCUs
+          HCU[0]    HCU[1]    HCU[2]    HCU[3]    
+HCU[0]    0         3         3         3         
+HCU[1]    3         0         3         3         
+HCU[2]    3         3         0         3         
+HCU[3]    3         3         3         0         
+================================================================================================
+================================================================================================
+Link Type between HCUs
+          HCU[0]    HCU[1]    HCU[2]    HCU[3]    
+HCU[0]    None      PCIE      PCIE      PCIE      
+HCU[1]    PCIE      None      PCIE      PCIE      
+HCU[2]    PCIE      PCIE      None      PCIE      
+HCU[3]    PCIE      PCIE      PCIE      None      
+================================================================================================
+================================================================================================
+HCU[0]		: (Topology) Numa Node 0
+HCU[0]		: (Topology) Numa Affinity 0
+HCU[1]		: (Topology) Numa Node 1
+HCU[1]		: (Topology) Numa Affinity 1
+HCU[2]		: (Topology) Numa Node 2
+HCU[2]		: (Topology) Numa Affinity 2
+HCU[3]		: (Topology) Numa Node 3
+HCU[3]		: (Topology) Numa Affinity 3
+================================================================================================
+======================================== End of SMI Log ========================================
+

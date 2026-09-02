@@ -1,0 +1,36 @@
+# UTC 2026-08-25T10:08:28Z
+# COMMAND lscpu
+Architecture:                    x86_64
+CPU op-mode(s):                  32-bit, 64-bit
+Address sizes:                   48 bits physical, 48 bits virtual
+Byte Order:                      Little Endian
+CPU(s):                          32
+On-line CPU(s) list:             0-31
+Vendor ID:                       HygonGenuine
+Model name:                      Hygon C86 7185 32-core Processor
+CPU family:                      24
+Model:                           0
+Thread(s) per core:              1
+Core(s) per socket:              32
+Socket(s):                       1
+Stepping:                        1
+CPU max MHz:                     2000.0000
+CPU min MHz:                     1200.0000
+BogoMIPS:                        4000.15
+Flags:                           fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc art rep_good nopl nonstop_tsc extd_apicid amd_dcm aperfmperf eagerfpu pni monitor ssse3 fma cx16 sse4_1 sse4_2 movbe popcnt xsave avx f16c rdrand lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw skinit wdt tce topoext perfctr_core perfctr_nb bpext perfctr_l2 hw_pstate retpoline_amd ssbd ibpb vmmcall fsgsbase bmi1 avx2 smep bmi2 rdseed adx smap clflushopt xsaveopt xsavec xgetbv1 clzero irperf xsaveerptr arat npt lbrv svm_lock nrip_save tsc_scale vmcb_clean flushbyasid decodeassists pausefilter pfthreshold avic v_vmsave_vmload vgif overflow_recov succor smca
+Virtualization:                  AMD-V
+L1d cache:                       1 MiB (32 instances)
+L1i cache:                       2 MiB (32 instances)
+L2 cache:                        16 MiB (32 instances)
+L3 cache:                        64 MiB (8 instances)
+NUMA node(s):                    4
+NUMA node0 CPU(s):               0-7
+NUMA node1 CPU(s):               8-15
+NUMA node2 CPU(s):               16-23
+NUMA node3 CPU(s):               24-31
+Vulnerability L1tf:              Not affected
+Vulnerability Meltdown:          Not affected
+Vulnerability Spec store bypass: Mitigation; Speculative Store Bypass disabled via prctl and seccomp
+Vulnerability Spectre v1:        Mitigation; Load fences, __user pointer sanitization
+Vulnerability Spectre v2:        Mitigation; Full retpoline
+# EXIT_STATUS 0

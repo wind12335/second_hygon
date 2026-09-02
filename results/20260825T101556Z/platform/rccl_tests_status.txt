@@ -1,0 +1,5 @@
+# UTC 2026-08-25T10:15:57Z
+# COMMAND bash -c git\ -C\ \'/root/private_data/lyc/rccl-tests\'\ status\ --short\ --branch
+## develop_deprecated...origin/develop_deprecated
+ M src/Makefile
+# EXIT_STATUS 0

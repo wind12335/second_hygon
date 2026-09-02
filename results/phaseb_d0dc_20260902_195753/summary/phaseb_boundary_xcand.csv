@@ -1,0 +1,11 @@
+N,q,isolated_ranking_top3,isolated_winner_label,isolated_best_us,e2e_ranking_top3,e2e_winner_label,e2e_best_us,iso_winner_family,e2e_winner_family,substrate_reversal_flag,comm_C2_vs_C0_iso_pct,r1_C2_vs_C0_e2e_pct,rccl_config_flag
+512,2,dc_pushsig_only_c0_default:7462,dc_pushsig_only_c0_default,7461.508,d0_fcollect_serial_c0_default:12575,d0_fcollect_serial_c0_default,12575.456,DUSHMEM,DUSHMEM,CONSISTENT,,,N/A
+512,4,dc_pushsig_only_c0_default:7583,dc_pushsig_only_c0_default,7583.026,d0_fcollect_serial_c0_default:12568,d0_fcollect_serial_c0_default,12567.907,DUSHMEM,DUSHMEM,CONSISTENT,,,N/A
+512,8,dc_pushsig_only_c0_default:11038,dc_pushsig_only_c0_default,11037.698,d0_fcollect_serial_c0_default:12568,d0_fcollect_serial_c0_default,12568.333,DUSHMEM,DUSHMEM,CONSISTENT,,,N/A
+2048,2,dc_pushsig_only_c0_default:7487,dc_pushsig_only_c0_default,7487.207,d0_fcollect_serial_c0_default:14345,d0_fcollect_serial_c0_default,14345.365,DUSHMEM,DUSHMEM,CONSISTENT,,,N/A
+2048,4,dc_pushsig_only_c0_default:7582,dc_pushsig_only_c0_default,7581.987,d0_fcollect_serial_c0_default:14333,d0_fcollect_serial_c0_default,14332.968,DUSHMEM,DUSHMEM,CONSISTENT,,,N/A
+2048,8,dc_pushsig_only_c0_default:10840,dc_pushsig_only_c0_default,10839.952,d0_fcollect_serial_c0_default:14348,d0_fcollect_serial_c0_default,14347.912,DUSHMEM,DUSHMEM,CONSISTENT,,,N/A
+2048,16,dc_pushsig_only_c0_default:14956,dc_pushsig_only_c0_default,14956.376,d0_fcollect_serial_c0_default:14339,d0_fcollect_serial_c0_default,14339.047,DUSHMEM,DUSHMEM,CONSISTENT,,,N/A
+4096,2,dc_pushsig_only_c0_default:7483,dc_pushsig_only_c0_default,7483.020,d0_fcollect_serial_c0_default:18347,d0_fcollect_serial_c0_default,18347.126,DUSHMEM,DUSHMEM,CONSISTENT,,,N/A
+4096,4,dc_pushsig_only_c0_default:7559,dc_pushsig_only_c0_default,7558.708,d0_fcollect_serial_c0_default:18336,d0_fcollect_serial_c0_default,18335.866,DUSHMEM,DUSHMEM,CONSISTENT,,,N/A
+4096,8,dc_pushsig_only_c0_default:11361,dc_pushsig_only_c0_default,11361.280,d0_fcollect_serial_c0_default:18347,d0_fcollect_serial_c0_default,18347.323,DUSHMEM,DUSHMEM,CONSISTENT,,,N/A

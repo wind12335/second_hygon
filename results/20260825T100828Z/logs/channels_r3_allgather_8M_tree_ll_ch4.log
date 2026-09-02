@@ -1,0 +1,66 @@
+# CASE channels_r3_allgather_8M_tree_ll_ch4
+# UTC 2026-08-25T10:10:48Z
+# collective=allgather size=8M config=tree_ll channels=4 visible_devices=0,1,2,3
+# COMMAND env -u NCCL_ALGO -u NCCL_PROTO -u NCCL_MIN_NCHANNELS -u NCCL_MAX_NCHANNELS HIP_VISIBLE_DEVICES=0\,1\,2\,3 HSA_FORCE_FINE_GRAIN_PCIE=1 NCCL_DEBUG=WARN NCCL_DEBUG_SUBSYS=INIT NCCL_ALGO=Tree NCCL_PROTO=LL NCCL_MIN_NCHANNELS=4 NCCL_MAX_NCHANNELS=4 mpirun --allow-run-as-root -np 4 -mca coll \^hcoll /root/private_data/lyc/rccl-tests/build/all_gather_perf -b 8M -e 8M -g 1 -w 10 -n 50 -c 1 -a 3 -Z csv -x /root/private_data/lyc/2ndpaper/results/k500sm_ai_gfx928_4gpu/20260825T100828Z/csv/channels_r3_allgather_8M_tree_ll_ch4.csv -O 1
+# Collective test starting: all_gather_perf
+# nThread 1 nGpus 1 minBytes 8388608 maxBytes 8388608 step: 1048576(bytes) warmup iters: 10 iters: 50 agg iters: 1 validation: 1 graph: 0
+#
+rccl-tests: Version develop_deprecated:40b1b17+
+# Using devices
+#  Rank  0 Group  0 Pid  15804 on crdnotebook-2076293935161401346-scnv1ejp8d-97304 device  0 [0000:04:00] K500SM_AI
+#  Rank  1 Group  0 Pid  15805 on crdnotebook-2076293935161401346-scnv1ejp8d-97304 device  1 [0000:27:00] K500SM_AI
+#  Rank  2 Group  0 Pid  15806 on crdnotebook-2076293935161401346-scnv1ejp8d-97304 device  2 [0000:43:00] K500SM_AI
+#  Rank  3 Group  0 Pid  15807 on crdnotebook-2076293935161401346-scnv1ejp8d-97304 device  3 [0000:63:00] K500SM_AI
+
+crdnotebook-2076293935161401346-scnv1ejp8d-97304:15804:15804 [0] /data/jenkins_workspace/workspace/rccl_release/build/hipify/src/init.cc:170 NCCL WARN NUMA auto balancing enabled which can lead to variability in the RCCL performance! Disable by "sudo sysctl kernel.numa_balancing=0"
+
+crdnotebook-2076293935161401346-scnv1ejp8d-97304:15804:15804 [0] /data/jenkins_workspace/workspace/rccl_release/build/hipify/src/init.cc:191 NCCL WARN Missing "iommu=pt" from kernel command line which can lead to system instablity or hang!
+
+crdnotebook-2076293935161401346-scnv1ejp8d-97304:15804:15804 [0] /data/jenkins_workspace/workspace/rccl_release/build/hipify/src/init.cc:170 NCCL WARN NUMA auto balancing enabled which can lead to variability in the RCCL performance! Disable by "sudo sysctl kernel.numa_balancing=0"
+
+crdnotebook-2076293935161401346-scnv1ejp8d-97304:15807:15807 [3] /data/jenkins_workspace/workspace/rccl_release/build/hipify/src/init.cc:170 NCCL WARN NUMA auto balancing enabled which can lead to variability in the RCCL performance! Disable by "sudo sysctl kernel.numa_balancing=0"
+
+crdnotebook-2076293935161401346-scnv1ejp8d-97304:15804:15804 [0] /data/jenkins_workspace/workspace/rccl_release/build/hipify/src/init.cc:191 NCCL WARN Missing "iommu=pt" from kernel command line which can lead to system instablity or hang!
+RCCL version : 2.22.3-HEAD:19c80f7
+HIP version  : 6.3.26102-a22a51fa
+ROCm version : 6.3.3.0-0-c1d64df
+Hostname     : crdnotebook-2076293935161401346-scnv1ejp8d-97304
+Librccl path : /opt/dtk/lib/librccl.so.1
+
+crdnotebook-2076293935161401346-scnv1ejp8d-97304:15806:15806 [2] /data/jenkins_workspace/workspace/rccl_release/build/hipify/src/init.cc:170 NCCL WARN NUMA auto balancing enabled which can lead to variability in the RCCL performance! Disable by "sudo sysctl kernel.numa_balancing=0"
+
+crdnotebook-2076293935161401346-scnv1ejp8d-97304:15805:15805 [1] /data/jenkins_workspace/workspace/rccl_release/build/hipify/src/init.cc:170 NCCL WARN NUMA auto balancing enabled which can lead to variability in the RCCL performance! Disable by "sudo sysctl kernel.numa_balancing=0"
+
+crdnotebook-2076293935161401346-scnv1ejp8d-97304:15807:15807 [3] /data/jenkins_workspace/workspace/rccl_release/build/hipify/src/init.cc:191 NCCL WARN Missing "iommu=pt" from kernel command line which can lead to system instablity or hang!
+
+crdnotebook-2076293935161401346-scnv1ejp8d-97304:15806:15806 [2] /data/jenkins_workspace/workspace/rccl_release/build/hipify/src/init.cc:191 NCCL WARN Missing "iommu=pt" from kernel command line which can lead to system instablity or hang!
+
+crdnotebook-2076293935161401346-scnv1ejp8d-97304:15805:15805 [1] /data/jenkins_workspace/workspace/rccl_release/build/hipify/src/init.cc:191 NCCL WARN Missing "iommu=pt" from kernel command line which can lead to system instablity or hang!
+
+crdnotebook-2076293935161401346-scnv1ejp8d-97304:15804:15829 [0] /data/jenkins_workspace/workspace/rccl_release/build/hipify/src/graph/xml.cc:1839 NCCL WARN Unable to obtain the pciPath[NULL] or name[eth0] attributes from NetProperties.
+
+crdnotebook-2076293935161401346-scnv1ejp8d-97304:15804:15829 [0] /data/jenkins_workspace/workspace/rccl_release/build/hipify/src/graph/xml.cc:1211 NCCL WARN No IB NIC found, the generation of the basic topology has been terminated.
+
+crdnotebook-2076293935161401346-scnv1ejp8d-97304:15807:15830 [3] /data/jenkins_workspace/workspace/rccl_release/build/hipify/src/graph/xml.cc:1839 NCCL WARN Unable to obtain the pciPath[NULL] or name[eth0] attributes from NetProperties.
+
+crdnotebook-2076293935161401346-scnv1ejp8d-97304:15807:15830 [3] /data/jenkins_workspace/workspace/rccl_release/build/hipify/src/graph/xml.cc:1211 NCCL WARN No IB NIC found, the generation of the basic topology has been terminated.
+
+crdnotebook-2076293935161401346-scnv1ejp8d-97304:15805:15831 [1] /data/jenkins_workspace/workspace/rccl_release/build/hipify/src/graph/xml.cc:1839 NCCL WARN Unable to obtain the pciPath[NULL] or name[eth0] attributes from NetProperties.
+
+crdnotebook-2076293935161401346-scnv1ejp8d-97304:15805:15831 [1] /data/jenkins_workspace/workspace/rccl_release/build/hipify/src/graph/xml.cc:1211 NCCL WARN No IB NIC found, the generation of the basic topology has been terminated.
+
+crdnotebook-2076293935161401346-scnv1ejp8d-97304:15806:15832 [2] /data/jenkins_workspace/workspace/rccl_release/build/hipify/src/graph/xml.cc:1839 NCCL WARN Unable to obtain the pciPath[NULL] or name[eth0] attributes from NetProperties.
+
+crdnotebook-2076293935161401346-scnv1ejp8d-97304:15806:15832 [2] /data/jenkins_workspace/workspace/rccl_release/build/hipify/src/graph/xml.cc:1211 NCCL WARN No IB NIC found, the generation of the basic topology has been terminated.
+#
+#                                                              out-of-place         
+#       size         count      type   redop    root     time   algbw   busbw #wrong                               
+#        (B)    (elements)                               (us)  (GB/s)  (GB/s)                                       
+     8388608        524288     float    none      -1   3109.5    2.70    2.02      0
+# Errors with asterisks indicate errors that have exceeded the maximum threshold.
+# Out of bounds values : 0 OK
+# Avg bus bandwidth    : 2.02329 
+#
+# Collective test concluded: all_gather_perf
+
+# EXIT_STATUS 0

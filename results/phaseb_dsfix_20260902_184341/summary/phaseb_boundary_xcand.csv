@@ -1,0 +1,2 @@
+N,q,isolated_ranking_top3,isolated_winner_label,isolated_best_us,e2e_ranking_top3,e2e_winner_label,e2e_best_us,iso_winner_family,e2e_winner_family,substrate_reversal_flag,comm_C2_vs_C0_iso_pct,r1_C2_vs_C0_e2e_pct,rccl_config_flag
+4096,16,comm_only_c2_ring_simple_ch8:4523 < comm_only_c0_default:4563,comm_only_c2_ring_simple_ch8,4523.346,r1_event_overlap_c0_default:8853 < r1_event_overlap_c2_ring_simple_ch8:8911,r1_event_overlap_c0_default,8853.051,RCCL,RCCL,CONSISTENT,0.863,-0.656,CONSISTENT

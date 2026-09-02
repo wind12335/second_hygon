@@ -1,0 +1,25 @@
+# UTC 2026-08-25T10:07:31Z
+# COMMAND rocm-smi --showproductname --showtopotype
+
+================================= System Management Interface ==================================
+================================================================================================
+HCU[0]		: Card Series:		 K500SM_AI
+HCU[0]		: Card Vendor:		 Chengdu C-3000 IC Design Co., Ltd.
+HCU[1]		: Card Series:		 K500SM_AI
+HCU[1]		: Card Vendor:		 Chengdu C-3000 IC Design Co., Ltd.
+HCU[2]		: Card Series:		 K500SM_AI
+HCU[2]		: Card Vendor:		 Chengdu C-3000 IC Design Co., Ltd.
+HCU[3]		: Card Series:		 K500SM_AI
+HCU[3]		: Card Vendor:		 Chengdu C-3000 IC Design Co., Ltd.
+================================================================================================
+================================================================================================
+Link Type between HCUs
+          HCU[0]    HCU[1]    HCU[2]    HCU[3]    
+HCU[0]    None      PCIE      PCIE      PCIE      
+HCU[1]    PCIE      None      PCIE      PCIE      
+HCU[2]    PCIE      PCIE      None      PCIE      
+HCU[3]    PCIE      PCIE      PCIE      None      
+================================================================================================
+======================================== End of SMI Log ========================================
+
+# EXIT_STATUS 0

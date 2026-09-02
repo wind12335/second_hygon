@@ -1,0 +1,23 @@
+N,q,pair,axis_note,metric,median_a_us,median_b_us,delta_pct_pos_a_faster,reps_a,reps_b,rep_direction_consistency,mw_p_all_iters,verdict
+512,2,d1_vs_ds,INVALID if ds serial gate missing (bug): noise characterisation,e2e_max_us,8804.4,8819.0,0.165,5,5,4/5,1.77e-05,SIG
+512,2,d1w_vs_d1,wait-placement effect (dedicated wait stream),e2e_max_us,8828.3,8804.4,-0.271,5,5,5/5,1.04e-13,SIG
+512,4,d1_vs_ds,INVALID if ds serial gate missing (bug): noise characterisation,e2e_max_us,9142.0,9123.3,-0.205,5,5,3/5,4.44e-01,NS
+512,4,d1w_vs_d1,wait-placement effect (dedicated wait stream),e2e_max_us,9150.7,9142.0,-0.095,5,5,3/5,8.01e-01,NS
+512,8,d1_vs_ds,INVALID if ds serial gate missing (bug): noise characterisation,e2e_max_us,17578.1,17804.1,1.269,5,5,4/5,2.25e-01,NS
+512,8,d1w_vs_d1,wait-placement effect (dedicated wait stream),e2e_max_us,17901.7,17578.1,-1.841,5,5,4/5,3.01e-02,WEAK
+2048,2,d1_vs_ds,INVALID if ds serial gate missing (bug): noise characterisation,e2e_max_us,10209.6,10211.2,0.015,5,5,3/5,6.11e-01,NS
+2048,2,d1w_vs_d1,wait-placement effect (dedicated wait stream),e2e_max_us,10217.4,10209.6,-0.076,5,5,3/5,2.89e-02,WEAK
+2048,4,d1_vs_ds,INVALID if ds serial gate missing (bug): noise characterisation,e2e_max_us,10301.7,10286.6,-0.148,5,5,3/5,3.32e-01,NS
+2048,4,d1w_vs_d1,wait-placement effect (dedicated wait stream),e2e_max_us,10332.6,10301.7,-0.300,5,5,5/5,1.90e-05,SIG
+2048,8,d1_vs_ds,INVALID if ds serial gate missing (bug): noise characterisation,e2e_max_us,18281.4,18372.6,0.496,5,5,2/5,6.39e-01,NS
+2048,8,d1w_vs_d1,wait-placement effect (dedicated wait stream),e2e_max_us,18462.9,18281.4,-0.993,5,5,2/5,4.04e-01,NS
+2048,16,d1_vs_ds,INVALID if ds serial gate missing (bug): noise characterisation,e2e_max_us,23923.7,24460.4,2.194,5,5,4/5,7.70e-01,NS
+2048,16,d1w_vs_d1,wait-placement effect (dedicated wait stream),e2e_max_us,23822.9,23923.7,0.421,5,5,3/5,8.46e-01,NS
+4096,2,d1_vs_ds,INVALID if ds serial gate missing (bug): noise characterisation,e2e_max_us,13926.4,13911.9,-0.105,5,5,4/5,2.54e-01,NS
+4096,2,d1w_vs_d1,wait-placement effect (dedicated wait stream),e2e_max_us,13953.0,13926.4,-0.191,5,5,3/5,4.05e-02,WEAK
+4096,4,d1_vs_ds,INVALID if ds serial gate missing (bug): noise characterisation,e2e_max_us,12885.2,12886.9,0.013,5,5,3/5,9.08e-01,NS
+4096,4,d1w_vs_d1,wait-placement effect (dedicated wait stream),e2e_max_us,12939.2,12885.2,-0.419,5,5,5/5,0.00e+00,SIG
+4096,8,d1_vs_ds,INVALID if ds serial gate missing (bug): noise characterisation,e2e_max_us,14484.4,14461.2,-0.160,5,5,4/5,6.60e-02,NS
+4096,8,d1w_vs_d1,wait-placement effect (dedicated wait stream),e2e_max_us,14543.4,14484.4,-0.408,5,5,4/5,8.67e-02,NS
+4096,16,comm_C2_vs_C0,"resource axis, isolated",t_done_max_us,4523.5,4562.8,0.861,5,5,5/5,0.00e+00,SIG
+4096,16,r1_C2_vs_C0,"resource axis, e2e (reversal core)",e2e_max_us,8911.8,8850.1,-0.697,5,5,5/5,0.00e+00,SIG
