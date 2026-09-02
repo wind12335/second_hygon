@@ -13,8 +13,11 @@
 | `phaseb_formal_20260902_160115/` | formal 主批：11 路径 × 9 格 × 5 rep + C2 对照 + q16 + DX 四件套 | 585，0 失败 | （早于 dsfix 修复） |
 | `phaseb_dsfix_20260902_184341/` | DS bug 修复后补批：d1/ds/d1w | 170，0 失败 | `f17aae1d` |
 | `phaseb_d0dc_20260902_195753/` | 同二进制 d0/dc 参照批（与 dsfix 哈希一致 → d 族终判有效） | 100，0 失败 | `f17aae1d` |
+| `phaseb_q16fill_20260902_212009/` | P14 预注册补批：N4096/q16 × d 族五路径（与上同根哈希） | 25，0 失败 | `f17aae1d` |
 | `phaseb_smoke_20260902_1553*` | 冒烟 ×2 | 小 | — |
 | `d_family_same_binary_20260902.csv` | **同二进制 d 族终判表**（d0/dc 来自 d0dc 根，d1/ds/d1w 来自 dsfix 根；每 case 逐迭代 e2e 中位 → rep 中位） | — | f17aae1d ×2 |
+| `d_family_same_binary_mw_20260902.csv` | 终判表的 MW 精确 p 值（C(10,5)=252 全排列，星标格） | — | — |
+| `family_axis_dushmem_vs_rccl_20260902.csv` | **家族轴对比**（dc/d1/d0 干净值 vs r1/rs/r0@formal 根；N4096/q2、q4 出现 dc 反超 r1 的家族级反转；⚠r1 侧跨二进制，论文级使用前需 P15 同根补批） | — | 混根，见 `docs/D2_跨领域机制借鉴_边界定律版_20260902.md` §5 警示 |
 
 ## 阶段 1–3 与阶段 A（RCCL 释放时刻 → 释放曲线 → 边界；DUSHMEM 准入）
 
