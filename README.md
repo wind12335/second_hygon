@@ -15,6 +15,7 @@ NVIDIA(RTX 4090) 侧对照仓库：[second_nvidia](https://github.com/wind12335/
 | `phase3-boundary/` | 阶段 3：重叠边界扫描（双轴反转的发现地） | 完成 |
 | `nvidia-port/` | 交付 4090 侧的移植源（v2 含 d1w）+ 两份往来汇报文档 | v2 已交付 |
 | `bw1000-port/` | 8 卡 bw1000 手动执行包（体检→编译→冒烟→formal np=4/np=8→打包回传，按步骤复制粘贴手册） | 待上机 |
+| `NVIDIA与海光的交流窗/` | **跨平台异步交流通道**：`海光的进展.md` 每批工作追加一条（时间戳精确到秒+更新内容+想问 NVIDIA 的问题），最新在最上；NVIDIA 侧读此文件了解海光动向 | 持续更新 |
 | `platform/` | 平台事实快照（L0-L1 平台事实与 RCCL 首轮结果） | 完整 |
 | `results/` | 汇总级结果：各时间戳根的 `summary/`、run_metadata、manifest、预注册记分牌、同二进制 d 族终判表。**逐迭代原始数据（`cases/`）不入 git** | 持续更新 |
 | `docs/` | 实验设计、结果解读、论文初稿、组会汇报、零基础讲解、文献调研 | 持续更新 |
@@ -59,6 +60,7 @@ python3 plot_phaseb_figures.py ...      # F1/F4/F6/B 向量八图
 
 ## 关联
 
+- **NVIDIA 侧读这里了解海光动向：[`NVIDIA与海光的交流窗/海光的进展.md`](NVIDIA与海光的交流窗/海光的进展.md)**（倒序，最新在最上）
 - NVIDIA 侧仓库与预注册预测（P8–P13）：[second_nvidia](https://github.com/wind12335/second_nvidia)
 - 发往 4090 侧的执行说明：`nvidia-port/NVIDIA侧汇报_海光发现与执行说明_20260902.md`
 - 论文骨架与创新点主张：`docs/论文骨架/`
