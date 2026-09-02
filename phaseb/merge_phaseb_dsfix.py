@@ -118,6 +118,13 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--formal-root", required=True)
     parser.add_argument("--dsfix-root", required=True)
+    # dc reference curves: default the formal root (legacy behaviour). Pass the
+    # d0dc root once available — its binary matches the dsfix batch, so the F6
+    # dc-vs-d1/d1w comparison is same-binary instead of cross-root
+    # (measured dc drift formal->d0dc: -0.7%..+4.8%, above machine noise).
+    parser.add_argument("--dc-root", default=None,
+                        help="root to source DC_PUSHSIG_ONLY curves from "
+                             "(default: --formal-root)")
     args = parser.parse_args()
     out_dir = os.path.join(args.formal_root, "summary")
 
@@ -266,15 +273,16 @@ def main():
         writer.writerows(ctrl_rows)
     print(f"merged control table -> {ctrl_path} ({len(ctrl_rows)} rows)")
 
-    # ---- release curves: formal contributes dc (never buggy), dsfix
-    # contributes ds/d1/d1w — F6 needs them side by side for the
-    # wait-placement comparison ----
+    # ---- release curves: dc root (default formal; pass d0dc for same-binary)
+    # contributes dc, dsfix contributes ds/d1/d1w — F6 needs them side by side
+    # for the wait-placement comparison ----
+    dc_root = args.dc_root or args.formal_root
     rel_out = os.path.join(out_dir, "phaseb_release_curves_long_merged.csv")
     rel_rows, seen = [], set()
     for src_root, paths in ((args.dsfix_root, ("DS_PUSHSIG_SERIAL",
                                                "D1_PUSHSIG_OVERLAP",
                                                "D1W_WAITSTREAM_OVERLAP")),
-                            (args.formal_root, ("DC_PUSHSIG_ONLY",))):
+                            (dc_root, ("DC_PUSHSIG_ONLY",))):
         src = os.path.join(src_root, "summary",
                            "phaseb_release_curves_long.csv")
         if not os.path.exists(src):
@@ -295,7 +303,7 @@ def main():
             writer.writeheader()
             writer.writerows(rel_rows)
         print(f"merged release curves -> {rel_out} ({len(rel_rows)} rows; "
-              f"dc from formal, ds/d1/d1w from dsfix)")
+              f"dc from {os.path.basename(dc_root)}, ds/d1/d1w from dsfix)")
 
     # ---- console digest: the claim-bearing pairs post-fix ----
     focus = ("d1_vs_ds", "d1w_vs_ds", "d1_vs_d0", "d1w_vs_d0", "d1w_vs_d1",
