@@ -130,5 +130,5 @@ echo "result_root=${RESULT_ROOT}"
 python3 "${SCRIPT_DIR}/analyze_phaseb.py" --result-root "${RESULT_ROOT}" || \
   echo "analyzer failed; raw data intact under ${RESULT_ROOT}/cases"
 python3 "${SCRIPT_DIR}/analyze_p15.py" --result-root "${RESULT_ROOT}" \
-  --ref-csv "${SCRIPT_DIR}/../results/family_axis_dushmem_vs_rccl_20260902.csv" || \
+  --ref-csv "${SCRIPT_DIR}/family_axis_dushmem_vs_rccl_20260902.csv" || \
   echo "p15 summarizer failed; raw data intact under ${RESULT_ROOT}/cases"
