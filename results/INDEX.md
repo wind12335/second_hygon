@@ -18,6 +18,7 @@
 | `d_family_same_binary_20260902.csv` | **同二进制 d 族终判表**（d0/dc 来自 d0dc 根，d1/ds/d1w 来自 dsfix 根；每 case 逐迭代 e2e 中位 → rep 中位） | — | f17aae1d ×2 |
 | `d_family_same_binary_mw_20260902.csv` | 终判表的 MW 精确 p 值（C(10,5)=252 全排列，星标格） | — | — |
 | `family_axis_dushmem_vs_rccl_20260902.csv` | **家族轴对比**（dc/d1/d0 干净值 vs r1/rs/r0@formal 根；N4096/q2、q4 出现 dc 反超 r1 的家族级反转；⚠r1 侧跨二进制，论文级使用前需 P15 同根补批） | — | 混根，见 `docs/D2_跨领域机制借鉴_边界定律版_20260902.md` §5 警示 |
+| `unified_decomposition_fit_20260902.csv`(+`_meta.json`) | **统一分解拟合**：边界定律闭式 P≈−44.3+9.22q+(0.032−0.0154q)·cols（R²=0.907，符号 11/11；脚本 `phaseb/fit_unified_decomposition.py`）+ 分块损失/流水线份额分解 + 边界轨迹 N*(q8)=2581、N*(q16)=7700 | — | 控制量取 formal 根；G(4096,16) 插补已标注 |
 
 ## 阶段 1–3 与阶段 A（RCCL 释放时刻 → 释放曲线 → 边界；DUSHMEM 准入）
 
