@@ -1,0 +1,7 @@
+method,top1,regret_median_pct,regret_p95_pct
+selector v0.3 (LOO),7/9,0.0,12.01
+always-d0,0/9,162.88,179.82
+always-r1,9/9,0.0,0.0
+serial-by-bandwidth,0/9,23.08,33.65
+B3 适配版,1/9,12.51,33.65
+probe-1iter,8/9,0.0,12.51

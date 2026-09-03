@@ -34,3 +34,8 @@
 `20260825T*` ×7（NCCL/RCCL kernel 探针）、`1g_pilot`（对称堆 1G 试点）、
 `manual_preflight`、`overlap_dushmem_rccl`（首次 DUSHMEM×RCCL 重叠）、`ll128_probe`（LL128 协议探针）。
 结论记录见 `platform/L0-L1_平台事实与RCCL首轮结果.md` 与 `docs/RCCL实验教学与结果解读.md`。
+
+## 2026-09-03 下午（CPU 侧三件，回 NVIDIA【9】/【13】）
+- `a800_boundary_refit_20260903.csv` — A800 版边界律重拟合（`phaseb/fit_a800_boundary.py`）：P=3.29+1.13q+(0.0004−0.0008q)·cols，R²=0.78、幅度 LOO 4.7pt、locked 10rep 对照 Δ≤0.4pt；截距 −44.3→+3.3 变号、N*(q8)≈15.6k/N*(q16)≈26k（q8 惩罚凸收敛→线性外推保守）
+- `selector_v03_k500_20260903/` — selector v0.3 K500SM_AI 复算（`phaseb/selector_phaseb_v03_k500.py`）：always-r1 9/9 regret 0%（vs A800 always-d0 5/9 基座翻转）；两项式 7/9 p95 12.0%（vs A800 2/9——特征充分性是基座变量）；probe-1iter 8/9 p95 12.51%（vs A800 0.08%——k=1 探针在慢基座有真实代价）
+- `r0_quantiles_20260903.csv` — R_0 样本 P50+P95 代算（7 组重尾格）：mean/p50 最大 4.09×（S7/q8）、p95/p50 2–4.7×——B3 需分位数的定量实锤
