@@ -39,3 +39,4 @@
 - `a800_boundary_refit_20260903.csv` — A800 版边界律重拟合（`phaseb/fit_a800_boundary.py`）：P=3.29+1.13q+(0.0004−0.0008q)·cols，R²=0.78、幅度 LOO 4.7pt、locked 10rep 对照 Δ≤0.4pt；截距 −44.3→+3.3 变号、N*(q8)≈15.6k/N*(q16)≈26k（q8 惩罚凸收敛→线性外推保守）
 - `selector_v03_k500_20260903/` — selector v0.3 K500SM_AI 复算（`phaseb/selector_phaseb_v03_k500.py`）：always-r1 9/9 regret 0%（vs A800 always-d0 5/9 基座翻转）；两项式 7/9 p95 12.0%（vs A800 2/9——特征充分性是基座变量）；probe-1iter 8/9 p95 12.51%（vs A800 0.08%——k=1 探针在慢基座有真实代价）
 - `r0_quantiles_20260903.csv` — R_0 样本 P50+P95 代算（7 组重尾格）：mean/p50 最大 4.09×（S7/q8）、p95/p50 2–4.7×——B3 需分位数的定量实锤
+- `probe_k3_k500_20260903.csv` — probe-k 次小值模拟（`phaseb/probe_k3_sim_k500.py`）：k=1 首值 8/9 p95 12.51% → k=3 次小值 **9/9 regret 0%**（唯一错格 (2048,2) r0/r1 近平局被首迭代噪声翻错，次小值即修复）——回答【13】v0.4"探 2-3 次取次小值"：够，且与 B3 median-of-means 方向一致
