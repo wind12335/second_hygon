@@ -10,7 +10,8 @@ if [[ -d results/bw1000_8gpu ]]; then
   while IFS= read -r root; do ITEMS+=("${root}"); done < <(ls -d results/bw1000_8gpu/phaseb_* 2>/dev/null)
 fi
 # 手册步骤里 nohup 的运行日志
-for f in run_smoke.log run_formal_np4.log run_formal_np8.log; do
+for f in run_smoke.log run_formal_np4.log run_formal_np8.log \
+         run_wm_np8.log run_wm_np4.log run_extrap_np8.log run_extrap_np4.log; do
   [[ -f "${f}" ]] && ITEMS+=("${f}")
 done
 

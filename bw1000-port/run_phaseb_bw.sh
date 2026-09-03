@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
-# Phase B runner — bw1000 8-GPU port (2026-09-02).
+# Phase B runner — bw1000 8-GPU port (2026-09-02; 2026-09-03 增补 wm/extrap 两预设).
 # 用法:
 #   bash run_phaseb_bw.sh smoke              # 冒烟 (~10-15 分钟)
 #   bash run_phaseb_bw.sh formal             # 正式批 np=4 (对照批, 与 K500 4卡同口径)
 #   NP=8 bash run_phaseb_bw.sh formal        # 正式批 np=8 (规模批)
 #   PHASEB_PATHS="comm gemm r0 rs r1" bash run_phaseb_bw.sh formal   # 无 DUSHMEM 时的 r 族子集
+#   NP=8 bash run_phaseb_bw.sh wm            # d2 阈值批 (P15 同构: 4格×{d0,d1@wm1/2/4}, ~60 case)
+#   NP=8 bash run_phaseb_bw.sh extrap        # 边界外推批 (P16 同构: 3格×{d0,d1}, ~30 case)
 # 结果根: <脚本目录>/results/bw1000_8gpu/phaseb_<mode>_np<NP>_<时间戳>/  (绝不覆盖旧数据)
 # 纪律: 运行期间不要 make、不要跑其他 GPU 任务; 失败 case 原样保留。
 set -euo pipefail
@@ -64,6 +66,12 @@ M_LOCAL=2048
 K=2048
 if [[ "${MODE}" == "smoke" ]]; then
   NS=(2048); QS=(8); REPS=1; WARMUP=10; ITERS=40; CASE_TIMEOUT=300
+elif [[ "${MODE}" == "wm" ]]; then
+  # d2 阈值批 (P15 同构): 专用格×cfg 循环, 不走通用 NS×QS
+  NS=(); QS=(); REPS="${PHASEB_REPS:-3}"; WARMUP=20; ITERS=80; CASE_TIMEOUT=900
+elif [[ "${MODE}" == "extrap" ]]; then
+  # 边界外推批 (P16 同构): N8192 大格, 超时放宽
+  NS=(); QS=(); REPS="${PHASEB_REPS:-5}"; WARMUP=20; ITERS=80; CASE_TIMEOUT=1200
 else
   NS=(512 2048 4096); QS=(2 4 8); REPS=5; WARMUP=20; ITERS=80; CASE_TIMEOUT=900
 fi
@@ -81,13 +89,15 @@ candidate_env() {
   esac
 }
 run_case() {
-  local path="$1" n="$2" q="$3" rep="$4" cand="${5:-C0_DEFAULT}"
+  local path="$1" n="$2" q="$3" rep="$4" cand="${5:-C0_DEFAULT}" wm="${6:-1}"
   CASE_SEQ=$((CASE_SEQ + 1))
+  local label="${path}"
+  [[ "${wm}" != "1" ]] && label="${path}wm${wm}"
   local case_id
-  case_id="$(printf 'case%03d_%s_%s_N%s_q%s_rep%d' "${CASE_SEQ}" "${path}" "${cand}" "${n}" "${q}" "${rep}")"
+  case_id="$(printf 'case%03d_%s_%s_N%s_q%s_rep%d' "${CASE_SEQ}" "${label}" "${cand}" "${n}" "${q}" "${rep}")"
   local case_dir="${RESULT_ROOT}/cases/${case_id}"
   mkdir -p "${case_dir}"
-  local run_id="PHASEB_BW_${path}_${cand}_N${n}_q${q}_rep${rep}"
+  local run_id="PHASEB_BW_${label}_${cand}_N${n}_q${q}_rep${rep}"
   local launcher
   launcher="$(candidate_env "${cand}")"
   {
@@ -96,7 +106,7 @@ run_case() {
     echo "HIP_VISIBLE_DEVICES=${VIS} ${launcher} \\"
     echo "mpirun --allow-run-as-root -np ${NP} -mca coll ^hcoll ./ag_gemm_phaseb \\"
     echo "  --path ${path} --m-local ${M_LOCAL} --n ${n} --k ${K} --q ${q} \\"
-    echo "  --warmup ${WARMUP} --iters ${ITERS} --verify-every 1 \\"
+    echo "  --warmup ${WARMUP} --iters ${ITERS} --verify-every 1 --window-mult ${wm} \\"
     echo "  --output-dir ${case_dir} --run-id ${run_id} --candidate ${cand}"
   } > "${case_dir}/command.txt"
 
@@ -105,7 +115,7 @@ run_case() {
     timeout "${CASE_TIMEOUT}" \
     mpirun --allow-run-as-root -np "${NP}" -mca coll ^hcoll "${BINARY}" \
     --path "${path}" --m-local "${M_LOCAL}" --n "${n}" --k "${K}" --q "${q}" \
-    --warmup "${WARMUP}" --iters "${ITERS}" --verify-every 1 \
+    --warmup "${WARMUP}" --iters "${ITERS}" --verify-every 1 --window-mult "${wm}" \
     --output-dir "${case_dir}" --run-id "${run_id}" --candidate "${cand}" \
     < /dev/null > "${case_dir}/stdout_stderr.log" 2>&1 || status=$?
   echo "${status}" > "${case_dir}/exit_status.txt"
@@ -117,15 +127,40 @@ run_case() {
   fi
 }
 
-for n in "${NS[@]}"; do
-  for q in "${QS[@]}"; do
-    for path in "${PATHS[@]}"; do
-      for ((rep = 1; rep <= REPS; rep++)); do
+if [[ "${MODE}" == "wm" ]]; then
+  # d2 阈值批 (P15 同构, 预注册 phaseb/P15_预注册): rep 外层交错配对
+  WM_CELLS=("2048 8" "512 8" "2048 16" "4096 8")
+  for ((rep = 1; rep <= REPS; rep++)); do
+    for cell in "${WM_CELLS[@]}"; do
+      read -r n q <<< "${cell}"
+      run_case d0 "${n}" "${q}" "${rep}"
+      for wm in 1 2 4; do
+        run_case d1 "${n}" "${q}" "${rep}" C0_DEFAULT "${wm}"
+      done
+    done
+  done
+elif [[ "${MODE}" == "extrap" ]]; then
+  # 边界外推批 (P16 同构): 格序=风险序, q32 首格天然冒烟
+  EX_CELLS=("4096 32" "8192 8" "8192 16")
+  for ((rep = 1; rep <= REPS; rep++)); do
+    for cell in "${EX_CELLS[@]}"; do
+      read -r n q <<< "${cell}"
+      for path in d0 d1; do
         run_case "${path}" "${n}" "${q}" "${rep}"
       done
     done
   done
-done
+else
+  for n in "${NS[@]}"; do
+    for q in "${QS[@]}"; do
+      for path in "${PATHS[@]}"; do
+        for ((rep = 1; rep <= REPS; rep++)); do
+          run_case "${path}" "${n}" "${q}" "${rep}"
+        done
+      done
+    done
+  done
+fi
 
 if [[ "${MODE}" == "formal" ]]; then
   # 配置轴对照: comm/r1 × C2 (主矩阵同格)
@@ -171,3 +206,12 @@ echo "result_root=${RESULT_ROOT}"
 
 python3 "${SCRIPT_DIR}/analyze_phaseb.py" --result-root "${RESULT_ROOT}" || \
   echo "analyzer failed; raw data intact under ${RESULT_ROOT}/cases"
+
+if [[ "${MODE}" == "wm" ]]; then
+  # Part A 判定 (D1 方向/落带); 无旧根 ref, Part B r1 族自动空转 — 原始数据完整
+  python3 "${SCRIPT_DIR}/analyze_p15.py" --result-root "${RESULT_ROOT}" || \
+    echo "analyze_p15 failed; raw data intact under ${RESULT_ROOT}/cases"
+elif [[ "${MODE}" == "extrap" ]]; then
+  python3 "${SCRIPT_DIR}/analyze_p16.py" --result-root "${RESULT_ROOT}" || \
+    echo "analyze_p16 failed; raw data intact under ${RESULT_ROOT}/cases"
+fi

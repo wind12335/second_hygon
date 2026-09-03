@@ -21,6 +21,8 @@ run "GPU 数量与序号" "rocm-smi --showid 2>&1 || hy-smi --showid 2>&1 || tru
 
 run "GPU 拓扑 (P2P/PCIe)" "rocm-smi --showtopo 2>&1 | head -20 || true; rocm-smi --showtopoweight 2>&1 | head -12 || true"
 
+run "时钟频率抽样 (3次×3秒, 看锁定与漂移——A800 教训: 容器锁频可能被驱动拒, 只记录不假设)" "for i in 1 2 3; do date +%T; (rocm-smi --showclockfreq 2>/dev/null || rocm-smi --showmclk --showsclock 2>/dev/null || hy-smi showclock 2>/dev/null) | head -12; sleep 3; done || true"
+
 run "GPU 架构名 (rocminfo: 请从输出里抄 gfx 名字)" "rocminfo 2>/dev/null | grep -E 'Marketing|gfx' | head -10 || true"
 
 run "hipcc / hipconfig" "which hipcc; hipcc --version 2>&1 | head -6; hipconfig --full 2>&1 | head -30"
