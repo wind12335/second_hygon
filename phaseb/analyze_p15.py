@@ -96,9 +96,14 @@ def main():
 
     ok_cases = [c for c in cases if c["exit_code"] in (None, "0") and c["status"] == "PASS"]
 
+    # manifest 的 path 是全名（D1_PUSHSIG_OVERLAP 等），Part A/B 查找用短名——在键上归一化
+    SHORT = {"D0_FCOLLECT_SERIAL": "d0", "D1_PUSHSIG_OVERLAP": "d1",
+             "R1_EVENT_OVERLAP": "r1"}
+
     def key_of(case):
         m = case["manifest"]
-        return (int(m["N"]), int(m["q"]), m["path"], int(m["window_mult"]))
+        return (int(m["N"]), int(m["q"]), SHORT.get(m["path"], m["path"]),
+                int(m["window_mult"]))
 
     groups = {}
     for case in ok_cases:
