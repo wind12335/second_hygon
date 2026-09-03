@@ -85,7 +85,11 @@ def main():
         if case["exit_code"] not in (None, "0") or case["status"] != "PASS":
             continue
         m = case["manifest"]
-        groups.setdefault((int(m["N"]), int(m["q"]), m["path"]), []).append(case["p50"])
+        # manifest path 是全名（D0_FCOLLECT_SERIAL 等），查找用短名——键上归一化（同 analyze_p15 修复）
+        SHORT = {"D0_FCOLLECT_SERIAL": "d0", "D1_PUSHSIG_OVERLAP": "d1",
+                 "R1_EVENT_OVERLAP": "r1"}
+        groups.setdefault((int(m["N"]), int(m["q"]), SHORT.get(m["path"], m["path"])),
+                          []).append(case["p50"])
 
     out_rows, verdicts = [], []
     residuals_n8192 = []
