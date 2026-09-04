@@ -1,0 +1,10 @@
+mode=formal np=8
+paths=comm gemm r0 rs r1 fc dc d0 ds d1 d1w
+result_root=/root/private_data/lyc/bw1000-port/results/bw1000_8gpu/phaseb_formal_np8_20260904_093927
+started_utc=2026-09-04T01:39:27Z
+host=crdnotebook-2094685607216021505-liqsh2-80398
+binary=/root/private_data/lyc/bw1000-port/ag_gemm_phaseb
+binary_sha256=86a5fb494848a838212bdb9fac84d7936fcbf8a55bcaff3ec8fa190f7f0d1f1a
+finished_utc=2026-09-04T05:41:57Z
+total_cases=645
+failed_cases=0

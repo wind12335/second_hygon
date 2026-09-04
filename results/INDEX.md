@@ -46,3 +46,10 @@
 
 ## 2026-09-03 晚（P16 终判，根 phaseb_p16_extrap_20260903_171133，30/30 PASS）
 - `p16_extrap_verdict_20260903.csv` — 边界律包络外三格（终判 `phaseb/P16_终判_20260903.md`）：**符号外推 3/3 全对**（E1 N8192/q8 −12.2pt d1 赢 / E2 N8192/q16 +4.6pt d0 微赢 HIT 带内 / E3 N4096/q32 +122.4pt q 爆炸延续）；E1/E4 幅度 MISS（残差 51.7pt）→ **cols 项凸饱和**（与 A800 q8 斜率凸收敛两侧同构）；E2 双基座同格对表定版：K500 +4.6（贴界 N*(q16)=7700）vs A800 +16.5（深 d0 区 N*=26221）
+
+## 2026-09-04（BW1000 第三基座全批回传，五根 1379 case 全 PASS，同二进制 86a5fb49）
+- `bw1000_8gpu_gfx936/` — 第三基座 bw1000（8× Hygon BW/gfx936, DTK 26.04, DUSHMEM 3.2.5, 驱动不吐时钟→只批内配对）五根 summary+元数据+环境报告+运行日志；原始 87M 包留盘 `bw1000_results_20260904_152845.tar.gz`（sha256 64561d8e…）
+- `bw1000_p15_wm_curve_20260904.csv` — P15 wm 8 卡版：wm4/wm1 幅度 4/4 |Δ|≤3.6pt（主格 −3.607 与 K500 −2.746 同落部分载体带）、判决 3/4（boom +2.9 MISS 唯一分歧）；格序完全守恒 boom>sub>main>win 而税级 ×2.6 —— "深度是阈值变量"跨基座跨 rank 数复现
+- `bw1000_p16_extrap_verdict_20260904.csv` — P16 8 卡版：E3 +255.2 HIT（×2）/ E1 +1.2 MISS 打平 / E2 +26.2 MISS 同号带外 / E4 65.1 —— **d 族边界 N* 随 rank 数右移**，闭式缺 N/np 项；formal 佐证：(4096,q8) d1/d0 np4 −14.2%→np8 +16.1% 翻转
+- `bw1000_selector_table_20260904.csv` — selector K500 同口径双 np 表：**bw1000 无好零知识默认**（最好 always-r0 p95 9.24~22.31%）、always-r1 60~80%（K500 的 9/9 短路不外推）；**probe-1iter 双 np 9/9 regret 0.00%** —— 三基座三默认（A800 d0/K500 r1/bw1000 无）+ 探针三基座通用，selector 节主证据
+- 终判：`phaseb/BW1000_终判_20260904.md`（含 formal 双批结构发现：r1 不统治、np 缩放不对称 d1∝q(np−1) vs d0∝np、isolated COMM_ONLY gap 70-90% vs e2e 2-38%、C0/C2 config 反转 4 格、事故记录与回执逐条对账）

@@ -1,0 +1,55 @@
+[ ok ] case001_d0_C0_DEFAULT_N2048_q8_rep1
+[ ok ] case002_d1_C0_DEFAULT_N2048_q8_rep1
+[ ok ] case003_d1wm2_C0_DEFAULT_N2048_q8_rep1
+[ ok ] case004_d1wm4_C0_DEFAULT_N2048_q8_rep1
+[ ok ] case005_d0_C0_DEFAULT_N512_q8_rep1
+[ ok ] case006_d1_C0_DEFAULT_N512_q8_rep1
+[ ok ] case007_d1wm2_C0_DEFAULT_N512_q8_rep1
+[ ok ] case008_d1wm4_C0_DEFAULT_N512_q8_rep1
+[ ok ] case009_d0_C0_DEFAULT_N2048_q16_rep1
+[ ok ] case010_d1_C0_DEFAULT_N2048_q16_rep1
+[ ok ] case011_d1wm2_C0_DEFAULT_N2048_q16_rep1
+[ ok ] case012_d1wm4_C0_DEFAULT_N2048_q16_rep1
+[ ok ] case013_d0_C0_DEFAULT_N4096_q8_rep1
+[ ok ] case014_d1_C0_DEFAULT_N4096_q8_rep1
+[ ok ] case015_d1wm2_C0_DEFAULT_N4096_q8_rep1
+[ ok ] case016_d1wm4_C0_DEFAULT_N4096_q8_rep1
+[ ok ] case017_d0_C0_DEFAULT_N2048_q8_rep2
+[ ok ] case018_d1_C0_DEFAULT_N2048_q8_rep2
+[ ok ] case019_d1wm2_C0_DEFAULT_N2048_q8_rep2
+[ ok ] case020_d1wm4_C0_DEFAULT_N2048_q8_rep2
+[ ok ] case021_d0_C0_DEFAULT_N512_q8_rep2
+[ ok ] case022_d1_C0_DEFAULT_N512_q8_rep2
+[ ok ] case023_d1wm2_C0_DEFAULT_N512_q8_rep2
+[ ok ] case024_d1wm4_C0_DEFAULT_N512_q8_rep2
+[ ok ] case025_d0_C0_DEFAULT_N2048_q16_rep2
+[ ok ] case026_d1_C0_DEFAULT_N2048_q16_rep2
+[ ok ] case027_d1wm2_C0_DEFAULT_N2048_q16_rep2
+[ ok ] case028_d1wm4_C0_DEFAULT_N2048_q16_rep2
+[ ok ] case029_d0_C0_DEFAULT_N4096_q8_rep2
+[ ok ] case030_d1_C0_DEFAULT_N4096_q8_rep2
+[ ok ] case031_d1wm2_C0_DEFAULT_N4096_q8_rep2
+[ ok ] case032_d1wm4_C0_DEFAULT_N4096_q8_rep2
+[ ok ] case033_d0_C0_DEFAULT_N2048_q8_rep3
+[ ok ] case034_d1_C0_DEFAULT_N2048_q8_rep3
+[ ok ] case035_d1wm2_C0_DEFAULT_N2048_q8_rep3
+[ ok ] case036_d1wm4_C0_DEFAULT_N2048_q8_rep3
+[ ok ] case037_d0_C0_DEFAULT_N512_q8_rep3
+[ ok ] case038_d1_C0_DEFAULT_N512_q8_rep3
+[ ok ] case039_d1wm2_C0_DEFAULT_N512_q8_rep3
+[ ok ] case040_d1wm4_C0_DEFAULT_N512_q8_rep3
+[ ok ] case041_d0_C0_DEFAULT_N2048_q16_rep3
+[ ok ] case042_d1_C0_DEFAULT_N2048_q16_rep3
+[ ok ] case043_d1wm2_C0_DEFAULT_N2048_q16_rep3
+[ ok ] case044_d1wm4_C0_DEFAULT_N2048_q16_rep3
+[ ok ] case045_d0_C0_DEFAULT_N4096_q8_rep3
+[ ok ] case046_d1_C0_DEFAULT_N4096_q8_rep3
+[ ok ] case047_d1wm2_C0_DEFAULT_N4096_q8_rep3
+[ ok ] case048_d1wm4_C0_DEFAULT_N4096_q8_rep3
+== phaseb(bw1000) wm np=8 complete: 48 cases, 0 failed ==
+result_root=/root/private_data/lyc/bw1000-port/results/bw1000_8gpu/phaseb_wm_np8_20260904_145332
+analysis written to /root/private_data/lyc/bw1000-port/results/bw1000_8gpu/phaseb_wm_np8_20260904_145332/summary
+cases: 48 pass: 48 boundary cells: 0 reversals: 0
+D1 主格(N2048/q8) wm4/wm1 = -3.607% → 部分载体
+R1 漂移<2%红线: 全部通过; 符号翻转数=0
+summary -> /root/private_data/lyc/bw1000-port/results/bw1000_8gpu/phaseb_wm_np8_20260904_145332/summary

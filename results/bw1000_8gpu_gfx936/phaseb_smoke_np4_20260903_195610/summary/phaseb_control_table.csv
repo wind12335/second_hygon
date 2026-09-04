@@ -1,0 +1,2 @@
+candidate,N,q,r1_vs_rs_gain_pct,r1_vs_r0_gain_pct,r0_vs_rs_gain_pct,d1_vs_ds_gain_pct,d1_vs_d0_gain_pct,d0_vs_ds_gain_pct,r1_vs_d1_gain_pct,d1_vs_dc_done_stretch_pct,gemm_only_vs_r0_gemm_pct
+C0_DEFAULT,2048,8,8.937,-81.482,49.823,6.899,-124.010,58.439,67.275,459.033,

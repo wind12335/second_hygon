@@ -1,0 +1,4 @@
+E3 N4096/q32: P_meas=255.221pt (fit +191.7, residual 63.521) → HIT(q爆炸延续到q32)
+E1 N8192/q8: P_meas=1.191pt (fit -63.9, residual 65.091) → MISS
+E2 N8192/q16: P_meas=26.168pt (fit -6.5, residual 32.668) → MISS(闭式该区失效)
+E4 N8192 两格 |residual|max=65.1pt → >30pt 系统性偏离,模型需N交互项(符号律不推翻)

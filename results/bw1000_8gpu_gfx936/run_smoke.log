@@ -1,0 +1,15 @@
+[ ok ] case001_comm_C0_DEFAULT_N2048_q8_rep1
+[ ok ] case002_gemm_C0_DEFAULT_N2048_q8_rep1
+[ ok ] case003_r0_C0_DEFAULT_N2048_q8_rep1
+[ ok ] case004_rs_C0_DEFAULT_N2048_q8_rep1
+[ ok ] case005_r1_C0_DEFAULT_N2048_q8_rep1
+[ ok ] case006_fc_C0_DEFAULT_N2048_q8_rep1
+[ ok ] case007_dc_C0_DEFAULT_N2048_q8_rep1
+[ ok ] case008_d0_C0_DEFAULT_N2048_q8_rep1
+[ ok ] case009_ds_C0_DEFAULT_N2048_q8_rep1
+[ ok ] case010_d1_C0_DEFAULT_N2048_q8_rep1
+[ ok ] case011_d1w_C0_DEFAULT_N2048_q8_rep1
+== phaseb(bw1000) smoke np=4 complete: 11 cases, 0 failed ==
+result_root=/root/private_data/lyc/bw1000-port/results/bw1000_8gpu/phaseb_smoke_np4_20260903_195610
+analysis written to /root/private_data/lyc/bw1000-port/results/bw1000_8gpu/phaseb_smoke_np4_20260903_195610/summary
+cases: 11 pass: 11 boundary cells: 1 reversals: 0

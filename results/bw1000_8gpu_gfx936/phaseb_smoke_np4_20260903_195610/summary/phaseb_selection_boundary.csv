@@ -1,0 +1,2 @@
+candidate,N,q,isolated_winner_path,isolated_runner_up,isolated_gap_pct,e2e_winner_path,e2e_runner_up,e2e_gap_pct,isolated_winner_family,e2e_winner_family,isolated_best_us,e2e_best_us,reversal_flag,notes
+C0_DEFAULT,2048,8,COMM_ONLY,DC_PUSHSIG_ONLY,56.195,R0_FULL_SERIAL,R1_EVENT_OVERLAP,44.898,RCCL,RCCL,825.040,1899.999,CONSISTENT,

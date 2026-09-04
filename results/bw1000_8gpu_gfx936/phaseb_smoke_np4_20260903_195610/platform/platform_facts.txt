@@ -1,0 +1,110 @@
+=== rocm-smi/hy-smi ===
+
+================================= System Management Interface ==================================
+================================================================================================
+HCU[0]		: Device ID: 0x6320
+HCU[1]		: Device ID: 0x6320
+HCU[2]		: Device ID: 0x6320
+HCU[3]		: Device ID: 0x6320
+HCU[4]		: Device ID: 0x6320
+HCU[5]		: Device ID: 0x6320
+HCU[6]		: Device ID: 0x6320
+HCU[7]		: Device ID: 0x6320
+================================================================================================
+================================================================================================
+HCU[0]		: Card Series:		 BW
+HCU[0]		: Card Vendor:		 C-3000 IC Design Co., Ltd.
+HCU[1]		: Card Series:		 BW
+HCU[1]		: Card Vendor:		 C-3000 IC Design Co., Ltd.
+HCU[2]		: Card Series:		 BW
+HCU[2]		: Card Vendor:		 C-3000 IC Design Co., Ltd.
+HCU[3]		: Card Series:		 BW
+HCU[3]		: Card Vendor:		 C-3000 IC Design Co., Ltd.
+HCU[4]		: Card Series:		 BW
+HCU[4]		: Card Vendor:		 C-3000 IC Design Co., Ltd.
+HCU[5]		: Card Series:		 BW
+HCU[5]		: Card Vendor:		 C-3000 IC Design Co., Ltd.
+HCU[6]		: Card Series:		 BW
+HCU[6]		: Card Vendor:		 C-3000 IC Design Co., Ltd.
+HCU[7]		: Card Series:		 BW
+HCU[7]		: Card Vendor:		 C-3000 IC Design Co., Ltd.
+================================================================================================
+======================================== End of SMI Log ========================================
+
+=== hipconfig ===
+HIP version  : 6.3.26113
+
+== hipconfig
+HIP_PATH     : /opt/dtk/hip
+ROCM_PATH    : /opt/dtk
+HIP_COMPILER : clang
+HIP_PLATFORM : amd
+HIP_RUNTIME  : rocclr
+CPP_CONFIG   :  -D__HIP_PLATFORM_HCC__= -D__HIP_PLATFORM_AMD__= -I"/opt/dtk/hip/include" -I"/opt/dtk/llvm/bin/../lib/clang/17.0.0" -I/opt/dtk/hsa/include
+
+== hip-clang
+HSA_PATH         : /opt/dtk/hsa
+HIP_CLANG_PATH   : /opt/dtk/llvm/bin
+clang version 17.0.0 (http://10.4.0.1/dcutoolkit/driverruntime/llvm-project.git ff5bf917a679c83afe927af051a20b86fef7b07d)
+Target: x86_64-unknown-linux-gnu
+Thread model: posix
+InstalledDir: /opt/dtk/llvm/bin
+AOMP-16.0-45 (http://github.com/ROCm-Developer-Tools/aomp):
+ Source ID:16.0-45-6b875fb548b9ded0f07df02bc2af6e12568504a9
+  LLVM version 17.0.0git
+  Optimized build.
+  Default target: x86_64-unknown-linux-gnu
+  Host CPU: (unknown)
+
+  Registered Targets:
+    amdgcn - AMD GCN GPUs
+    x86    - 32-bit X86: Pentium-Pro and above
+    x86-64 - 64-bit X86: EM64T and AMD64
+hip-clang-cxxflags :  -std=c++11 -isystem /opt/dtk-26.04/llvm/lib/clang/17.0.0/include/.. -isystem /opt/dtk-26.04/llvm/lib/clang/17.0.0/include/cuda_wrappers -isystem /opt/dtk-26.04/hsa/include -isystem /opt/dtk-26.04/hip/include -O3
+
+hip-clang-ldflags  : --driver-mode=g++ -fuse-ld=lld -L/opt/dtk-26.04/hip/lib -L/opt/dtk-26.04/lib -O3 -lpthread -lm -lrt
+
+
+=== Environment Variables
+PATH=/opt/dtk/bin:/opt/mpi/bin:/usr/local/bin:/opt/mpi/bin:/opt/hwloc/bin/:/usr/local/bin:/opt/ucx/bin:/opt/dtk/bin:/opt/dtk/llvm/bin:/opt/dtk/hip/bin:/opt/dtk/hip/bin/hipify:/opt/hyhal/bin:/opt/dtk/opencl/bin:/opt/mpi/bin:/opt/hwloc/bin/:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/conda/bin:/opt/conda/bin
+HIP_PATH=/opt/dtk/hip
+HIP_VISIBLE_DEVICES=0,1,2,3
+LD_LIBRARY_PATH=/usr/local/lib/:/usr/local/lib64/:/opt/mpi/lib:/opt/hwloc/lib:/usr/local/lib/:/usr/local/lib64/:/opt/mpi/lib:/opt/hwloc/lib:/opt/dtk/dcc/gcvm/lib:/opt/dtk/hip/lib:/opt/dtk/llvm/lib:/opt/dtk/lib:/opt/dtk/lib64:/opt/hyhal/lib:/opt/hyhal/lib64:/opt/dtk/dushmem/lib:/opt/dtk/opencl/lib:/opt/dtk/.hyhal/rocm_smi/lib:/opt/dtk-26.04/dcc/gcvm/lib:/opt/dtk-26.04/hip/lib:/opt/dtk-26.04/llvm/lib:/opt/dtk-26.04/lib:/opt/dtk-26.04/lib64:/opt/hyhal/lib:/opt/hyhal/lib64:/opt/dtk-26.04/dushmem/lib:/opt/dtk-26.04/opencl/lib:/opt/dtk-26.04/.hyhal/rocm_smi/lib:/opt/ucx/lib:/opt/dtk/dcc/gcvm/lib:/opt/dtk/hip/lib:/opt/dtk/llvm/lib:/opt/dtk/lib:/opt/dtk/lib64:/opt/hyhal/lib:/opt/hyhal/lib64:/opt/dtk/dushmem/lib:/opt/dtk/opencl/lib:/opt/mpi/lib:/opt/hwloc/lib:/usr/local/lib/:/usr/local/lib64/:
+CUDA_HOME=/usr/local/cuda
+
+=== binary ldd ===
+	linux-vdso.so.1 (0x00007ffd487de000)
+	libm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x00007f354389e000)
+	libdushmem_host.so.3 => /opt/dtk/dushmem/lib/libdushmem_host.so.3 (0x00007f3539597000)
+	librccl.so.1 => /opt/dtk/lib/librccl.so.1 (0x00007f352ef7a000)
+	librocblas.so.4 => /opt/dtk/lib/librocblas.so.4 (0x00007f35063d0000)
+	libgalaxyhip.so.5 => /opt/dtk/hip/lib/libgalaxyhip.so.5 (0x00007f35057fa000)
+	libmpi.so.40 => /opt/mpi/lib/libmpi.so.40 (0x00007f350544d000)
+	libstdc++.so.6 => /lib/x86_64-linux-gnu/libstdc++.so.6 (0x00007f35051cf000)
+	libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007f35051af000)
+	libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f3504f9d000)
+	/lib64/ld-linux-x86-64.so.2 (0x00007f3543997000)
+	libpthread.so.0 => /lib/x86_64-linux-gnu/libpthread.so.0 (0x00007f3504f96000)
+	librt.so.1 => /lib/x86_64-linux-gnu/librt.so.1 (0x00007f3504f91000)
+	libdl.so.2 => /lib/x86_64-linux-gnu/libdl.so.2 (0x00007f3504f8c000)
+	librocm_smi64.so.2 => /opt/hyhal/lib/librocm_smi64.so.2 (0x00007f3504c00000)
+	libnuma.so.1 => /lib/x86_64-linux-gnu/libnuma.so.1 (0x00007f3504f7f000)
+	libhcoll.so.1 => /opt/mellanox/hcoll/lib/libhcoll.so.1 (0x00007f3504ac5000)
+	libopen-pal.so.80 => /opt/mpi/lib/libopen-pal.so.80 (0x00007f35049b0000)
+	libucp.so.0 => /opt/ucx/lib/libucp.so.0 (0x00007f3504844000)
+	libucs.so.0 => /opt/ucx/lib/libucs.so.0 (0x00007f35047d1000)
+	libpmix.so.2 => /opt/mpi/lib/libpmix.so.2 (0x00007f3504599000)
+	libevent_core-2.1.so.7 => /opt/mpi/lib/libevent_core-2.1.so.7 (0x00007f3504f44000)
+	libevent_pthreads-2.1.so.7 => /opt/mpi/lib/libevent_pthreads-2.1.so.7 (0x00007f3504f3d000)
+	libhwloc.so.15 => /opt/hwloc/lib/libhwloc.so.15 (0x00007f3504535000)
+	libocoms.so.0 => /opt/mellanox/hcoll/lib/libocoms.so.0 (0x00007f35044e7000)
+	libibverbs.so.1 => /lib/x86_64-linux-gnu/libibverbs.so.1 (0x00007f35044c3000)
+	libuct.so.0 => /opt/ucx/lib/libuct.so.0 (0x00007f3504475000)
+	libucm.so.0 => /opt/ucx/lib/libucm.so.0 (0x00007f3504456000)
+	libudev.so.1 => /lib/x86_64-linux-gnu/libudev.so.1 (0x00007f3504423000)
+	libpciaccess.so.0 => /lib/x86_64-linux-gnu/libpciaccess.so.0 (0x00007f3504f30000)
+	libOpenCL.so.1 => /opt/dtk/opencl/lib/libOpenCL.so.1 (0x00007f3504419000)
+	libnl-route-3.so.200 => /lib/x86_64-linux-gnu/libnl-route-3.so.200 (0x00007f3504396000)
+	libnl-3.so.200 => /lib/x86_64-linux-gnu/libnl-3.so.200 (0x00007f3504373000)
+	libcap.so.2 => /lib/x86_64-linux-gnu/libcap.so.2 (0x00007f3504368000)
+	libz.so.1 => /lib/x86_64-linux-gnu/libz.so.1 (0x00007f350434c000)
