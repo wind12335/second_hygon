@@ -11,3 +11,7 @@ results/**/cases/
 *.tar.gz
 *.sha256
 nohup.out
+# 本地工作产物/控制台粘贴（正式数据以 results/ 为准,phase4 目录下为启动器落盘副本）
+.ipynb_checkpoints/
+phase4-arrival-heterogeneity/phase4_arrival_*
+worker0*的执行结果.md

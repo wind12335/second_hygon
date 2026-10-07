@@ -1,0 +1,232 @@
+{
+  "timestamp": "2026-10-08 02:10:09",
+  "hostname": "vcjob-2107896150879928322-abc12335-42846-worker-0",
+  "script": "measure_arrival_v2.py",
+  "topology": {
+    "nodes": 2,
+    "gpus_per_node": 8,
+    "world_size": 16,
+    "note": "Please fill in interconnect type and bandwidth"
+  },
+  "config": {
+    "chunk_mb": 8.0,
+    "iterations": 5,
+    "gemm_shape": [
+      8192,
+      4096,
+      8192
+    ]
+  },
+  "measurement": {
+    "method": "poll",
+    "method_note": "identical to v1 polling",
+    "poll_granularity_ms": 0.1,
+    "degraded_rounds": 0,
+    "poll_timeout_s": 20.0
+  },
+  "platform": {
+    "torch": "2.7.1",
+    "hip": "6.3.26093",
+    "gpu_name": "BW",
+    "gpus_per_node_visible": 8,
+    "nodes_actual": [
+      "vcjob-2107896150879928322-abc12335-42846-worker-0",
+      "vcjob-2107896150879928322-abc12335-42846-worker-1"
+    ],
+    "hostname_rank0": "vcjob-2107896150879928322-abc12335-42846-worker-0"
+  },
+  "gemm": {
+    "shape": [
+      8192,
+      4096,
+      8192
+    ],
+    "median_ms": 1.9976739883422852,
+    "all_ranks_ms": [
+      1.9976739883422852,
+      1.9429539442062378,
+      1.9406490325927734,
+      1.9437041282653809,
+      1.9451639652252197,
+      1.9447588920593262,
+      1.9454983472824097,
+      1.9431939125061035,
+      1.9393129348754883,
+      1.9460124969482422,
+      1.9477131366729736,
+      1.9448031187057495,
+      1.9466480016708374,
+      1.946317434310913,
+      1.9450576305389404,
+      1.9437230825424194
+    ]
+  },
+  "arrival_times": {
+    "rank_1": {
+      "node": 0,
+      "label": "SAME-NODE",
+      "median_ms": 1.81,
+      "std_ms": 0.803,
+      "min_ms": 1.781,
+      "max_ms": 3.64,
+      "mean_arrival_position": 1,
+      "n": 5
+    },
+    "rank_2": {
+      "node": 0,
+      "label": "SAME-NODE",
+      "median_ms": 1.814,
+      "std_ms": 0.819,
+      "min_ms": 1.785,
+      "max_ms": 3.678,
+      "mean_arrival_position": 2,
+      "n": 5
+    },
+    "rank_3": {
+      "node": 0,
+      "label": "SAME-NODE",
+      "median_ms": 1.816,
+      "std_ms": 0.819,
+      "min_ms": 1.787,
+      "max_ms": 3.681,
+      "mean_arrival_position": 3,
+      "n": 5
+    },
+    "rank_4": {
+      "node": 0,
+      "label": "SAME-NODE",
+      "median_ms": 1.818,
+      "std_ms": 0.82,
+      "min_ms": 1.788,
+      "max_ms": 3.684,
+      "mean_arrival_position": 4,
+      "n": 5
+    },
+    "rank_5": {
+      "node": 0,
+      "label": "SAME-NODE",
+      "median_ms": 1.82,
+      "std_ms": 0.82,
+      "min_ms": 1.79,
+      "max_ms": 3.687,
+      "mean_arrival_position": 5,
+      "n": 5
+    },
+    "rank_6": {
+      "node": 0,
+      "label": "SAME-NODE",
+      "median_ms": 1.823,
+      "std_ms": 0.822,
+      "min_ms": 1.792,
+      "max_ms": 3.695,
+      "mean_arrival_position": 6,
+      "n": 5
+    },
+    "rank_7": {
+      "node": 0,
+      "label": "SAME-NODE",
+      "median_ms": 1.825,
+      "std_ms": 0.829,
+      "min_ms": 1.794,
+      "max_ms": 3.712,
+      "mean_arrival_position": 7,
+      "n": 5
+    },
+    "rank_8": {
+      "node": 1,
+      "label": "CROSS-NODE",
+      "median_ms": 278.685,
+      "std_ms": 20.225,
+      "min_ms": 239.118,
+      "max_ms": 289.158,
+      "mean_arrival_position": 13,
+      "n": 5
+    },
+    "rank_9": {
+      "node": 1,
+      "label": "CROSS-NODE",
+      "median_ms": 276.111,
+      "std_ms": 19.551,
+      "min_ms": 239.445,
+      "max_ms": 287.528,
+      "mean_arrival_position": 10.8,
+      "n": 5
+    },
+    "rank_10": {
+      "node": 1,
+      "label": "CROSS-NODE",
+      "median_ms": 278.687,
+      "std_ms": 20.079,
+      "min_ms": 239.284,
+      "max_ms": 288.833,
+      "mean_arrival_position": 12.8,
+      "n": 5
+    },
+    "rank_11": {
+      "node": 1,
+      "label": "CROSS-NODE",
+      "median_ms": 277.41,
+      "std_ms": 19.955,
+      "min_ms": 239.287,
+      "max_ms": 288.671,
+      "mean_arrival_position": 12.8,
+      "n": 5
+    },
+    "rank_12": {
+      "node": 1,
+      "label": "CROSS-NODE",
+      "median_ms": 278.524,
+      "std_ms": 20.377,
+      "min_ms": 238.795,
+      "max_ms": 289.16,
+      "mean_arrival_position": 13.4,
+      "n": 5
+    },
+    "rank_13": {
+      "node": 1,
+      "label": "CROSS-NODE",
+      "median_ms": 276.927,
+      "std_ms": 20.416,
+      "min_ms": 238.141,
+      "max_ms": 289.162,
+      "mean_arrival_position": 10.6,
+      "n": 5
+    },
+    "rank_14": {
+      "node": 1,
+      "label": "CROSS-NODE",
+      "median_ms": 275.136,
+      "std_ms": 19.443,
+      "min_ms": 238.797,
+      "max_ms": 287.204,
+      "mean_arrival_position": 8.8,
+      "n": 5
+    },
+    "rank_15": {
+      "node": 1,
+      "label": "CROSS-NODE",
+      "median_ms": 275.811,
+      "std_ms": 20.217,
+      "min_ms": 236.331,
+      "max_ms": 287.868,
+      "mean_arrival_position": 9.8,
+      "n": 5
+    }
+  },
+  "summary": {
+    "same_node_median_ms": 1.818,
+    "cross_node_median_ms": 277.168,
+    "spread_ms": 275.351,
+    "heterogeneity_ratio": 152.5,
+    "spread_vs_gemm_pct": 13783.6,
+    "conclusion": "SCHEDULING_VALUABLE"
+  },
+  "heterogeneity_summary": {
+    "same_node_median_ms": 1.818,
+    "cross_node_median_ms": 277.168,
+    "spread_ms": 275.351,
+    "heterogeneity_ratio": 152.5,
+    "spread_vs_gemm_pct": 13783.6,
+    "conclusion": "SCHEDULING_VALUABLE"
+  }
+}

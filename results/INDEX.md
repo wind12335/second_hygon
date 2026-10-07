@@ -53,3 +53,8 @@
 - `bw1000_p16_extrap_verdict_20260904.csv` — P16 8 卡版：E3 +255.2 HIT（×2）/ E1 +1.2 MISS 打平 / E2 +26.2 MISS 同号带外 / E4 65.1 —— **d 族边界 N* 随 rank 数右移**，闭式缺 N/np 项；formal 佐证：(4096,q8) d1/d0 np4 −14.2%→np8 +16.1% 翻转
 - `bw1000_selector_table_20260904.csv` — selector K500 同口径双 np 表：**bw1000 无好零知识默认**（最好 always-r0 p95 9.24~22.31%）、always-r1 60~80%（K500 的 9/9 短路不外推）；**probe-1iter 双 np 9/9 regret 0.00%** —— 三基座三默认（A800 d0/K500 r1/bw1000 无）+ 探针三基座通用，selector 节主证据
 - 终判：`phaseb/BW1000_终判_20260904.md`（含 formal 双批结构发现：r1 不统治、np 缩放不对称 d1∝q(np−1) vs d0∝np、isolated COMM_ONLY gap 70-90% vs e2e 2-38%、C0/C2 config 反转 4 格、事故记录与回执逐条对账）
+
+## 2026-10-08（Phase 4 到达异质性测量，双机 2×8 BW1000 vcjob，poll 模式 100 轮 0 降级）
+
+- `phase4_arrival_full_20261008_022510.json/.log` — 正式批（100 轮）：same-node 1.844 ms（7 源，块内中位差 0.01 ms）vs cross-node 235.955 ms（8 源，块内差 1.99 ms），ratio 128.0×；GEMM 8192×4096×8192 fp16 2.006 ms（16 rank 1.94–2.01），spread/GEMM = 11671.9% → **SCHEDULING_VALUABLE**。次序结构：节点级零翻转（100 轮无一次 rank 越块）+ 跨节点块内每轮重排（rank8 均位 10.76 … rank15 13.01）→ 可预测簇 + 簇内重排，正是调度可利用形态。口径：跨节点绝对值是 RCCL TCP socket 回退（无 IB）的量级，结构结论稳健、绝对值传输特定（topology.note 已注明）；一个跨节点 8MB 到达 ≈ 117 个 GEMM。脚本 `phase4-arrival-heterogeneity/measure_arrival_v2.py`（v1 严格超集：preflight 自适应 poll/wait_fallback + 逐轮看门狗 + 到达次序统计），分析 `phase4-arrival-heterogeneity/analyze_arrival.py`，正式条目见交流窗 [2026-10-08 02:35]
+- `phase4_arrival_smoke_20261008_020948.json/.log` — smoke 批（5 轮）：RCCL 下 `is_completed()` 轮询可用性验证（preflight 15/15 → poll 模式），与正式批同向
