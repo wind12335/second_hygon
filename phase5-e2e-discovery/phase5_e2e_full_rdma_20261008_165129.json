@@ -1,0 +1,118 @@
+{
+  "config": {
+    "shape": [
+      8192,
+      4096,
+      8192
+    ],
+    "dtype": "fp16",
+    "reps": 20,
+    "output": "/root/private_data/second_hygon/phase5-e2e-discovery/phase5_e2e_full_rdma_20261008_165129.json",
+    "skip": "",
+    "no_p2p_warmup": false
+  },
+  "timestamp": "2026-10-08 16:55:04",
+  "q1": {
+    "ag_median_ms": 1.4934559585526586,
+    "gemm_median_ms": 2.308559021912515,
+    "sync_median_ms": 0.2582860179245472,
+    "total_median_ms": 4.062411026097834,
+    "ag_pct": 36.76279797781083,
+    "gemm_pct": 56.827312821913324,
+    "sync_pct": 6.357948919133495,
+    "all_ranks_ag_ms": [
+      1.4934560060501099,
+      1.4898159503936768,
+      1.4880009889602661,
+      1.4813910722732544,
+      1.4954710006713867,
+      1.4795010089874268,
+      1.4703254699707031,
+      1.4699009656906128,
+      1.480567455291748,
+      1.505562424659729,
+      1.5003424882888794,
+      1.4949520826339722,
+      1.5069575309753418,
+      1.4926525354385376,
+      1.4824424982070923,
+      1.4824824333190918
+    ],
+    "all_ranks_total_ms": [
+      4.062410831451416,
+      4.048450946807861,
+      4.057995796203613,
+      4.052186489105225,
+      4.060760974884033,
+      4.058861255645752,
+      4.059991359710693,
+      4.054282188415527,
+      4.056116580963135,
+      4.065392017364502,
+      4.061952114105225,
+      4.063187122344971,
+      4.048986911773682,
+      4.061992168426514,
+      4.061071395874023,
+      4.0608367919921875
+    ]
+  },
+  "q2": {
+    "serial_median_ms": 4.047741065733135,
+    "overlap_median_ms": 12.454345007427037,
+    "saving_ms": -8.406603941693902,
+    "saving_pct": -207.68630713218022
+  },
+  "q3": {
+    "chunks_1": {
+      "median_ms": 4.422442056238651,
+      "chunk_rows": 512
+    },
+    "chunks_2": {
+      "median_ms": 4.715678980574012,
+      "chunk_rows": 256
+    },
+    "chunks_4": {
+      "median_ms": 5.116474931128323,
+      "chunk_rows": 128
+    }
+  },
+  "q4": {
+    "concurrent_1": {
+      "total_ms": 1.9572380697354674,
+      "per_ag_ms": 1.9572380697354674,
+      "single_ag_ms": 1.75664690323174,
+      "degradation_pct": 11.41898045274185
+    },
+    "concurrent_2": {
+      "total_ms": 3.559943987056613,
+      "per_ag_ms": 1.7799719935283065,
+      "single_ag_ms": 1.7658969154581428,
+      "degradation_pct": 0.7970498134378415
+    },
+    "concurrent_4": {
+      "total_ms": 6.760327029041946,
+      "per_ag_ms": 1.6900817572604865,
+      "single_ag_ms": 1.7606618348509073,
+      "degradation_pct": -4.008724230476521
+    }
+  },
+  "platform": {
+    "hostname": "vcjob-2108118024545140737-abc12335-12743-worker-0",
+    "torch": "2.7.1",
+    "hip": "6.3.26093",
+    "gpu_name": "BW",
+    "gpus_per_node": 8,
+    "nodes": 2
+  },
+  "environment": {
+    "net_mode": "rdma",
+    "transport_channels": "6272 via NET/IBext_v8",
+    "nccl_net_plugin": "shca",
+    "nccl_ib_hca": "shca_0:1,shca_1:1,shca_2:1,shca_3:1",
+    "nccl_topo_file": "/root/private_data/second_hygon/phase5-e2e-discovery/../rdma-shca/topo_lib/built-in-508-topo-input-tj-default.xml",
+    "kernel": "5.15.0-25-generic",
+    "log_file": "phase5_e2e_full_rdma_20261008_165129.log",
+    "note": "rdma: RCCL external plugin librccl-net-shca -> NET/IBext_v8 (GPUDirect RDMA) over shca 400G NDR IB x4/node; tcp: NCCL_IB_DISABLE=1 socket-fallback control"
+  }
+}

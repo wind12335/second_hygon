@@ -111,6 +111,31 @@ def gather_scalar(value, rank, world):
 
 
 # ==========================================================================
+# 平台补丁(海光侧 2026-10-08): p2p pair communicator 串行预热
+# ==========================================================================
+
+def warm_p2p_pairs(rank, world, device):
+    """
+    BW1000/RCCL(shca 插件)平台补丁:Q2 的全对全 isend/irecv 会在首次调用时
+    并发创建 world*(world-1)/2 = 120 个 pair communicator,实测 shca 插件
+    proxy 的连接在此风暴下拿到空地址(ncclSocketInit family-1 空地址 /
+    ib_plugin error 3 / Proxy Connect retcode 3 -> ncclInternalError,
+    见交流窗 2026-10-08)。这里按对串行预热:每对一次 1 元素 send/recv +
+    全体 barrier,把 comm 创建摊开;之后 Q2 的 isend/irecv 直接复用已建
+    comms。语义中立(只 warmup,不进任何计时),--no-p2p-warmup 可关闭
+    以复现原始行为。
+    """
+    t = torch.zeros(1, device=device)
+    for w in range(world):
+        for p in range(w + 1, world):
+            if rank == w:
+                dist.send(t, dst=p)
+            elif rank == p:
+                dist.recv(t, src=w)
+            dist.barrier()
+
+
+# ==========================================================================
 # Q2: 朴素重叠收益
 # ==========================================================================
 
@@ -316,6 +341,8 @@ def main():
     parser.add_argument("--output", default="e2e_results.json")
     parser.add_argument("--skip", type=str, default="",
                        help="Comma-separated question numbers to skip (e.g. '3,4')")
+    parser.add_argument("--no-p2p-warmup", action="store_true",
+                       help="skip pair-comm serial warmup (platform patch; see warm_p2p_pairs)")
     args = parser.parse_args()
 
     rank, world, local_rank = init()
@@ -357,6 +384,12 @@ def main():
 
     # Q2
     if "2" not in skip:
+        if not args.no_p2p_warmup:
+            if rank == 0:
+                print("(platform patch: 串行预热 p2p pair comms,勿计时 ...)")
+            warm_p2p_pairs(rank, world, A_local.device)
+            if rank == 0:
+                print(f"(platform patch: {world*(world-1)//2} 对 pair comms 就绪)")
         if rank == 0:
             print("=" * 60)
             print("Q2: 朴素重叠收益")

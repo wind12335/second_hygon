@@ -17,3 +17,4 @@ phase4-arrival-heterogeneity/phase4_arrival_*
 worker0*执行结果.md
 # 大体积原始包不入 git（共享存储常驻,来源与 sha256 见 rdma-shca/README.md）
 *.deb
+/报错.md
