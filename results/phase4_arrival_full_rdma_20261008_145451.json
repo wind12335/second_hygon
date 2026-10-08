@@ -1,0 +1,232 @@
+{
+  "timestamp": "2026-10-08 14:56:36",
+  "hostname": "vcjob-2108088646234832897-abc12335-35908-worker-0",
+  "script": "measure_arrival_v2.py",
+  "topology": {
+    "nodes": 2,
+    "gpus_per_node": 8,
+    "world_size": 16,
+    "note": "2 nodes x 8 BW1000 (DCU), shca 400G NDR IB x4 per node (shca_0..3). Transport: RCCL external network plugin librccl-net-shca.so (NCCL_NET_PLUGIN=shca) -> 768/768 channels via NET/IBext_v8 with GPUDirect RDMA (GDRDMA/Shared), 0 NET/Socket. shca userspace was runtime-installed by run_phase4_scnet.sh v7 from rdma-shca/shca-tools_2.500.4.B074 (image ships Mellanox OFED userland only, which cannot enumerate shca HCAs). TCP-fallback control batch (same topology, NET/Socket via k8s pod network): results/phase4_arrival_full_20261008_022510.json."
+  },
+  "config": {
+    "chunk_mb": 8.0,
+    "iterations": 100,
+    "gemm_shape": [
+      8192,
+      4096,
+      8192
+    ]
+  },
+  "measurement": {
+    "method": "poll",
+    "method_note": "identical to v1 polling",
+    "poll_granularity_ms": 0.1,
+    "degraded_rounds": 0,
+    "poll_timeout_s": 20.0
+  },
+  "platform": {
+    "torch": "2.7.1",
+    "hip": "6.3.26093",
+    "gpu_name": "BW",
+    "gpus_per_node_visible": 8,
+    "nodes_actual": [
+      "vcjob-2108088646234832897-abc12335-35908-worker-0",
+      "vcjob-2108088646234832897-abc12335-35908-worker-1"
+    ],
+    "hostname_rank0": "vcjob-2108088646234832897-abc12335-35908-worker-0"
+  },
+  "gemm": {
+    "shape": [
+      8192,
+      4096,
+      8192
+    ],
+    "median_ms": 1.9456875324249268,
+    "all_ranks_ms": [
+      1.9456875324249268,
+      1.9493024349212646,
+      1.950192928314209,
+      1.9490875005722046,
+      1.9440628290176392,
+      1.9607880115509033,
+      1.9434624910354614,
+      1.9420480728149414,
+      1.9467724561691284,
+      1.9467575550079346,
+      1.9464969635009766,
+      1.9478319883346558,
+      1.9412124156951904,
+      1.9420976638793945,
+      1.9503374099731445,
+      1.946496844291687
+    ]
+  },
+  "arrival_times": {
+    "rank_1": {
+      "node": 0,
+      "label": "SAME-NODE",
+      "median_ms": 1.707,
+      "std_ms": 0.366,
+      "min_ms": 1.504,
+      "max_ms": 3.865,
+      "mean_arrival_position": 1,
+      "n": 100
+    },
+    "rank_2": {
+      "node": 0,
+      "label": "SAME-NODE",
+      "median_ms": 1.711,
+      "std_ms": 0.368,
+      "min_ms": 1.507,
+      "max_ms": 3.869,
+      "mean_arrival_position": 2,
+      "n": 100
+    },
+    "rank_3": {
+      "node": 0,
+      "label": "SAME-NODE",
+      "median_ms": 1.712,
+      "std_ms": 0.368,
+      "min_ms": 1.508,
+      "max_ms": 3.87,
+      "mean_arrival_position": 3,
+      "n": 100
+    },
+    "rank_4": {
+      "node": 0,
+      "label": "SAME-NODE",
+      "median_ms": 1.715,
+      "std_ms": 0.368,
+      "min_ms": 1.51,
+      "max_ms": 3.872,
+      "mean_arrival_position": 4,
+      "n": 100
+    },
+    "rank_5": {
+      "node": 0,
+      "label": "SAME-NODE",
+      "median_ms": 1.717,
+      "std_ms": 0.368,
+      "min_ms": 1.516,
+      "max_ms": 3.874,
+      "mean_arrival_position": 5,
+      "n": 100
+    },
+    "rank_6": {
+      "node": 0,
+      "label": "SAME-NODE",
+      "median_ms": 1.719,
+      "std_ms": 0.367,
+      "min_ms": 1.518,
+      "max_ms": 3.876,
+      "mean_arrival_position": 6,
+      "n": 100
+    },
+    "rank_7": {
+      "node": 0,
+      "label": "SAME-NODE",
+      "median_ms": 1.721,
+      "std_ms": 0.367,
+      "min_ms": 1.519,
+      "max_ms": 3.878,
+      "mean_arrival_position": 7,
+      "n": 100
+    },
+    "rank_8": {
+      "node": 1,
+      "label": "CROSS-NODE",
+      "median_ms": 2.363,
+      "std_ms": 0.485,
+      "min_ms": 1.735,
+      "max_ms": 4.931,
+      "mean_arrival_position": 12.93,
+      "n": 100
+    },
+    "rank_9": {
+      "node": 1,
+      "label": "CROSS-NODE",
+      "median_ms": 1.725,
+      "std_ms": 0.367,
+      "min_ms": 1.522,
+      "max_ms": 3.882,
+      "mean_arrival_position": 8.24,
+      "n": 100
+    },
+    "rank_10": {
+      "node": 1,
+      "label": "CROSS-NODE",
+      "median_ms": 1.727,
+      "std_ms": 0.367,
+      "min_ms": 1.524,
+      "max_ms": 3.884,
+      "mean_arrival_position": 9.24,
+      "n": 100
+    },
+    "rank_11": {
+      "node": 1,
+      "label": "CROSS-NODE",
+      "median_ms": 2.061,
+      "std_ms": 0.624,
+      "min_ms": 1.903,
+      "max_ms": 7.285,
+      "mean_arrival_position": 10.48,
+      "n": 100
+    },
+    "rank_12": {
+      "node": 1,
+      "label": "CROSS-NODE",
+      "median_ms": 2.235,
+      "std_ms": 0.423,
+      "min_ms": 2.079,
+      "max_ms": 4.772,
+      "mean_arrival_position": 12.32,
+      "n": 100
+    },
+    "rank_13": {
+      "node": 1,
+      "label": "CROSS-NODE",
+      "median_ms": 2.049,
+      "std_ms": 0.351,
+      "min_ms": 1.786,
+      "max_ms": 4.126,
+      "mean_arrival_position": 11.12,
+      "n": 100
+    },
+    "rank_14": {
+      "node": 1,
+      "label": "CROSS-NODE",
+      "median_ms": 2.254,
+      "std_ms": 0.339,
+      "min_ms": 2.073,
+      "max_ms": 4.383,
+      "mean_arrival_position": 13.78,
+      "n": 100
+    },
+    "rank_15": {
+      "node": 1,
+      "label": "CROSS-NODE",
+      "median_ms": 2.231,
+      "std_ms": 0.353,
+      "min_ms": 2.064,
+      "max_ms": 4.385,
+      "mean_arrival_position": 13.89,
+      "n": 100
+    }
+  },
+  "summary": {
+    "same_node_median_ms": 1.715,
+    "cross_node_median_ms": 2.146,
+    "spread_ms": 0.431,
+    "heterogeneity_ratio": 1.3,
+    "spread_vs_gemm_pct": 22.2,
+    "conclusion": "SCHEDULING_VALUABLE"
+  },
+  "heterogeneity_summary": {
+    "same_node_median_ms": 1.715,
+    "cross_node_median_ms": 2.146,
+    "spread_ms": 0.431,
+    "heterogeneity_ratio": 1.3,
+    "spread_vs_gemm_pct": 22.2,
+    "conclusion": "SCHEDULING_VALUABLE"
+  }
+}

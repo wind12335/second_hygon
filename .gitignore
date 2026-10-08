@@ -14,4 +14,6 @@ nohup.out
 # 本地工作产物/控制台粘贴（正式数据以 results/ 为准,phase4 目录下为启动器落盘副本）
 .ipynb_checkpoints/
 phase4-arrival-heterogeneity/phase4_arrival_*
-worker0*的执行结果.md
+worker0*执行结果.md
+# 大体积原始包不入 git（共享存储常驻,来源与 sha256 见 rdma-shca/README.md）
+*.deb

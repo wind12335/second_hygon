@@ -58,3 +58,9 @@
 
 - `phase4_arrival_full_20261008_022510.json/.log` — 正式批（100 轮）：same-node 1.844 ms（7 源，块内中位差 0.01 ms）vs cross-node 235.955 ms（8 源，块内差 1.99 ms），ratio 128.0×；GEMM 8192×4096×8192 fp16 2.006 ms（16 rank 1.94–2.01），spread/GEMM = 11671.9% → **SCHEDULING_VALUABLE**。次序结构：节点级零翻转（100 轮无一次 rank 越块）+ 跨节点块内每轮重排（rank8 均位 10.76 … rank15 13.01）→ 可预测簇 + 簇内重排，正是调度可利用形态。口径：跨节点绝对值是 RCCL TCP socket 回退（无 IB）的量级，结构结论稳健、绝对值传输特定（topology.note 已注明）；一个跨节点 8MB 到达 ≈ 117 个 GEMM。脚本 `phase4-arrival-heterogeneity/measure_arrival_v2.py`（v1 严格超集：preflight 自适应 poll/wait_fallback + 逐轮看门狗 + 到达次序统计），分析 `phase4-arrival-heterogeneity/analyze_arrival.py`，正式条目见交流窗 [2026-10-08 02:35]
 - `phase4_arrival_smoke_20261008_020948.json/.log` — smoke 批（5 轮）：RCCL 下 `is_completed()` 轮询可用性验证（preflight 15/15 → poll 模式），与正式批同向
+
+## 2026-10-08（Phase 4 RDMA 重测：shca 400G NDR 全通，TCP/IB 受控对照）
+
+- `phase4_arrival_full_rdma_20261008_145451.json/.log` — **IB 正式批**（100 轮 poll，0 降级）：传输 `768/768 via NET/IBext_v8`（librccl-net-shca 插件，GPUDirect RDMA），0 NET/Socket。same-node 1.715 ms（1.707–1.721）vs cross-node 2.146 ms（1.725–2.363），spread 0.431 ms，ratio 1.3×；GEMM 1.946 ms，**spread/GEMM = 22.2% → SCHEDULING_VALUABLE（贴阈值）**。结构亮点：rank9/10 跨节点以同节点速度到达（均位 8.2/9.2），消费位第 1 的 rank8 恰为跨节点最慢源（均位 12.9）——簇间差收缩后调度信号转移到簇内次序错位。与 TCP 批（022510，cross 235.955ms / 11671.9%）构成同拓扑同负载仅换传输栈的受控对照：结构稳健、幅度传输主导、两端均过 20% 阈值。topology.note 已填 IB 传输细节；正式条目见交流窗 [2026-10-08 15:05]
+- `phase4_arrival_full_rdma_20261008_030548.json/.log` — 证据批：设备已挂载但用户态缺 shca provider 时（教程变量照设），结果与 TCP 版等价（cross 239.78 ms，仍 NET/Socket）——反证用户态 provider 是当时唯一缺口
+- `rdma-shca/` — 平台管理员提供的 shca RDMA 组件（README 记录来源与用法）：`topo_lib/lib/librccl-net-shca.so*`（RCCL 外置网络插件）、`topo_lib/built-in-508-topo-input-tj-default.xml`（平台拓扑）、`mlxtoshca_B074.sh`（官方安装脚本，需 apt 网络，pod 内不可用）。58MB 的 shca-tools deb **不入 git**（共享存储常驻，sha256 见 rdma-shca/README.md）。启动脚本 v7（`run_phase4_scnet.sh`）已自动完成安装+环境变量，`NET=check` 输出可转发管理员的分层诊断报告

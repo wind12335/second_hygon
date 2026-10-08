@@ -1,21 +1,28 @@
 #!/bin/bash
 # ============================================================================
-# BW1000 双机 Phase 4 到达异质性测量 · SCNet 模型训练模块启动脚本 (v3 自包含版)
+# BW1000 双机 Phase 4 到达异质性测量 · SCNet 模型训练模块启动脚本 (v7 shca 适配版:自动装 shca 用户态+RCCL 插件)
 #
 # 【本文件自包含】measure_arrival_v2.py 已内嵌,只需拷贝这一个文件到两个
 # worker(放任何目录都行),首次运行会自动把测量脚本生成到 ~/phase4/ 并在那里执行。
 #
+# v5: 默认 NET=rdma —— 按海光官方《模型训练模块使用 RDMA》教程设置 IB 变量,
+#     但 NCCL_IB_HCA 按本分区实际网卡改为 shca(教程默认 mlx5 不适配,节点上是
+#     shca_0..3,400G NDR);跑完自动判定 RCCL 是否真走了 NET/IB。
+#     NET=tcp 可复现 v4 行为(RCCL socket 回退,对照组)。
+#
 # 用法 A【平台同时启动,推荐】:把下面这条填进模型训练模块的"启动命令",
 #         两个 worker 会同时执行同一条命令,角色自动按主机名区分,无需任何手动先后:
 #     MODE=full bash /root/private_data/second_hygon/phase4-arrival-heterogeneity/run_phase4_scnet.sh
-#       (MODE=full 正式 100 轮,约 10 分钟;去掉 MODE=full 则为 smoke 5 轮)
+#       (MODE=full 正式 100 轮;去掉 MODE=full 则为 smoke 5 轮)
 #
 # 用法 B【手动两个终端】:worker-0 先、worker-1 后,各执行一次:
-#     bash run_phase4_scnet.sh                 # 默认 MODE=smoke(约 2-3 分钟)
-#     MODE=full bash run_phase4_scnet.sh       # 正式测量(100 轮,约 10 分钟)
+#     bash run_phase4_scnet.sh                 # 默认 MODE=smoke + NET=rdma
+#     MODE=full bash run_phase4_scnet.sh       # 正式测量(100 轮)
+#     MODE=full NET=tcp bash run_phase4_scnet.sh   # TCP 对照(复现 v4 的 socket 回退)
 #
 # 可选环境变量:
 #   MODE=smoke|full      smoke=5 轮快速验证 / full=100 轮正式(默认 smoke)
+#   NET=rdma|tcp|check   rdma=按教程开 IB(默认) / tcp=socket 对照 / check=纯诊断 10 秒退出
 #   PHASE4_HOME=dir      工作目录(默认:脚本旁边有测量脚本则用同目录,否则 ~/phase4)
 #   MASTER_ADDR=...      手动指定 master 地址(自动推导失败时才需要)
 #   MASTER_PORT=23456    默认 29500
@@ -35,6 +42,7 @@ mkdir -p "$WORK_DIR"
 cd "$WORK_DIR"
 
 MODE="${MODE:-smoke}"
+NET="${NET:-rdma}"
 MASTER_PORT="${MASTER_PORT:-29500}"
 NPROC="${NPROC:-8}"
 NNODES="${NNODES:-2}"
@@ -397,7 +405,7 @@ if ! python3 -m py_compile "$SCRIPT" 2>/dev/null; then
 fi
 
 echo "=============================================="
-echo " Phase4 arrival-heterogeneity launcher ($MODE)"
+echo " Phase4 arrival-heterogeneity launcher ($MODE, net=$NET)"
 echo " Host: $(hostname)   Date: $(date)"
 echo " workdir: $WORK_DIR"
 echo "=============================================="
@@ -422,12 +430,127 @@ fi
 
 # ---- 3. 平台必需环境变量 ----------------------------------------------------
 export HSA_FORCE_FINE_GRAIN_PCIE=1     # DTK/RCCL 在 PCIe 上必需,否则可能挂起
-export NCCL_DEBUG="${NCCL_DEBUG:-WARN}"
 export PYTHONUNBUFFERED=1
 export OMP_NUM_THREADS="${OMP_NUM_THREADS:-8}"
 if [ -z "${NCCL_SOCKET_IFNAME:-}" ]; then
   DEF_IF=$(ip route 2>/dev/null | awk '/^default/{print $5; exit}')
   [ -n "$DEF_IF" ] && export NCCL_SOCKET_IFNAME="$DEF_IF" && echo "NCCL_SOCKET_IFNAME=$DEF_IF (auto)"
+fi
+
+# ---- 3a. shca RDMA 用户态安装(包在共享存储,免网络,幂等;两个 worker 各自装) --
+SHCA_HOME="${SHCA_HOME:-$LAUNCH_DIR/../rdma-shca}"
+if [ "$NET" != "tcp" ] && [ ! -e /usr/lib/x86_64-linux-gnu/libshca-rdmav34.so ]; then
+  DEB=$(ls "$SHCA_HOME"/shca-tools_*.deb 2>/dev/null | head -1)
+  if [ -n "$DEB" ]; then
+    echo "== 安装 shca RDMA 用户态(来源 $DEB) =="
+    rm -rf /tmp/shca-install && mkdir -p /tmp/shca-install
+    if dpkg -x "$DEB" /tmp/shca-install 2>/dev/null; then
+      LIBD=/usr/lib/x86_64-linux-gnu
+      cp -a /tmp/shca-install$LIBD/. $LIBD/
+      rm -f $LIBD/libibverbs.so.1.14.47.0 $LIBD/libmlx5.so.1.24.47.0 \
+            $LIBD/librdmacm.so.1.3.47.0 $LIBD/libibverbs.so.1.*47* 2>/dev/null
+      ln -sf libibverbs.so.1.14.44.0 $LIBD/libibverbs.so.1
+      ln -sf librdmacm.so.1.3.44.0   $LIBD/librdmacm.so.1
+      ln -sf libmlx5.so.1.24.44.0    $LIBD/libmlx5.so.1
+      mkdir -p /etc/libibverbs.d /usr/etc/libibverbs.d /etc/cfgFile
+      cp -a /tmp/shca-install/usr/etc/libibverbs.d/. /etc/libibverbs.d/ 2>/dev/null
+      cp -a /tmp/shca-install/usr/etc/libibverbs.d/. /usr/etc/libibverbs.d/ 2>/dev/null
+      cp -a /tmp/shca-install/etc/cfgFile/. /etc/cfgFile/ 2>/dev/null
+      mkdir -p /usr/local/bin && cp -a /tmp/shca-install/usr/bin/. /usr/local/bin/ 2>/dev/null
+      ldconfig
+      echo "   安装完成: $(ls $LIBD/libshca-rdmav34.so 2>/dev/null || echo '异常:未找到 libshca-rdmav34.so')"
+    else
+      echo "   解包失败,继续用镜像自带(Mellanox)用户态"
+    fi
+  else
+    echo "== 未找到 $SHCA_HOME/shca-tools_*.deb,跳过 shca 用户态安装(将只有 Mellanox) =="
+  fi
+fi
+
+# ---- 3b. 传输模式:rdma(默认,海光教程变量) / tcp(对照) / check(纯诊断报告) ----
+if [ "$NET" != "tcp" ]; then
+  IBV_DIR=/usr/lib/x86_64-linux-gnu/libibverbs
+  echo "================================================================"
+  echo " RDMA 诊断报告(NET=$NET) —— 本段可整段转发给平台管理员"
+  echo " Host: $(hostname)    Date: $(date '+%F %T')    Kernel: $(uname -r)"
+  echo "================================================================"
+
+  echo "[1] 内核/硬件层  /sys/class/infiniband:"
+  SYS_IB=$(ls /sys/class/infiniband 2>/dev/null)
+  if [ -n "$SYS_IB" ]; then
+    echo "    设备: $(echo $SYS_IB)"
+    for d in /sys/class/infiniband/*; do
+      [ -d "$d/ports" ] || continue
+      for p in "$d"/ports/*; do
+        echo "    $(basename "$d")/$(basename "$p"): $(cat "$p/state" 2>/dev/null)  $(cat "$p/rate" 2>/dev/null)  link_layer=$(cat "$p/link_layer" 2>/dev/null)"
+      done
+    done
+    echo "    => PASS: 网卡内核可见、链路 ACTIVE"
+  else
+    echo "    (空) => FAIL: 容器看不到 sysfs RDMA 设备"
+  fi
+
+  echo "[2] 容器设备层  /dev/infiniband:"
+  if [ -d /dev/infiniband ]; then
+    echo "    $(ls /dev/infiniband | tr '\n' ' ')"
+    echo "    => PASS: RDMA 设备已挂载进 pod(平台 RDMA 特性对训练模块已生效)"
+  else
+    echo "    (不存在) => FAIL: pod 未挂载 RDMA 设备,需平台侧开通"
+  fi
+
+  echo "[3] 用户态层  ibverbs providers($IBV_DIR):"
+  echo "    $(ls "$IBV_DIR" 2>/dev/null | tr '\n' ' ')"
+  echo "    rdma 包版本: $(dpkg -l 2>/dev/null | awk '/^ii.*(rdma-core|libibverbs1|ibverbs-providers|librdmacm1)/{printf "%s=%s  ", $2, $3}')"
+  if [ -e /usr/lib/x86_64-linux-gnu/libshca-rdmav34.so ] || ls "$IBV_DIR" 2>/dev/null | grep -q shca; then
+    echo "    => PASS: 含 shca provider;RCCL shca 插件: $(ls "$SHCA_HOME"/topo_lib/lib/librccl-net-shca.so 2>/dev/null || echo 未找到)"
+  else
+    echo "    => FAIL: 无 shca 的 provider(如 libshca-rdmav34.so)—— 现有插件只认 Mellanox,"
+    echo "       shca 网卡在用户态不可见,任何 ibv_* 程序(含 RCCL)枚举结果为 0"
+  fi
+
+  echo "[4] 官方文档《RDMA 使用案例》步骤 1 检测命令原样输出:"
+  echo "    \$ ibv_devices"
+  ibv_devices 2>&1 | sed 's/^/        /'
+  echo "    \$ ibstatus"
+  ibstatus 2>&1 | sed 's/^/        /' | head -8
+  echo "    \$ ibv_devinfo -l"
+  ibv_devinfo -l 2>&1 | sed 's/^/        /'
+
+  echo "[5] 结论与请求:"
+  if [ -e /usr/lib/x86_64-linux-gnu/libshca-rdmav34.so ] || ls "$IBV_DIR" 2>/dev/null | grep -q shca; then
+    echo "    用户态齐备(shca provider 已就位) —— 若上述 ibv_* 输出仍为 0,请把本报告发回进一步定位"
+  else
+    if [ -n "$SYS_IB" ] && [ -d /dev/infiniband ]; then
+      echo "    内核有驱动([1] PASS)、设备已挂载([2] PASS),但镜像用户态只有 Mellanox OFED"
+      echo "    的 provider([3] FAIL),故步骤 1 检测为 0 HCAs,NCCL/RCCL 只能回退 TCP socket"
+      echo "    (双机实测跨节点仅 ~0.034 GB/s)。环境变量无法解决——缺的是厂商二进制库文件。"
+    else
+      echo "    平台侧设备挂载未生效([1]或[2] FAIL),请先补齐;若补齐后仍 0 HCAs,则同下:"
+      echo "    镜像用户态只有 Mellanox OFED provider([3] FAIL),需 shca 用户态库。"
+    fi
+    echo "    请求: ① 告知 BW1000 分区上 ibv_devices 能列出 shca 设备的镜像名;或"
+    echo "          ② 提供宿主机 shca_ib 驱动包中的用户态部分(libshca-rdmav34.so 及配套库)。"
+  fi
+  echo "================================================================"
+fi
+if [ "$NET" = "check" ]; then
+  echo "(NET=check: 只诊断,不启动训练)"; exit 0
+fi
+if [ "$NET" = "rdma" ]; then
+  # 平台管理员配方(vllm/sglang 同款):RCCL 走 librccl-net-shca 插件 + 平台拓扑文件
+  export NCCL_IB_DISABLE=0
+  export NCCL_NET_PLUGIN=shca
+  export NCCL_IB_HCA="${NCCL_IB_HCA:-shca_0:1,shca_1:1,shca_2:1,shca_3:1}"
+  if [ -f "$SHCA_HOME/topo_lib/built-in-508-topo-input-tj-default.xml" ]; then
+    export NCCL_TOPO_FILE="$SHCA_HOME/topo_lib/built-in-508-topo-input-tj-default.xml"
+  fi
+  export LD_LIBRARY_PATH="$SHCA_HOME/topo_lib/lib:${LD_LIBRARY_PATH:-}"
+  export NCCL_DEBUG="${NCCL_DEBUG:-INFO}"
+  echo "IB vars(平台配方): NET_PLUGIN=$NCCL_NET_PLUGIN HCA=$NCCL_IB_HCA"
+  echo "                   TOPO=${NCCL_TOPO_FILE:-none} LD_LIBRARY_PATH+=$SHCA_HOME/topo_lib/lib"
+else
+  export NCCL_IB_DISABLE=1             # 对照组:复现 v4 的 NET/Socket 回退
+  export NCCL_DEBUG="${NCCL_DEBUG:-WARN}"
 fi
 
 # ---- 4. MASTER_ADDR 解析 ----------------------------------------------------
@@ -478,8 +601,8 @@ if [ "$MODE" = "full" ]; then
 else
   ITERS=5;   WARM=2;  TIMEOUT_S=600
 fi
-OUT="$WORK_DIR/phase4_arrival_${MODE}_${TS}.json"
-LOG="$WORK_DIR/phase4_arrival_${MODE}_${TS}.log"
+OUT="$WORK_DIR/phase4_arrival_${MODE}_${NET}_${TS}.json"
+LOG="$WORK_DIR/phase4_arrival_${MODE}_${NET}_${TS}.log"
 
 echo "--- torchrun: nnodes=$NNODES nproc=$NPROC node_rank=$NODE_RANK ---"
 timeout "$TIMEOUT_S" torchrun \
@@ -493,6 +616,21 @@ timeout "$TIMEOUT_S" torchrun \
   --output "$OUT" ${EXTRA_ARGS:-} 2>&1 | tee "$LOG"
 RC=${PIPESTATUS[0]}
 echo "torchrun exit code: $RC (log: $LOG)"
+
+# ---- 6b. 传输判定(打印实际使用的通道类型) ----------------------------------
+echo "--- transport check ---"
+TRANS=$(grep -oE 'via NET/[A-Za-z0-9_]+' "$LOG" 2>/dev/null | sort | uniq -c | sort -rn | head -5)
+if [ -n "$TRANS" ]; then
+  echo "$TRANS" | sed 's/^/  /'
+  if echo "$TRANS" | grep -q 'NET/Socket'; then
+    echo "transport: ✗ 仍含 NET/Socket(TCP 回退未消除)"
+  else
+    echo "transport: ✓✓ 全部通道走 RDMA"
+  fi
+else
+  echo "transport: ? 日志无通道信息(可能初始化即失败)"
+fi
+grep -m3 -E "No IB NIC|NET/IB :|NET.*[Ss]hca|Failed to open|Invalid GID|plugin" "$LOG" 2>/dev/null | sed 's/^/  /'
 
 # ---- 7. 结果汇总与回拷 -------------------------------------------------------
 if [ -f "$OUT" ]; then
