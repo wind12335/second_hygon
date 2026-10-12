@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>⑥ 四系统 + TokenWeave + 我们:优化插入点对比(§14)</title>
+<style>
+  body{font-family:"Noto Sans SC","Microsoft YaHei",sans-serif;max-width:1100px;margin:0 auto;padding:24px;background:#fafafa;color:#222;line-height:1.6}
+  h1{font-size:22px;color:#2b6cb0}
+  .pipe{display:flex;flex-wrap:wrap;gap:5px;align-items:stretch;margin:14px 0}
+  .bx{border:1.5px solid #bbb;border-radius:6px;padding:7px 9px;font-size:12.5px;background:#fff;min-width:74px;text-align:center;position:relative;transition:all .2s}
+  .bx small{display:block;color:#888;font-size:10.5px}
+  .bx.gemm{border-color:#2f855a}.bx.comm{border-color:#2b6cb0;background:#f0f7ff}.bx.norm{border-color:#805ad5}
+  .bx.lit{box-shadow:0 0 0 3px #f6ad55;background:#fffbeb}
+  .bx .ww{display:flex;height:7px;border-radius:3px;overflow:hidden;margin-top:3px}
+  .bx .ww i{display:block}
+  button{background:#4a5568;color:#fff;border:none;border-radius:5px;padding:8px 16px;margin:4px;font-size:14px;cursor:pointer}
+  button.on{background:#c05621}
+  .exp{background:#fff;border:1px solid #ddd;border-left:5px solid #c05621;border-radius:6px;padding:12px 16px;margin:10px 0;min-height:120px}
+  .exp h3{margin:0 0 6px;color:#c05621}
+  .meta{font-size:13px;color:#555;margin-top:6px}
+  .chip{display:inline-block;font-size:11.5px;border-radius:10px;padding:1px 9px;margin:2px;background:#edf2f7}
+  .chip.good{background:#c6f6d5}.chip.bad{background:#fed7d7}
+  .note{background:#fff8e1;border-left:4px solid #f6a821;padding:8px 12px;font-size:13px;border-radius:4px;margin:8px 0}
+  a{color:#2b6cb0}
+</style>
+</head>
+<body>
+<h1>⑥ 同一条流水线,七个开关:每家到底动哪里?</h1>
+<p><a href="index.html">← 返回导航</a> | 下图是 §11 的一层(M≈32 decode 形态)。AllReduce 方块内
+<span style="color:#c05621">■ 等待</span>+<span style="color:#2b6cb0">■ 走线</span> 两段按实测比例 404µs : 92µs(全局最小时长口径,2026-10-10 修正)。
+点按钮看各系统的"动刀位置"(<span style="outline:2px solid #f6ad55;padding:0 3px">黄色高亮</span>=被改动/被融合的算子)。</p>
+
+<button class="sys" data-s="base">基线(eager 串行,实测)</button>
+<button class="sys" data-s="flux">Flux</button>
+<button class="sys" data-s="flash">FlashOverlap</button>
+<button class="sys" data-s="tiledist">Triton-distributed(TileLink)</button>
+<button class="sys" data-s="syncopate">Syncopate</button>
+<button class="sys" data-s="tokenweave">TokenWeave</button>
+<button class="sys" data-s="ours">我们(到达调度)</button>
+
+<div class="pipe" id="pipe"></div>
+<div class="exp" id="exp"></div>
+<div class="note">端到端数字全部于 2026-10-10 从各官方仓库/论文核实(详见文档 §14.2)。
+注意五个系统的共同点:<b>全部只动"走线"(蓝),没有一个碰"等待"(橙)</b>;而等待占本层 AR 时间的 81%(404/496µs)。</div>
+
+<script>
+"use strict";
+const $=id=>document.getElementById(id);
+const OPS=[
+ ["norm1","+res<br>RMSNorm","norm","fused_add_rms"],
+ ["qkv","QKV<br>GEMM","gemm","Cijk_*"],
+ ["rope","RoPE","norm","rotary_embedding"],
+ ["attn","注意力","norm","paged_attention"],
+ ["op","o_proj<br>GEMM","gemm","Cijk_*"],
+ ["ar1","AllReduce ①","comm","Tree_LL"],
+ ["norm2","+res<br>RMSNorm","norm","fused_add_rms"],
+ ["gu","gate/up<br>GEMM","gemm","Cijk_*"],
+ ["silu","SiLU×up","norm","act_and_mul"],
+ ["down","down<br>GEMM","gemm","Cijk_*"],
+ ["ar2","AllReduce ②","comm","Tree_LL"],
+];
+const SYS={
+ base:{lit:[],title:"基线:eager 串行(本仓 16/16 rank 实测形态)",
+  body:"重叠 = 0.000s:计算 → 通信 → 计算 严格排队。AR kernel 里 <b>404µs 等人 + 92µs 搬运</b>,没人管等待,也没人藏走线。整层 1458µs × 80.5 层 ≈ 117ms/步。",
+  chips:["重叠 0%","等待 55% 墙钟","走线 13%","计算 15%"]},
+ flux:{lit:["ar1","ar2","op","down","gu","qkv"],title:"Flux(ByteDance,arXiv 2406.06858):把 AR 拆进 GEMM",
+  body:"AR ≡ ReduceScatter + AllGather。<b>RS 融进 o_proj/down 的输出侧</b>(算好一块 chunk 就归约分发一块),<b>AG 融进下一个 GEMM 的输入侧</b>(到齐一块就开算对应行块)。通信被拆成细 chunk 与计算交错。",
+  chips:["动:走线","L20 TP8 M=4096:AG+GEMM 16.95→5.90ms","GEMM+RS 17.66→5.73ms","通信 11.2→0.59ms(≈95% 藏掉)","依赖 CUTLASS+NVSHMEM","M 域:大 M(prefill/训练)","等待:不动"]},
+ flash:{lit:["op","down","ar1","ar2"],title:"FlashOverlap(Infinigence,EuroSys'26):GEMM 单 kernel 内发信号",
+  body:"GEMM <b>不拆</b>(避免 Flux 式碎 GEMM 的 tile 浪费与多次 launch)。CUTLASS kernel 按<b>重排过的 tile 顺序</b>执行,每算完一组 tile 发一个信号;另一条 CUDA 流上的<b>计数 kernel 数够信号才放行</b>对应那一段 NCCL 通信。",
+  chips:["动:走线","论文报告最高 1.65×","3090/4090/A800/A100(sm80/86/89)","硬限制:M,N %128==0 → M=32 不可用","e2e 示例:roadmap 未完成","等待:不动"]},
+ tiledist:{lit:["qkv","op","gu","down","ar1","ar2"],title:"Triton-distributed / TileLink(ByteDance-Seed,MLSys'25):编译器化",
+  body:"把 Flux 式融合写成 <b>Triton 语言里的通信原语</b>,由编译器自动生成重叠 kernel;运行时用 <b>NVSHMEM 对称内存</b>做细粒度通信(不走 NCCL)。多厂商后端:NVIDIA / AMD MORI / 昇腾 RDMA。",
+  chips:["动:走线(编译器自动化)","GEMM+AR @H800","Seed-OSS-36B 端到端推理 1.33×","NVIDIA+AMD 统一 e2e demo","可移植后端插件","等待:不动"]},
+ syncopate:{lit:["qkv","op","gu","down","ar1","ar2","norm1","norm2","silu","rope","attn"],title:"Syncopate(OSDI'26):全自动,构建于上一家之上",
+  body:"你只写<b>本地单个 kernel</b>;它的编译器自动完成:通信计划描述符 → 信号规划 → tile 调度 → lowering,生成 chunk-centric 细粒度重叠的分布式 kernel。依赖链:Triton-distributed(+TLX)+ NVSHMEM。",
+  chips:["动:走线(全自动变换)","H100/H800 单机 4–8 卡 NVLink","AG+GEMM / GEMM+RS / A2A+attn 全测","谱系:TileLink 的编译器层后代","等待:不动"]},
+ tokenweave:{lit:["ar1","norm2","ar2","norm1"],title:"TokenWeave(Microsoft,MLSys'26):不动 GEMM,融 AR+RMSNorm",
+  body:"发现被忽视的 RMSNorm 是关键:把 <b>AllReduce 与紧随的 RMSNorm(+残差)融合成一个 kernel</b>,用 <b>NVSHARP/Multimem 硬件多播</b>(Hopper/Blackwell 交换机侧归约),只占 2–8 个 SM。token 维交织切分配合。",
+  chips:["动:走线(+SM 占用)","8×H100:延迟最高 1.28× / 吞吐 1.19×","下界 1024 token(decode 32 仍空白)","vLLM/SGLang/TRT-LLM 默认关此类技术(摘要自认)","依赖 NVSHARP 硬件","等待:不动"]},
+ ours:{lit:["ar1","ar2"],title:"我们:不改 kernel,把 AR 里的『等待』当调度资源",
+  body:"实测等待占墙钟 <b>55%</b>,且有<b>结构</b>:worker-1 八卡整队到达(节点内散布中位 4µs)、worker-0 松散(295µs)且 75% 的全局最晚者在 head 节点(固定 straggler pid931 独占 29%)、TCP→IB 后依旧 → 是计算/调度侧现象(head 同时跑调度器/API,CPU 抢占是候选机制)。做法:框架级按到达结构重排(早到 rank 先做不依赖对端的独立工作、抑制 head 节点迟发)。<b>与上面五家正交:他们藏蓝,我们消橙,可叠加。</b>",
+  chips:["动:等待(55% 池)","证据:phase4 微基准 + phase6 框架级 trace(⑦ 号实测时间线)","eager 即可实施,无需 kernel 改写","DCU 栈唯一可行路线(fusion 系底座全缺失)","wire 侧收益归他们,wait 侧归我们"]},
+};
+function build(){
+  $("pipe").innerHTML=OPS.map(o=>{
+    const isAR=o[3]==="Tree_LL";
+    return `<div class="bx ${o[2]}" data-k="${o[0]}">${o[1]}<small>${o[3]}</small>`+
+      (isAR?`<div class="ww"><i style="flex:404;background:#f6ad55"></i><i style="flex:92;background:#2b6cb0"></i></div>`:"")+
+      `</div>`;}).join("")+
+    `<div class="bx" style="border-style:dashed">× 80 层</div>`;
+}
+function show(s){
+  const c=SYS[s];
+  document.querySelectorAll(".sys").forEach(b=>b.classList.toggle("on",b.dataset.s===s));
+  document.querySelectorAll(".bx").forEach(b=>b.classList.toggle("lit",c.lit.includes(b.dataset.k)));
+  $("exp").innerHTML=`<h3>${c.title}</h3><div>${c.body}</div><div class="meta">${c.chips.map(x =>
+    `<span class="chip ${x.startsWith("动:等待") ? "good" : (x === "等待:不动" ? "bad" : "")}">${x}</span>`).join("")}</div>`;
+}
+build();
+document.querySelectorAll(".sys").forEach(b=>b.onclick=()=>show(b.dataset.s));
+show("base");
+</script>
+</body>
+</html>

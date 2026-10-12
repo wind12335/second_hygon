@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>④ 双机 AllReduce 与到达偏斜:wire/wait 分解(§13+§1.5)</title>
+<style>
+  body{font-family:"Noto Sans SC","Microsoft YaHei",sans-serif;max-width:1080px;margin:0 auto;padding:24px;background:#fafafa;color:#222;line-height:1.55}
+  h1{font-size:22px;color:#2b6cb0} h2{font-size:16px;color:#2b6cb0;margin:18px 0 6px}
+  .panel{background:#fff;border:1px solid #ddd;border-radius:8px;padding:14px 18px;margin:12px 0}
+  button{background:#2b6cb0;color:#fff;border:none;border-radius:5px;padding:7px 18px;margin:3px;font-size:14px;cursor:pointer}
+  button.on{background:#c05621}
+  input[type=range]{width:120px;vertical-align:middle}
+  .node{border:2px solid #999;border-radius:8px;padding:8px;margin:8px 0;background:#f6faff}
+  .node h3{margin:2px 4px;font-size:14px;color:#4a5568}
+  .ranks{display:flex;gap:6px;flex-wrap:wrap}
+  .rk{width:64px;text-align:center;border:1px solid #bbb;border-radius:5px;padding:4px 2px;font-size:12px;background:#fff;transition:all .25s}
+  .rk.send{background:#bee3f8;transform:translateY(-3px)} .rk.root{background:#2b6cb0;color:#fff}
+  .rk.strag{border-color:#c05621;box-shadow:0 0 0 2px #f6ad55}
+  .bar{position:relative;height:22px;background:#f0f0f0;border-radius:4px;margin:3px 0;overflow:hidden}
+  .seg{position:absolute;top:0;bottom:0}
+  .wait{background:#f6ad55}.wire{background:#2b6cb0}.comp{background:#2f855a}
+  .axis{display:flex;justify-content:space-between;color:#888;font-size:11px;width:100%}
+  .presets button{background:#4a5568}
+  .note{background:#fff8e1;border-left:4px solid #f6a821;padding:8px 12px;font-size:13px;border-radius:4px;margin:8px 0}
+  .stat{display:inline-block;background:#eef4fb;border-radius:6px;padding:6px 12px;margin:3px;font-size:13.5px}
+  .stat b{color:#2b6cb0}
+  table.sc{border-collapse:collapse;font-size:13.5px;margin-top:6px}
+  table.sc td,table.sc th{border:1px solid #ddd;padding:5px 10px}
+  a{color:#2b6cb0}
+</style>
+</head>
+<body>
+<h1>④ 双机 16 卡 AllReduce:到达偏斜如何把"搬运"变成"等人"</h1>
+<p><a href="index.html">← 返回导航</a> | <span style="color:#f6ad55">■ 等待(wait)</span>
+<span style="color:#2b6cb0">■ 走线+协议(wire)</span> <span style="color:#2f855a">■ 计算(compute)</span>
+—— 这三色贯穿所有演示。实测口径(2026-10-10 修正):<b>等待≈55% 墙钟、走线≈13%、计算≈15%</b>;真实逐事件时间线见 <a href="07_arrival_timeline.html">⑦ 号页</a>。</p>
+
+<div class="panel">
+<h2>A. 拓扑与 Tree-LL 两阶段(示意)</h2>
+<div class="node"><h3>worker-0(head 节点,rank 0–7,片内互联)</h3><div class="ranks" id="n0"></div></div>
+<div class="node"><h3>worker-1(rank 8–15;与 worker-0 之间 2×shca 400G IB,日志 34× NET/IBext_v8)</h3><div class="ranks" id="n1"></div></div>
+<button id="playAR">▶ 播放一次 AllReduce(Tree-LL)</button>
+<div id="arPhase" style="margin-top:6px;font-size:14px;color:#4a5568">阶段说明将逐步显示在这里。LL=低时延协议:小消息内联在标志包里直接发,所以 M=32(512KB)时 RCCL 自动选 Tree+LL(kernel 名里可见)。</div>
+</div>
+
+<div class="panel">
+<h2>B. 到达偏斜模拟器:每个 rank 拖一个"迟到量"</h2>
+<div class="presets">
+  <button id="p0">均衡(全 0)</button><button id="p1">固定 straggler(rank2 +350µs,实测 pid931 式:29% 的 AR 全局最后到)</button>
+  <button id="p2">节点不对称(实测形态:worker-1 整队,worker-0 松散)</button><button id="p3">随机抖动 σ=80µs</button>
+</div>
+<div style="font-size:13px;margin:6px 0">走线+协议 wire = <span id="wv">92</span>µs(默认=实测全局最小时长均值,2026-10-10 修正)
+  <input type="range" id="wire" min="40" max="400" value="92"></div>
+<div id="sliders" style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px 18px;font-size:12.5px"></div>
+<div id="bars" style="margin-top:10px"></div>
+<div class="axis" id="axis"></div>
+<div id="skewStats"></div>
+<div class="note">每条横杠 = 该 rank 眼中的 AR kernel:先<b>自旋等人</b>(橙),对端全到齐后<b>归并搬运</b>(蓝)。
+<span id="lastArr"></span>。把 rank 9 拖大再看统计:<b>最后一个到达者几乎不等,最早到的等最久</b>——AR kernel 时长在 16 个 rank 上各不相同,正是我们 trace 分析的输入。</div>
+</div>
+
+<div class="panel">
+<h2>C. 三种策略的单次集体通信墙钟(wire/wait 天花板,§4 逐步推的 µs 版)</h2>
+<div style="font-size:13px">本 rank 可用计算 C = <span id="cv2">54</span>µs(默认=实测 8.7ms GEMM ÷ 161 AR/步)
+  <input type="range" id="comp" min="0" max="800" value="54"></div>
+<div id="ladder"></div>
+<table class="sc" id="scTbl"></table>
+<div class="note">把 C 拖到 800µs(相当于 prefill 的肥计算)再对比:大 M 时"藏走线"才有料可藏;
+M≈32 时 C≈54µs ≪ wire 92µs —— <b>遮蔽物不足,藏走线天花板被 min(C, W) 卡死</b>,而等待池(橙)完全没人动。
+这就是"四系统在大 M 吃香、decode 小 M 失效"的定量直觉。</div>
+</div>
+
+<script>
+"use strict";
+const $=id=>document.getElementById(id);
+let delay=Array(16).fill(0), wire=92, comp=54;
+// ---- A. 拓扑 ----
+for(let n=0;n<2;n++){let h="";for(let r=0;r<8;r++){const id=n*8+r;
+  h+=`<div class="rk" id="rk${id}">rank ${id}</div>`;}$(n?"n1":"n0").innerHTML=h;}
+function flash(ids,cls,ms){ids.forEach(i=>$("rk"+i).classList.add(cls));setTimeout(()=>ids.forEach(i=>$("rk"+i).classList.remove(cls)),ms);}
+$("playAR").onclick=()=>{
+  const seq=[
+    [[0,1,2,3,4,5,6,7],"send",420,"① 节点内归约:worker-0 的 8 个 rank 把部分和沿树汇到节点代表(rank0)"],
+    [[8,9,10,11,12,13,14,15],"send",420,"② worker-1 同样在节点内归约(LL 协议:数据内联在标志包里逐跳合并)"],
+    [[0,8],"root",450,"③ 跨节点:两个节点代表经 shca IB 交换/归约(LL 小包,微秒级跳数少——Tree 的优势)"],
+    [[0,8],"send",420,"④ 结果沿树广播回两节点代表(AllReduce = Reduce + Broadcast,或 RS+AG 两种等价分解)"],
+    [[...Array(16).keys()],"root",500,"⑤ 16 个 rank 全部拿到完整和,kernel 结束——每个 rank 的 kernel 时长 = 自己的等待 + 共同的搬运"],
+  ];let t=0;
+  seq.forEach(s=>{setTimeout(()=>{flash(s[0],s[1],s[2]-60);$("arPhase").textContent=s[3];},t);t+=s[2];});
+  setTimeout(()=>$("arPhase").textContent="完成。注意:慢 rank 未到齐之前,快 rank 一直在 kernel 里自旋——下面把它量化。",t+200);
+};
+// ---- B. 偏斜 ----
+function buildSliders(){let h="";
+  for(let i=0;i<16;i++)h+=`<label>rank ${i}:<span id="dv${i}">${delay[i]}</span>µs <input type="range" id="ds${i}" min="0" max="500" value="${delay[i]}" style="width:90px"></label>`;
+  $("sliders").innerHTML=h;
+  for(let i=0;i<16;i++)$("ds"+i).oninput=e=>{delay[i]=+e.target.value;$("dv"+i).textContent=delay[i];renderB();};}
+function renderB(){
+  const last=Math.max(...delay), scale=Math.max(last+wire,300);
+  let h="";
+  for(let i=0;i<16;i++){const w=last-delay[i];
+    h+=`<div style="display:flex;align-items:center;gap:8px;font-size:12px"><span style="width:52px">rank ${i}</span>
+    <div class="bar" style="flex:1"><div class="seg wait" style="left:${delay[i]/scale*100}%;width:${w/scale*100}%;opacity:.85"></div>
+    <div class="seg wire" style="left:${last/scale*100}%;width:${wire/scale*100}%"></div></div>
+    <span style="width:110px;color:#666">等 ${w}µs + 搬 ${wire}µs</span></div>`;}
+  $("bars").innerHTML=h;
+  $("axis").innerHTML=`<span>0</span><span>${Math.round(scale/2)}µs</span><span>${scale}µs</span>`;
+  const meanW=Math.round(delay.reduce((s,d)=>s+last-d,0)/16);
+  const minD=Math.min(...delay), earliest=delay.indexOf(minD);
+  $("skewStats").innerHTML=
+    `<span class="stat">集体完成 = 最晚到达 <b>${last}µs</b> + 搬运 <b>${wire}µs</b> = <b>${last+wire}µs</b></span>`+
+    `<span class="stat">平均等待 <b>${meanW}µs</b>(占 ${(meanW/(last+wire)*100).toFixed(0)}%)</span>`+
+    `<span class="stat">等最久:rank <b>${earliest}</b>(最早到,<b>${last-minD}µs</b>)</span>`+
+    `<span class="stat">最后到:rank <b>${delay.indexOf(last)}</b>(等待 0)</span>`;
+  $("lastArr").textContent=`当前最晚到达者:rank ${delay.indexOf(last)}(${last}µs)`;
+  for(let i=0;i<16;i++)$("rk"+i).classList.toggle("strag",delay[i]===last&&last>0);
+  renderC(meanW);
+}
+// ---- C. 策略阶梯 ----
+function renderC(meanW){
+  const total=comp+meanW+wire;                       // 串行基线(单 rank 视角一段)
+  const hide=comp+meanW+Math.max(0,wire-comp);       // 理想藏走线:省 min(C,W)
+  const killw=comp+wire;                             // 理想消等待(到达对齐)
+  const both=Math.max(comp,wire);                    // 两者都要
+  const rows=[["串行基线(实测形态)",total,"#718096"],
+              ["只藏走线(fusion 谱系)",hide,"#2b6cb0"],
+              ["只消等待(我们的轴)",killw,"#f6ad55"],
+              ["两者兼得(理论极限)",both,"#2f855a"]];
+  const sc=Math.max(total,1);
+  $("ladder").innerHTML=rows.map(r=>`<div style="display:flex;align-items:center;gap:8px;font-size:12.5px;margin:4px 0">
+    <span style="width:170px">${r[0]}</span><div class="bar" style="flex:1"><div class="seg" style="left:0;width:${r[1]/sc*100}%;background:${r[2]}"></div></div>
+    <span style="width:90px"><b>${r[1]}</b>µs</span></div>`).join("");
+  $("scTbl").innerHTML=`<tr><th>策略</th><th>墙钟</th><th>相对基线</th><th>说明</th></tr>`+
+   `<tr><td>基线</td><td>${total}µs</td><td>—</td><td>C+Δ+W 完全串行(重叠=0,实测)</td></tr>`+
+   `<tr><td>藏走线</td><td>${hide}µs</td><td>省 min(C,W)=${Math.min(comp,wire)}µs</td><td>wire 与 C 并发;等待原样</td></tr>`+
+   `<tr><td>消等待</td><td>${killw}µs</td><td>省 Δ=${meanW}µs</td><td>到达对齐/等待期做独立工作(示意)</td></tr>`+
+   `<tr><td>兼得</td><td>${both}µs</td><td>省 ${total-both}µs</td><td>max(C,W)</td></tr>`;
+}
+$("wire").oninput=e=>{wire=+e.target.value;$("wv").textContent=wire;renderB();};
+$("comp").oninput=e=>{comp=+e.target.value;$("cv2").textContent=comp;renderB();};
+$("p0").onclick=()=>{delay=Array(16).fill(0);buildSliders();renderB();};
+$("p1").onclick=()=>{delay=Array(16).fill(0);delay[2]=350;buildSliders();renderB();};
+$("p2").onclick=()=>{delay=[30,140,250,330,180,70,260,110].concat(Array(8).fill(20));buildSliders();renderB();};  // 实测形态:w1 整队(4µs 散布),w0 松散(~300µs)
+$("p3").onclick=()=>{delay=Array.from({length:16},()=>Math.max(0,Math.round((Math.random()*2-1)*2*80)));buildSliders();renderB();};
+buildSliders(); renderB();
+</script>
+</body>
+</html>

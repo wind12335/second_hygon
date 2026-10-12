@@ -18,3 +18,13 @@ worker0*执行结果.md
 # 大体积原始包不入 git（共享存储常驻,来源与 sha256 见 rdma-shca/README.md）
 *.deb
 /报错.md
+# phase6 双节点握手旗标(共享存储运行时产物)
+.phase6_*
+# phase6: 原始 profiler trace 与节点控制台日志不入 git
+# (共享存储常驻;蒸馏物=analysis 摘要/聚合 json/REPORT,用 git add -f 白名单入库)
+phase6-vllm-deploy/phase6_torch_prof_rdma_*/
+phase6-vllm-deploy/phase6_hipprof_*.log
+phase6-vllm-deploy/phase6_vllm_serve_*.log
+phase6-vllm-deploy/phase6_vllm_rdma_*_n*.log
+results/phase6_vllm_serve_*.log
+results/phase6_vllm_rdma_*_n*.log

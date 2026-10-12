@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>① 预处理与 Embedding:词表并行 + 第 161 个 AllReduce</title>
+<style>
+  body{font-family:"Noto Sans SC","Microsoft YaHei",sans-serif;max-width:1000px;margin:0 auto;padding:24px;background:#fafafa;color:#222;line-height:1.6}
+  h1{font-size:22px;color:#2b6cb0}
+  .panel{background:#fff;border:1px solid #ddd;border-radius:8px;padding:16px;margin:14px 0}
+  .tok{display:inline-block;background:#e8f0fe;border:1px solid #2b6cb0;border-radius:4px;padding:2px 8px;margin:3px;cursor:default}
+  .tok small{display:block;font-size:10px;color:#666;text-align:center}
+  button{background:#2b6cb0;color:#fff;border:none;border-radius:5px;padding:7px 18px;margin:4px;font-size:14px;cursor:pointer}
+  button:disabled{background:#aaa}
+  input[type=text]{width:70%;padding:6px 10px;font-size:15px;border:1px solid #ccc;border-radius:4px}
+  input[type=range]{width:220px;vertical-align:middle}
+  .ranks{display:flex;flex-wrap:wrap;gap:6px}
+  .rcard{border:1px solid #bbb;border-radius:5px;padding:6px 8px;font-size:12px;min-width:150px;background:#f6faff}
+  .rcard.hit{border-color:#2b6cb0;box-shadow:0 0 0 2px #bcd3f5}
+  .rcard b{color:#2b6cb0}
+  .vec{display:inline-flex;gap:1px;margin:1px 0}
+  .vec i{width:7px;height:14px;border-radius:1px;background:#e4e4e4}
+  .note{background:#fff8e1;border-left:4px solid #f6a821;padding:8px 12px;font-size:13px;border-radius:4px;margin:8px 0}
+  .phase{font-size:15px;font-weight:bold;color:#c05621}
+  .ar{color:#2b6cb0;font-weight:bold}
+  a{color:#2b6cb0}
+</style>
+</head>
+<body>
+<h1>① 预处理与 Embedding —— 词表并行查表 + AllReduce 求和(§10)</h1>
+<p><a href="index.html">← 返回导航</a> | 流程:<b>文本 → 分词(token id)→ 各 rank 查自己那 1/TP 词表 → AllReduce 求和 → 完整输入 [M, 8192]</b></p>
+
+<div class="panel">
+  <b>输入文本</b>(分词为<b>示意</b>:按字符伪随机映射到 0–128255;真实 Llama-3 用 BPE 子词,词表同为 128256):
+  <div style="margin-top:6px">
+    <button class="preset">我爱海光的卡</button>
+    <button class="preset">tensor parallelism</button>
+    <button class="preset">到达偏斜是调度资源</button>
+    <input type="text" id="txt" value="我爱海光的卡">
+    <button id="btnTok">① 分词</button>
+  </div>
+</div>
+
+<div class="panel">
+  <b>张量并行度 TP = <span id="tpv">16</span></b>(每 rank 持有 <span id="rowv"></span> 行词表)
+  <input type="range" id="tp" min="1" max="16" value="16">
+  <div class="ranks" id="ranks"></div>
+  <div class="note">每个 rank 的卡片:持有行区间 + 本句命中哪些 token。命中为 0 的 rank 交"全零"答卷。</div>
+</div>
+
+<div class="panel">
+  <div class="phase" id="phase">按"① 分词"开始</div>
+  <button id="btnLocal" disabled>② 各 rank 本地查表</button>
+  <button id="btnAR" disabled class="ar">③ AllReduce 求和</button>
+  <button id="btnReset">重置</button>
+  <div id="chips" style="margin-top:10px"></div>
+  <div id="vecs"></div>
+  <div class="note" id="sumNote" style="display:none">
+    AllReduce 完成:16 份"各自查了一部分、其余为零"的矩阵相加 = 完整的 [M, 8192] 输入。
+    <b>这就是一步里第 161 个 AllReduce</b>(前 160 个 = 80 层 × 2;实测 41,538 AR = 258 step × 161,严丝合缝)。
+  </div>
+</div>
+
+<div class="note">为什么查表也要通信?因为 id→向量的映射被切成了 16 段分散在各卡——这是"切权重"的代价之一:
+不只 GEMM 产生部分和,<b>查表</b>也会。颜色即贡献来源 rank。</div>
+
+<script>
+"use strict";
+const VOCAB = 128256;
+const rankColor = r => `hsl(${(r * 137.508) % 360},62%,55%)`;
+let tokens = [], phase = 0, TP = 16;
+
+const $ = id => document.getElementById(id);
+const rowsPerRank = () => Math.ceil(VOCAB / TP);
+const ownerOf = id => Math.min(Math.floor(id / rowsPerRank()), TP - 1);
+
+function tokenize() {
+  const t = $("txt").value.trim() || "空";
+  tokens = [...t].map(ch => {
+    let h = 2166136261;
+    for (const c of ch) { h ^= c.codePointAt(0); h = Math.imul(h, 16777619) >>> 0; }
+    return { ch, id: h % VOCAB };
+  }).slice(0, 24);
+  phase = 1; $("sumNote").style.display = "none";
+  $("btnLocal").disabled = false; $("btnAR").disabled = true;
+  $("phase").textContent = `分词完成:M = ${tokens.length} 个 token(每格上方字符、下方 id)`;
+  drawTokens(); drawRanks(); drawVecs(0);
+}
+function drawTokens() {
+  let h = "";
+  tokens.forEach(t => h += `<span class="tok">${t.ch}<small>${t.id}</small></span>`);
+  $("chips").innerHTML = h;
+}
+function drawRanks() {
+  const R = rowsPerRank(); let h = "";
+  for (let r = 0; r < TP; r++) {
+    const lo = r * R, hi = Math.min((r + 1) * R, VOCAB) - 1;
+    const hits = tokens.map((t, i) => ownerOf(t.id) === r ? i : -1).filter(i => i >= 0);
+    h += `<div class="rcard ${hits.length ? "hit" : ""}"><b>rank ${r}</b> 行 [${lo.toLocaleString()}, ${hi.toLocaleString()}]<br>` +
+         (hits.length ? `命中 token #${hits.join(", #")}` : "命中:无(全零)") + `</div>`;
+  }
+  $("ranks").innerHTML = h;
+  $("rowv").textContent = `${R.toLocaleString()}(共 ${VOCAB.toLocaleString()})`;
+}
+let mergedN = 0; // AllReduce 动画进度:前 mergedN 个 token 已并入
+function vecBlocks(what) { // what: 0=清空 1=本地查表(叠加 mergedN 进度) 2=求和完成
+  let h = "<div style='margin-top:6px'>";
+  tokens.forEach((t, i) => {
+    const o = ownerOf(t.id);
+    const merged = what === 2 || (what === 1 && i < mergedN);
+    h += `<div style='display:flex;align-items:center;gap:8px'><span class='tok' style='min-width:34px'>${t.ch}</span><span class='vec'>`;
+    for (let b = 0; b < 30; b++) {
+      let c = "#e4e4e4";
+      if (what >= 1) c = merged ? rankColor(o) : rankColor(o) + "55";
+      h += `<i style='background:${c}'></i>`;
+    }
+    h += `</span><small>${what === 0 ? "" : merged ? `内容来自 rank ${o},已并入总和` : `仅 rank ${o} 手上有这一行`}</small></div>`;
+  });
+  return h + "</div>";
+}
+function drawVecs(what) { $("vecs").innerHTML = vecBlocks(what); }
+function localLookup() {
+  phase = 2; $("btnLocal").disabled = true; $("btnAR").disabled = false;
+  $("phase").textContent = "② 本地查表:每 rank 只对自己区间内的 id 取出行,其余位置全零 —— 16 份都不完整";
+  drawVecs(1);
+}
+function allreduce() {
+  phase = 3; $("btnAR").disabled = true;
+  $("phase").textContent = "③ AllReduce(Tree-LL,16 rank):16 份部分和逐元素相加 ……";
+  let n = 0; mergedN = 0;
+  const iv = setInterval(() => {           // 逐 token"点亮"模拟归约推进
+    n++; mergedN = n;
+    if (n >= tokens.length) {
+      clearInterval(iv); drawVecs(2);
+      $("phase").textContent = "③ AllReduce 完成:得到完整输入 [M, 8192]";
+      $("sumNote").style.display = "block";
+    } else { drawVecs(1); $("phase").textContent = `③ AllReduce 归约中…… ${n}/${tokens.length}`; }
+  }, 200);
+}
+function reset() { phase = 0; tokens = []; $("chips").innerHTML = ""; $("vecs").innerHTML = ""; $("ranks").innerHTML = "";
+  $("btnLocal").disabled = $("btnAR").disabled = true; $("phase").textContent = "按\"① 分词\"开始"; }
+$("btnTok").onclick = tokenize;
+$("btnLocal").onclick = localLookup;
+$("btnAR").onclick = allreduce;
+$("btnReset").onclick = reset;
+$("tp").oninput = e => { TP = +e.target.value; $("tpv").textContent = TP;
+  if (tokens.length) { drawRanks(); drawVecs(phase >= 2 ? phase - 1 : 0); } };
+document.querySelectorAll(".preset").forEach(b => b.onclick = () => { $("txt").value = b.textContent; tokenize(); });
+</script>
+</body>
+</html>

@@ -1,0 +1,45 @@
+8 rank traces, 待算 8(断点续跑跳过 0) -> /root/private_data/second_hygon/phase6-vllm-deploy/phase6_torch_prof_rdma_20261011_153613/analysis
+单文件流式串行执行(峰值内存≈几十MB,不整文件解压,不并行)
+[1/8] 开始: vcjob-2109186266254176257-abc12335-78685-worker-0_921.1791704842438276688.pt.trace.json.gz
+[done] vcjob-2109186266254176257-abc12335-78685-worker-0_921.1791704842438276688.pt.trace.json.gz: kernel=493071 window=40.0s busy=93.4% rccl=1.2% gemm=15.9% attn=1.7%
+[2/8] 开始: vcjob-2109186266254176257-abc12335-78685-worker-0_922.1791704852017444512.pt.trace.json.gz
+[done] vcjob-2109186266254176257-abc12335-78685-worker-0_922.1791704852017444512.pt.trace.json.gz: kernel=493071 window=40.0s busy=72.8% rccl=1.4% gemm=20.3% attn=2.2%
+[3/8] 开始: vcjob-2109186266254176257-abc12335-78685-worker-0_923.1791704833233096424.pt.trace.json.gz
+[done] vcjob-2109186266254176257-abc12335-78685-worker-0_923.1791704833233096424.pt.trace.json.gz: kernel=493071 window=40.0s busy=81.7% rccl=1.2% gemm=19.4% attn=2.2%
+[4/8] 开始: vcjob-2109186266254176257-abc12335-78685-worker-0_924.1791704840922000044.pt.trace.json.gz
+[done] vcjob-2109186266254176257-abc12335-78685-worker-0_924.1791704840922000044.pt.trace.json.gz: kernel=493071 window=40.0s busy=90.2% rccl=1.2% gemm=16.4% attn=1.8%
+[5/8] 开始: vcjob-2109186266254176257-abc12335-78685-worker-0_925.1791704848127857493.pt.trace.json.gz
+[done] vcjob-2109186266254176257-abc12335-78685-worker-0_925.1791704848127857493.pt.trace.json.gz: kernel=493071 window=40.0s busy=81.0% rccl=1.2% gemm=19.6% attn=2.3%
+[6/8] 开始: vcjob-2109186266254176257-abc12335-78685-worker-0_927.1791704841648513852.pt.trace.json.gz
+[done] vcjob-2109186266254176257-abc12335-78685-worker-0_927.1791704841648513852.pt.trace.json.gz: kernel=493071 window=40.0s busy=90.7% rccl=1.2% gemm=16.3% attn=1.8%
+[7/8] 开始: vcjob-2109186266254176257-abc12335-78685-worker-0_930.1791704838853757022.pt.trace.json.gz
+[done] vcjob-2109186266254176257-abc12335-78685-worker-0_930.1791704838853757022.pt.trace.json.gz: kernel=493071 window=40.0s busy=92.9% rccl=1.2% gemm=15.9% attn=1.8%
+[8/8] 开始: vcjob-2109186266254176257-abc12335-78685-worker-0_932.1791704845795601132.pt.trace.json.gz
+[done] vcjob-2109186266254176257-abc12335-78685-worker-0_932.1791704845795601132.pt.trace.json.gz: kernel=493071 window=40.0s busy=74.8% rccl=1.4% gemm=19.7% attn=2.2%
+
+===== ① 每 rank 总览(share_of_busy = 占 busy 时间的比例) =====
+rank                         window_s  busy%  rccl%  gemm%  attn%  elem% other%重叠:comm被重叠%
+worker-0/921            40.0   93.4    1.2   15.9    1.7   76.9    2.3       0.0
+worker-0/922            40.0   72.8    1.4   20.3    2.2   70.8    2.9       0.0
+worker-0/923            40.0   81.7    1.2   19.4    2.2   72.0    2.8       0.0
+worker-0/924            40.0   90.2    1.2   16.4    1.8   76.0    2.3       0.0
+worker-0/925            40.0   81.0    1.2   19.6    2.3   71.8    2.8       0.0
+worker-0/927            40.0   90.7    1.2   16.3    1.8   76.2    2.3       0.0
+worker-0/930            40.0   92.9    1.2   15.9    1.8   76.7    2.3       0.0
+worker-0/932            40.0   74.8    1.4   19.7    2.2   71.6    2.7       0.0
+
+[worker-0 均值] rccl=1.3% gemm=17.9% attn=2.0% elem=74.0% comm被重叠=0.0%
+
+===== ② 同节点 per-collective 到达偏斜(dur_r - dur_min = 该 rank 等最慢者) =====
+[worker-0] kind=AllGather 对齐集合数=387 有偏斜(>1us)集合占比=100%
+  intrinsic(逐集合最小dur) p50=75us p90=88us 均值=79us
+  rank(pid 921): excess(等最慢者)总计=226.8ms 占窗口=0.57%  最常最后到=26次
+  rank(pid 922): excess(等最慢者)总计=186.3ms 占窗口=0.47%  最常最后到=110次
+  rank(pid 923): excess(等最慢者)总计=201.9ms 占窗口=0.50%  最常最后到=3次
+  rank(pid 924): excess(等最慢者)总计=232.8ms 占窗口=0.58%  最常最后到=45次
+  rank(pid 925): excess(等最慢者)总计=183.1ms 占窗口=0.46%  最常最后到=9次
+  rank(pid 927): excess(等最慢者)总计=224.5ms 占窗口=0.56%  最常最后到=106次
+  rank(pid 930): excess(等最慢者)总计=232.0ms 占窗口=0.58%  最常最后到=70次
+  rank(pid 932): excess(等最慢者)总计=208.5ms 占窗口=0.52%  最常最后到=18次
+
+per-rank JSON -> /root/private_data/second_hygon/phase6-vllm-deploy/phase6_torch_prof_rdma_20261011_153613/analysis/rank_*.json; skew -> /root/private_data/second_hygon/phase6-vllm-deploy/phase6_torch_prof_rdma_20261011_153613/analysis/skew.json

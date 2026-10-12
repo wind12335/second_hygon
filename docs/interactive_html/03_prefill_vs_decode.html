@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>③ Prefill vs Decode + 连续拼批(§12)</title>
+<style>
+  body{font-family:"Noto Sans SC","Microsoft YaHei",sans-serif;max-width:1080px;margin:0 auto;padding:24px;background:#fafafa;color:#222;line-height:1.55}
+  h1{font-size:22px;color:#2b6cb0}
+  .panel{background:#fff;border:1px solid #ddd;border-radius:8px;padding:14px 18px;margin:12px 0}
+  button{background:#2b6cb0;color:#fff;border:none;border-radius:5px;padding:7px 18px;margin:3px;font-size:14px;cursor:pointer}
+  button.stop{background:#c53030}
+  input[type=range]{width:170px;vertical-align:middle}
+  canvas{background:#fff;border:1px solid #ccc;border-radius:4px}
+  .stat{display:inline-block;background:#eef4fb;border-radius:6px;padding:6px 12px;margin:3px;font-size:13.5px}
+  .stat b{color:#2b6cb0}
+  .note{background:#fff8e1;border-left:4px solid #f6a821;padding:8px 12px;font-size:13px;border-radius:4px;margin:8px 0}
+  a{color:#2b6cb0}
+  .lg{display:inline-block;width:12px;height:12px;border-radius:2px;margin:0 4px;vertical-align:-1px}
+</style>
+</head>
+<body>
+<h1>③ Prefill vs Decode:一条请求的时间线 + 连续拼批(§12)</h1>
+<p><a href="index.html">← 返回导航</a> |
+<span class="lg" style="background:#2f855a"></span>prefill(整段 prompt 一次算,块宽度∝长度)
+<span class="lg" style="background:#2b6cb0"></span>decode(每步 1 token,117ms/步<b>实测</b>)
+<span class="lg" style="background:#f6ad55"></span>chunked prefill(超长 prompt 切块)<br>
+<b>图中每一行 = 一个独立请求(各自完整的 prompt,来自不同用户)。</b>所谓"并发",是<b>多个请求</b>同时被服务,
+不是把一句话切开分头算——单个 prompt 永远只属于它自己那一行;橙色块是"同一条 prompt 太长、分了几步算"的块。</p>
+
+<div class="panel">
+  <b>prompt 长度</b> <span id="pv"></span> tokens <input type="range" id="plen" min="5" max="13" value="9"><br>
+  <b>并发上限</b> <span id="cv"></span> 请求 <input type="range" id="conc" min="1" max="16" value="8"><br>
+  <b>每请求生成</b> <span id="tv"></span> tokens <input type="range" id="mtok" min="4" max="128" value="64"><br>
+  <b>新请求到达间隔</b> <span id="av"></span> ms <input type="range" id="arr" min="0" max="30" value="8">×100ms<br>
+  <button id="run">▶ 播放</button><button id="pause" class="stop" disabled>⏸ 暂停</button><button id="reset">重置</button>
+  <span style="font-size:13px;color:#666">动画速度</span><input type="range" id="spd" min="1" max="10" value="5">
+</div>
+
+<div class="panel">
+  <canvas id="gantt" width="1020" height="420"></canvas>
+  <div id="stepinfo" style="font-size:14px;margin-top:6px"></div>
+  <div id="stats"></div>
+</div>
+
+<div class="note"><b>模型口径</b>:decode 步长 117ms 为本仓 TP16 实测(M≈32 时基本不随 M 变);
+prefill 步长为<b>示意模型</b> = 110ms + 0.05ms×token(chunk 预算 2048 token/步,vLLM 风格),
+只保证"长 prompt 的 prefill 块远长于 decode 刻度"这一量级关系。<br>
+右键另存图片可留档;每步下方显示本步 M 与 161 个 AllReduce 的消息总量(=161×M×8192×2B)。</div>
+
+<script>
+"use strict";
+const DECODE_MS=117, CHUNK_BUDGET=2048, PREFILL_A=110, PREFILL_B=0.05;
+const PLENS=[32,64,128,256,512,1024,2048,3072,4096];
+let reqs=[], step=null, t=0, nextArrival=0, nArrived=0, playing=false, timer=null, speed=5;
+let ganttReq=[], maxT=1;
+const $=id=>document.getElementById(id);
+const ctrl={plen:$("plen"),conc:$("conc"),mtok:$("mtok"),arr:$("arr")};
+
+function params(){return{
+  plen:[32,64,128,256,512,1024,1536,2048,3072,4096,6144,8192,8192][+ctrl.plen.value],
+  conc:+ctrl.conc.value, mtok:+ctrl.mtok.value, arrMs:+ctrl.arr.value*100};}
+
+function reset(){
+  playing=false; clearInterval(timer);
+  $("run").disabled=false; $("pause").disabled=true;
+  reqs=[]; ganttReq=[]; t=0; nextArrival=0; nArrived=0; maxT=1;
+  draw(); $("stats").innerHTML=""; $("stepinfo").textContent="已重置,按 ▶ 播放";
+}
+function makeReq(arrT){return{id:nArrived, arrT, plen:params().plen, done:0, prefillLeft:params().plen,
+  chunks:0, prefillEvents:[], decodeEvents:[], firstTokT:null, endT:null};}
+
+function doStep(){
+  const P=params();
+  if(nextArrival<=t && nArrived<40 && reqs.filter(r=>r.endT===null).length<P.conc){  // 并发上限=在飞请求(含正在 prefill 的),超了排队
+    reqs.push(makeReq(nextArrival)); ganttReq.push(reqs[reqs.length-1]); nArrived++;
+    nextArrival=t+P.arrMs;
+  }
+  // 1) 继续/接纳 prefill(块预算 2048 token)
+  let budget=CHUNK_BUDGET, Mp=0, admitted=[];
+  for(const r of reqs){
+    if(r.endT!==null||r.prefillLeft<=0||r.arrT>t) continue;
+    const take=Math.min(r.prefillLeft, budget, r.plen);
+    if(take<=0) continue;
+    r.prefillLeft-=take; budget-=take; Mp+=take;
+    r.prefillEvents.push({t0:t, dur:Math.round(PREFILL_A+PREFILL_B*take), kind:take<r.plen||r.plen>CHUNK_BUDGET?"chunk":"full"});
+    admitted.push(r);
+    if(r.prefillLeft===0 && r.firstTokT===null){ r.firstTokT=t+ (PREFILL_A+PREFILL_B*take); r.done=1; r.decodeEvents.push({t0:r.firstTokT, dur:DECODE_MS}); }
+  }
+  // 2) decode:所有已出首 token 且未完成的请求各 +1 token
+  const dec=ganttReq.filter(r=>r.firstTokT!==null&&r.endT===null&&r.done<P.mtok&&r.arrT<=t
+    &&!(r.decodeEvents.length&&r.decodeEvents[r.decodeEvents.length-1].t0+DECODE_MS>t)); // 上一记 tick 还没走完(本步刚出首 token)的下一步再 decode
+  let Md=0;
+  const prefillPart=Mp>0?Math.round(PREFILL_A+PREFILL_B*Mp):0;   // 混合步:decode 与 prefill 同一批(现实 vLLM 是合在同一个 forward 里,这里画成先后,量级等价)
+  for(const r of dec){ r.done++; Md++; r.decodeEvents.push({t0:t+prefillPart, dur:DECODE_MS}); if(r.done>=P.mtok) r.endT=t+prefillPart+DECODE_MS; }
+  const dur=Math.round(prefillPart+(Md>0?DECODE_MS:0));
+  const M=Mp+Md;
+  t+=Math.max(dur,20);
+  maxT=Math.max(maxT,t);
+  const phaseTxt=Mp>0?(Md>0?"<b>混合步</b>:prefill 块与 decode 同批执行(拼成同一个 M)":"纯 prefill 步")
+                  :(Md>0?"<b>纯 decode 步(稳态)</b>:每请求各出 1 token,步长恒 117ms":"空闲步(等新请求)");
+  $("stepinfo").innerHTML=`t=${(t/1000).toFixed(2)}s | ${phaseTxt} | 本步 prefill <b>${Mp}</b> tok + decode <b>${Md}</b> tok → M=<b>${M}</b>`+
+    ` | 本步 AR 消息量 = 161×${M}×8192×2B ≈ <b>${(161*M*8192*2/1048576).toFixed(1)}MB</b>`;
+  const open=reqs.filter(r=>r.endT===null&&r.arrT<=t).length;
+  if(reqs.length&&reqs.every(r=>r.endT!==null)&&nArrived>=Math.min(P.conc*3,24)){ finish(); }
+  if(nArrived<Math.min(P.conc*3,24)&&open===0&&t>nextArrival+5000){ finish(); }
+  draw();
+}
+function finish(){
+  playing=false; clearInterval(timer); $("run").disabled=true; $("pause").disabled=true;
+  const done=reqs.filter(r=>r.endT!==null);
+  const ttft=done.map(r=>r.firstTokT-r.arrT), tot=done.map(r=>r.endT-r.arrT);
+  const avg=a=>a.length?(a.reduce((x,y)=>x+y,0)/a.length/1000).toFixed(2):"–";
+  $("stats").innerHTML=
+   `<span class="stat">完成请求 <b>${done.length}</b></span>`+
+   `<span class="stat">平均 TTFT <b>${avg(ttft)}s</b>(排队+prefill)</span>`+
+   `<span class="stat">平均总时延 <b>${avg(tot)}s</b></span>`+
+   `<span class="stat">逐 token 间隔 ITPT ≈ <b>${DECODE_MS}ms</b>(实测)</span>`+
+   `<span class="stat">吞吐 ≈ <b>${done.length&&(done.length/(t/1000)).toFixed(2)}</b> req/s</span>`;
+}
+function draw(){
+  const cv=$("gantt"), ctx=cv.getContext("2d");
+  ctx.clearRect(0,0,cv.width,cv.height);
+  const X=110, W=cv.width-140, rowH=14, top=26;
+  const x=t=>X+(t/maxT)*W;
+  ctx.font="12px sans-serif"; ctx.fillStyle="#666";
+  for(let s=0;s<=5;s++){const tt=maxT*s/5; ctx.fillText((tt/1000).toFixed(1)+"s",X+W*s/5-14,cv.height-6);
+    ctx.strokeStyle="#eee"; ctx.beginPath(); ctx.moveTo(X+W*s/5,top-6); ctx.lineTo(X+W*s/5,cv.height-20); ctx.stroke();}
+  ganttReq.slice(0,24).forEach((r,i)=>{
+    const y=top+i*rowH;
+    ctx.fillStyle="#888"; ctx.fillText(`req${r.id}`,30,y+10);
+    r.prefillEvents.forEach(e=>{ctx.fillStyle=e.kind==="chunk"?"#f6ad55":"#2f855a"; ctx.fillRect(x(e.t0),y,Math.max(2,x(e.t0+e.dur)-x(e.t0)),rowH-4);});
+    r.decodeEvents.forEach(e=>{ctx.fillStyle="#2b6cb0"; ctx.fillRect(x(e.t0),y+3,Math.max(1.5,(x(e.t0+e.dur)-x(e.t0))*0.7),rowH-10);});
+    if(r.firstTokT!==null){ctx.strokeStyle="#c05621"; ctx.beginPath(); ctx.moveTo(x(r.firstTokT),y-2); ctx.lineTo(x(r.firstTokT),y+rowH-2); ctx.stroke();}
+  });
+  ctx.fillStyle="#c05621"; ctx.fillText("│ 首token(TTFT 决定点)",X+10,top-10);
+}
+function play(){
+  playing=true; $("run").disabled=true; $("pause").disabled=false;
+  timer=setInterval(doStep, 600/speed);
+}
+["plen","conc","mtok","arr"].forEach(k=>ctrl[k].oninput=()=>{ $("pv").textContent=params().plen;
+  $("cv").textContent=params().conc; $("tv").textContent=params().mtok; $("av").textContent=params().arrMs; });
+$("spd").oninput=e=>{speed=+e.target.value; if(playing){clearInterval(timer); timer=setInterval(doStep,600/speed);}};
+$("run").onclick=play; $("pause").onclick=()=>{playing=false;clearInterval(timer);$("run").disabled=false;$("pause").disabled=true;};
+$("reset").onclick=reset;
+reset();
+</script>
+</body>
+</html>

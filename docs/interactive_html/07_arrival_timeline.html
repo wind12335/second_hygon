@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>⑦ 实测时间线:16 rank 的 AllReduce 到达与等待(修正口径)</title>
+<style>
+  body{font-family:"Noto Sans SC","Microsoft YaHei",sans-serif;max-width:1120px;margin:0 auto;padding:24px;background:#fafafa;color:#222;line-height:1.55}
+  h1{font-size:22px;color:#2b6cb0} h2{font-size:16px;color:#2b6cb0;margin:16px 0 6px}
+  .panel{background:#fff;border:1px solid #ddd;border-radius:8px;padding:14px 18px;margin:12px 0}
+  button{background:#2b6cb0;color:#fff;border:none;border-radius:5px;padding:7px 16px;margin:3px;font-size:14px;cursor:pointer}
+  button.on{background:#c05621} button.stop{background:#c53030}
+  input[type=range]{width:160px;vertical-align:middle}
+  canvas{background:#fff;border:1px solid #ccc;border-radius:4px}
+  #tl{cursor:crosshair} #mini{cursor:pointer;display:block}
+  .stat{display:inline-block;background:#eef4fb;border-radius:6px;padding:6px 12px;margin:3px;font-size:13.5px}
+  .stat b{color:#2b6cb0}
+  .note{background:#fff8e1;border-left:4px solid #f6a821;padding:8px 12px;font-size:13px;border-radius:4px;margin:8px 0}
+  .fix{background:#fed7d7;border-left:4px solid #c53030;padding:8px 12px;font-size:13px;border-radius:4px;margin:8px 0}
+  a{color:#2b6cb0}
+  .lg{display:inline-block;width:12px;height:12px;border-radius:2px;margin:0 4px;vertical-align:-1px}
+  .n0{color:#6b46c1;font-weight:bold}.n1{color:#2c7a7b;font-weight:bold}
+  .rkrow{display:flex;align-items:center;gap:8px;margin:2px 0;font-size:12.5px}
+  .rkrow .nm{width:150px;text-align:right}
+  .rkrow .bar{height:14px;border-radius:3px;position:relative;overflow:hidden;flex:1;max-width:560px;background:#edf2f7}
+  .rkrow .bar i{position:absolute;top:0;bottom:0}
+  #hov{font-size:13.5px;min-height:20px;color:#444;margin-top:6px;background:#f7fafc;border-radius:4px;padding:6px 10px}
+  .hint{font-size:13px;color:#666;margin:4px 0}
+</style>
+</head>
+<body>
+<h1>⑦ 实测时间线:每个 rank 的 AllReduce 何时到达、等了多久(41,538 个 AR 全量统计)</h1>
+<p><a href="index.html">← 返回导航</a> | 数据源:phase6 ③ 双机 16 卡 TP16 vLLM 30.3s 窗口(loadgen conc=16,maxtok=128)。
+每根横条 = 一次 AllReduce kernel:<span class="lg" style="background:#f6ad55"></span><b>等待</b>(kernel 内自旋等人)+
+<span class="lg" style="background:#2b6cb0"></span><b>走线</b>(协议+搬运)。行标 <span class="n0">worker-0</span> /
+<span class="n1">worker-1</span>(两节点时钟经锚定对齐,残差见下方说明)。<b>全部数字为实测,非模拟。</b></p>
+
+<div id="chips"></div>
+
+<div class="panel">
+  <h2>视图 A:真实时间线 —— 每 rank 何时到达、等多久</h2>
+  <div id="winbtns"></div>
+  <button id="modeTL" class="on">📅 时间线(放大看 12 个 AR)</button>
+  <button id="modeSC">🎚 到达散布散点(96 个 AR 一览)</button>
+  <button id="pgL">‹ 前一段</button><button id="pgR">后一段 ›</button>
+  <div class="hint">时间线模式:<b>默认已放大到 12 个 AR</b>(能看清每根条的橙/蓝两段与各 rank 的到达错位);
+    滚轮缩放、按住拖拽平移、点上方小地图跳转、‹ › 翻页;悬停显示数值。◆ = 最常迟到的 rank(pid931)。
+    散点模式:每列一个 AR,纵轴=各 rank 比本集合<b>最早者</b>晚到多少 —— <span class="n1">青点贴底(整队)</span>、
+    <span class="n0">紫点拖尾(松散)</span>就是 55% 等待的来源。</div>
+  <canvas id="mini" width="1060" height="56"></canvas>
+  <canvas id="tl" width="1060" height="480"></canvas>
+  <div id="hov">把鼠标放到条上查看单个集合的细节;两根 AR 之间的空隙 = 层内计算+派发开销(本图只画 AR kernel)。</div>
+  <div id="wininfo" style="font-size:13px;color:#555"></div>
+</div>
+
+<div class="panel">
+  <h2>视图 B:一个 AllReduce 从 0 开始的完整时间线(实测单个集合)</h2>
+  <div class="hint">
+    <b>横轴 0 = 本集合最早的 rank 到达时刻</b>,向右走到这次集合通信结束;每行一个 rank,按到达先后从上到下排,三段颜色:
+    <span class="lg" style="background:#e2e8f0;border:1px solid #cbd5e0"></span><b>灰 = 还没进入这次 AllReduce</b>(还在算上一层的 kernel 或 kernel 尚未派发);
+    <span class="lg" style="background:#f6ad55"></span><b>橙 = 已进入 AR kernel,原地自旋等人</b>(反复轮询"人到齐没",不做任何有用功);
+    <span class="lg" style="background:#2b6cb0"></span><b>蓝 = 人到齐,数据真正搬运+归约</b>(16 行同时开始、同时结束)。<br>
+    读法:前 15 行几乎立刻变橙(到了、在等),最后一行一直灰着(还没来)——<b>15 行的橙条总长度,就是被最后一行的灰段拖出来的</b>。
+  </div>
+  <b>集合</b> <input type="range" id="ci" min="0" max="95" value="20">
+  <button id="play">▶ 从 0 播放(看 15 人怎么等 1 人)</button><button id="stopb" class="stop" disabled>⏸ 停止</button>
+  <canvas id="one" width="1060" height="600"></canvas>
+  <div id="oneinfo" style="font-size:14px"></div>
+</div>
+
+<div class="panel">
+  <h2>视图 C:全窗口(30.3s / 41,538 个 AR)统计</h2>
+  <div style="display:flex;gap:24px;flex-wrap:wrap">
+    <div>
+      <div style="font-size:13.5px;margin-bottom:4px">各 rank <b>真等待</b>占 30.3s 窗口的比例(橙条;右侧 % 后括号 = 该 rank 是"全局最后到"的比例)</div>
+      <div id="rkbars"></div>
+    </div>
+    <div>
+      <div style="font-size:13.5px;margin-bottom:4px">全局到达散布 δ 的分布(每次 AR:最晚到达 − 最早到达)</div>
+      <canvas id="hist" width="440" height="230"></canvas>
+      <div class="note" style="margin-top:6px">两节点"整队纪律"对比:<br>
+      节点内 8 rank 到达散布(中位):<b><span class="n0">worker-0 ≈ 295µs</span></b> vs <b><span class="n1">worker-1 ≈ 4µs</span></b><br>
+      → worker-1 八卡几乎像一个人一样整队到达;<br>worker-0 内部松散,且 <b>75% 的 AR 里全局最后到者在 worker-0</b>(pid931 独占 29%)。</div>
+    </div>
+  </div>
+</div>
+
+<div class="fix"><b>⚠ 对 REPORT.md 原结论的修正(2026-10-10,本页数据发现)</b>:
+原报告推断"worker-0 早到长等、worker-1 晚到少等"——<b>方向反了</b>。依据:①16 rank 的 AR <b>结束时刻高度同步</b>
+(锚定残差 p50=3µs / p90=19.7µs),而 dur = 结束 − 到达 ⇒ <b>时长越长 = 到得越早</b>;②据此重排:worker-1 的 rank
+kernel 时长普遍更长 ⇒ 到得更早且整队紧密;worker-0 内部到达散布 295µs(中位),含绝大多数全局最晚者。
+③原口径把"节点内最小时长"当走线(worker-0 均值 193µs),但全局最晚者多在 worker-0 ⇒ worker-1 的最小时长(437µs)里
+大头是等待。<b>修正后:真走线 = 全局最小时长,均值 92µs,总量 3.8s(12.6% 墙钟);真等待 = 16.8s(55.4% 墙钟,单 rank 视角)
+——等待池比原口径(45%)更大。</b>"AR 名义占 ~68-75%,其中约 4/5 是等待"的论文表述据此更新。</div>
+
+<div class="note"><b>方法口径</b>(与文档 §1.5 一致并细化):
+① 同节点 8 rank 共享主机时钟,节点内时刻直接可比;跨节点时钟独立,用"AR 结束时刻近似同步"锚定
+(offset = 中位数 7.6µs,残差 p90 = 19.7µs ≪ δ 中位 534µs,故锚定可靠);
+② <b>真走线 W</b> = 每个集合全局 16 rank 的最小时长(全局最晚到达者的 kernel ≈ 纯协议+搬运,上界的紧估计);
+③ <b>真等待</b> = dur − W;④ 自旋模型互验:节点内 (dur − dur_min) 与 (最晚 ts − ts) 两种独立算法之差 p50 = 2.4µs ✓;
+⑤ 数据由 build_07_arrival_data.py 从 analysis/rank_*.json 的逐事件序列自动生成,可复算。</div>
+
+<script src="07_arrival_data.js"></script>
+<script>
+"use strict";
+const $=id=>document.getElementById(id);
+const M=ARDATA.meta, COL={wait:"#f6ad55",wire:"#2b6cb0"}, NODECOL=["#6b46c1","#2c7a7b"];
+const med=a=>{const b=[...a].sort((x,y)=>x-y);const m=b.length>>1;return b.length%2?b[m]:(b[m-1]+b[m])/2;};
+let curW=1, timer=null;
+
+// ---------- 顶部统计条 ----------
+$("chips").innerHTML=[
+ `每次 AR 全局到达散布 δ:p50 <b>${M.deltaP50}µs</b> / p90 <b>${M.deltaP90}µs</b> / p99 <b>${M.deltaP99}µs</b>`,
+ `真走线:均值 <b>${M.wireMeanUs}µs</b>/次,总量 <b>${M.wireTotalS}s(${M.wireSharePct}% 墙钟)</b>`,
+ `真等待:<b>44.5%–65.8%</b> 墙钟(16 rank 各自视角,均值≈60%)`,
+ `节点内到达散布(中位):<b><span class="n0">w0 ${M.spreadW0P50}µs</span></b> vs <b><span class="n1">w1 ${M.spreadW1P50}µs</span></b>`,
+ `全局最后到者 <b>${M.lastGlobalW0Pct}% 在 worker-0</b>(pid931 独占 29.1%)`,
+ `结束同步锚定残差 p90 <b>${M.anchorResidP90}µs</b> ≪ δ p50(锚定可靠)`
+].map(x=>`<span class="stat">${x}</span>`).join("");
+
+// ---------- 视图 A 公共 ----------
+function win(){return ARDATA.windows[curW];}
+function collStats(c){                       // 该集合的最早/最晚到达、走线(全局最小时长)、对应 rank
+  const row=win().events[c];
+  let wG=Infinity,first=Infinity,lastT=-Infinity,firstR=0,lastR=0;
+  row.forEach((e,r)=>{if(e[1]<wG)wG=e[1];if(e[0]<first){first=e[0];firstR=r;}if(e[0]>lastT){lastT=e[0];lastR=r;}});
+  return{wG,first,lastT,firstR,lastR};
+}
+function fullRange(){const W=win();let mn=Infinity,mx=-Infinity;
+  W.events.forEach(row=>row.forEach(e=>{mn=Math.min(mn,e[0]);mx=Math.max(mx,e[0]+e[1]);}));
+  return[mn-150,mx+150];}
+let mode="tl", vw={x0:0,vwid:8000}, hovC=-1, hovR=-1, mdrag=null, ndrag=null;
+function clampView(){const[a,b]=fullRange();vw.vwid=Math.max(600,Math.min(vw.vwid,b-a));
+  vw.x0=Math.max(a,Math.min(vw.x0,b-vw.vwid));}
+function defView(){const W=win();let mn=Infinity,mx=-Infinity;
+  W.events.slice(0,12).forEach(row=>row.forEach(e=>{mn=Math.min(mn,e[0]);mx=Math.max(mx,e[0]+e[1]);}));
+  vw={x0:mn-100,vwid:mx-mn+200};hovC=-1;hovR=-1;clampView();}
+
+// ---------- 视图 A:小地图 ----------
+function drawMini(){
+  const cv=$("mini"),ctx=cv.getContext("2d");ctx.clearRect(0,0,cv.width,cv.height);
+  const W=win(),[a,b]=fullRange(),L=118,R=14;
+  const X=t=>L+(t-a)/(b-a)*(cv.width-L-R);
+  W.events.forEach(row=>row.forEach((e,r)=>{
+    const y=4+r*3;
+    ctx.fillStyle=NODECOL[ARDATA.ranks[r].node==="worker-0"?0:1];
+    ctx.globalAlpha=.75;
+    ctx.fillRect(X(e[0]),y,Math.max(1.2,X(e[0]+e[1])-X(e[0])),2);
+    ctx.globalAlpha=1;
+  }));
+  ctx.fillStyle="#888";ctx.font="10.5px sans-serif";
+  ctx.fillText("全窗口概览(点击/拖动跳转)",L,11);
+  ctx.strokeStyle="#c05621";ctx.lineWidth=2;
+  ctx.strokeRect(X(vw.x0),1.5,Math.max(3,X(vw.x0+vw.vwid)-X(vw.x0)),cv.height-3);
+  ctx.lineWidth=1;
+}
+// ---------- 视图 A:时间线模式 ----------
+function drawTL(){
+  const cv=$("tl"),ctx=cv.getContext("2d");ctx.clearRect(0,0,cv.width,cv.height);
+  const W=win(),L=118,R=14,top=44,rowH=26,axisY=top+16*rowH+8;
+  const X=t=>L+(t-vw.x0)/vw.vwid*(cv.width-L-R);
+  // 时间网格
+  const steps=[50,100,200,500,1000,2000,5000,10000,20000];
+  const gs=steps.find(s=>(cv.width-L-R)*s/vw.vwid>72)||20000;
+  ctx.font="11px sans-serif";
+  for(let t=Math.ceil(vw.x0/gs)*gs;t<=vw.x0+vw.vwid;t+=gs){
+    ctx.strokeStyle="#eee";ctx.beginPath();ctx.moveTo(X(t),top-14);ctx.lineTo(X(t),axisY);ctx.stroke();
+    ctx.fillStyle="#999";ctx.fillText((t/1000).toFixed(2),X(t)-14,cv.height-8);
+  }
+  // 节点分组底色与标签
+  ctx.fillStyle="rgba(107,70,193,.05)";ctx.fillRect(L,top-14,cv.width-L-R,8*rowH+6);
+  ctx.fillStyle="rgba(44,122,123,.07)";ctx.fillRect(L,top+8*rowH-8,cv.width-L-R,8*rowH+6);
+  ctx.font="bold 12px sans-serif";
+  ctx.fillStyle=NODECOL[0];ctx.fillText("worker-0(松散,含大多数最晚者)",L+6,top-18);
+  ctx.fillStyle=NODECOL[1];ctx.fillText("worker-1(整队)",L+6,top+8*rowH-12);
+  // δ 括线(顶部)+ 全局最晚者红▼
+  W.events.forEach((row,c)=>{const s=collStats(c);
+    if(s.lastT<vw.x0||s.first>vw.x0+vw.vwid)return;
+    if(X(s.lastT)-X(s.first)>3){
+      ctx.strokeStyle="rgba(192,86,33,.85)";ctx.lineWidth=1.5;
+      ctx.beginPath();ctx.moveTo(X(s.first),30);ctx.lineTo(X(s.first),24);ctx.lineTo(X(s.lastT),24);ctx.lineTo(X(s.lastT),30);ctx.stroke();
+      if(X(s.lastT)-X(s.first)>50){ctx.fillStyle="#c05621";ctx.font="bold 10.5px sans-serif";
+        ctx.fillText("δ="+Math.round(s.lastT-s.first),((X(s.first)+X(s.lastT))/2)-22,21);}
+    }
+    const ry=top+s.lastR*rowH;
+    ctx.fillStyle="#c53030";
+    ctx.beginPath();ctx.moveTo(X(s.lastT),ry+3);ctx.lineTo(X(s.lastT)-4,ry-3);ctx.lineTo(X(s.lastT)+4,ry-3);ctx.closePath();ctx.fill();
+  });
+  // 每集合事件条
+  W.events.forEach((row,c)=>{const s=collStats(c);
+    row.forEach((e,r)=>{const ts=e[0],dur=e[1],wait=dur-s.wG;
+      if(ts+dur<vw.x0||ts>vw.x0+vw.vwid)return;
+      const y=top+r*rowH+6,h=rowH-10;
+      ctx.fillStyle=COL.wait;ctx.fillRect(X(ts),y,Math.max(1,X(ts+wait)-X(ts)),h);
+      ctx.fillStyle=COL.wire;ctx.fillRect(X(ts+wait),y,Math.max(1,X(ts+dur)-X(ts+wait)),h);
+      if(c===hovC){ctx.strokeStyle="#333";ctx.lineWidth=1;
+        ctx.strokeRect(X(ts)-1.5,y-2,Math.max(3,X(ts+dur)-X(ts)+3),h+4);
+        ctx.font="10.5px sans-serif";
+        ctx.fillStyle="#b7791f";ctx.fillText("等"+Math.round(wait)+"µs",X(ts),y-5);
+        ctx.fillStyle="#2b6cb0";ctx.fillText("线"+Math.round(s.wG)+"µs",X(ts+wait),y-5);}
+    });
+  });
+  // 行标
+  ctx.font="12px sans-serif";
+  ARDATA.ranks.forEach((rk,r)=>{const pr=ARDATA.perRank[r];
+    ctx.fillStyle=NODECOL[rk.node==="worker-0"?0:1];
+    ctx.fillText(`${rk.label}·${pr.pid}${pr.lastGlobalPct>8?" ◆":""}`,14,top+r*rowH+18);});
+  ctx.strokeStyle="#bbb";ctx.setLineDash([4,3]);
+  ctx.beginPath();ctx.moveTo(L,top+8*rowH);ctx.lineTo(cv.width-R,top+8*rowH);ctx.stroke();ctx.setLineDash([]);
+  ctx.fillStyle="#888";ctx.font="11px sans-serif";
+  ctx.fillText("ms(自窗口起点)",L-34,cv.height-8);
+  drawMini();
+}
+// ---------- 视图 A:散点模式 ----------
+function drawScatter(){
+  const cv=$("tl"),ctx=cv.getContext("2d");ctx.clearRect(0,0,cv.width,cv.height);
+  const W=win(),L=70,R=24,top=42;
+  const offs=W.events.map(row=>{const f=Math.min(...row.map(e=>e[0]));return row.map(e=>e[0]-f);});
+  const yMax=Math.max(...offs.flat())*1.05+40;
+  const Y=v=>top+(1-v/yMax)*(cv.height-top-42);
+  const Xi=c=>L+(c+0.5)/W.n*(cv.width-L-R);
+  // y 网格
+  const ysteps=[100,250,500,1000,2000,4000];const ys=ysteps.find(s=>(cv.height-top-42)*s/yMax>44)||4000;
+  ctx.font="11px sans-serif";
+  for(let v=0;v<=yMax;v+=ys){ctx.strokeStyle=v===0?"#bbb":"#eee";
+    ctx.beginPath();ctx.moveTo(L,Y(v));ctx.lineTo(cv.width-R,Y(v));ctx.stroke();
+    ctx.fillStyle="#999";ctx.fillText(v>=1000?(v/1000)+"ms":v+"µs",L-42,Y(v)+4);}
+  // δ p50 参考线
+  ctx.strokeStyle="#c05621";ctx.setLineDash([6,4]);
+  ctx.beginPath();ctx.moveTo(L,Y(M.deltaP50));ctx.lineTo(cv.width-R,Y(M.deltaP50));ctx.stroke();ctx.setLineDash([]);
+  ctx.fillStyle="#c05621";ctx.font="bold 11px sans-serif";
+  ctx.fillText("δ p50 = "+M.deltaP50+"µs(全窗口)",cv.width-R-170,Y(M.deltaP50)-5);
+  // hover 列高亮
+  if(hovC>=0){ctx.fillStyle="rgba(49,130,206,.08)";ctx.fillRect(Xi(hovC)-7,top-8,14,cv.height-top-34);}
+  // 散点
+  offs.forEach((col,c)=>col.forEach((o,r)=>{
+    ctx.fillStyle=NODECOL[ARDATA.ranks[r].node==="worker-0"?0:1];ctx.globalAlpha=.85;
+    ctx.beginPath();ctx.arc(Xi(c),Y(o),3.1,0,7);ctx.fill();ctx.globalAlpha=1;}));
+  // 各节点中位轨迹
+  [0,1].forEach(n=>{ctx.strokeStyle=NODECOL[n];ctx.lineWidth=2.2;ctx.beginPath();let st=false;
+    W.events.forEach((row,c)=>{const o=offs[c].filter((_,r)=>(ARDATA.ranks[r].node==="worker-0"?0:1)===n);
+      const m=med(o);if(!st){ctx.moveTo(Xi(c),Y(m));st=true;}else ctx.lineTo(Xi(c),Y(m));});
+    ctx.stroke();ctx.lineWidth=1;});
+  // 全局最晚者红圈
+  W.events.forEach((row,c)=>{const s=collStats(c);ctx.strokeStyle="#c53030";ctx.lineWidth=1.6;
+    ctx.beginPath();ctx.arc(Xi(c),Y(offs[c][s.lastR]),5,0,7);ctx.stroke();ctx.lineWidth=1;});
+  // 标题/图例
+  ctx.fillStyle="#444";ctx.font="bold 12.5px sans-serif";
+  ctx.fillText("纵轴:各 rank 比本集合最早到达者晚到多少(µs);横轴:连续 96 个 AllReduce",L,20);
+  ctx.font="11.5px sans-serif";
+  ctx.fillStyle=NODECOL[0];ctx.fillText("● worker-0(粗线=其中位)",L,36);
+  ctx.fillStyle=NODECOL[1];ctx.fillText("● worker-1(粗线=其中位)",L+190,36);
+  ctx.fillStyle="#c53030";ctx.fillText("○ 全局最后到者",L+380,36);
+  ctx.fillStyle="#888";ctx.fillText("集合序号 →",cv.width-R-70,cv.height-10);
+  drawMini();
+}
+function drawA(){if(mode==="tl")drawTL();else drawScatter();}
+// ---------- 视图 A 交互 ----------
+const TLCV=$("tl");
+function tlT(mx){const L=118,R=14;return vw.x0+(mx-L)/(TLCV.width-L-R)*vw.vwid;}
+TLCV.addEventListener("wheel",e=>{if(mode!=="tl")return;e.preventDefault();
+  const rect=TLCV.getBoundingClientRect(),t=tlT(e.clientX-rect.left);
+  const frac=(t-vw.x0)/vw.vwid;                      // 鼠标处的时间在视口内的比例
+  const[a,b]=fullRange();
+  vw.vwid=Math.max(600,Math.min(vw.vwid*(e.deltaY>0?1.25:0.8),b-a));
+  vw.x0=t-frac*vw.vwid;                               // 缩放前后鼠标对准同一时刻
+  clampView();drawA();},{passive:false});
+TLCV.addEventListener("mousedown",e=>{if(mode!=="tl")return;mdrag={mx:e.clientX,x0:vw.x0};});
+window.addEventListener("mousemove",e=>{if(mdrag){const rect=TLCV.getBoundingClientRect();
+  const px=(TLCV.width-132)/vw.vwid;vw.x0=mdrag.x0-(e.clientX-mdrag.mx)/px;clampView();drawA();}});
+window.addEventListener("mouseup",()=>mdrag=null);
+TLCV.addEventListener("mousemove",e=>{const rect=TLCV.getBoundingClientRect(),mx=e.clientX-rect.left,my=e.clientY-rect.top;
+  if(mode==="tl"){
+    const L=118,R=14,top=44,rowH=26;
+    const r=Math.floor((my-top)/rowH);if(r<0||r>15){if(hovC>=0){hovC=-1;drawA();}return;}
+    const t=tlT(mx);let best=-1,bd=1e18;
+    win().events.forEach((row,c)=>{const d=Math.abs(row[r][0]-t);if(d<bd){bd=d;best=c;}});
+    if(best<0||bd>vw.vwid*0.06){if(hovC>=0){hovC=-1;drawA();}return;}
+    if(best!==hovC){hovC=best;drawA();}
+    const row=win().events[best],s=collStats(best),ev=row[r];
+    $("hov").innerHTML=`AR#${win().i0+best}:<b>${ARDATA.ranks[r].label}·pid${ARDATA.perRank[r].pid}</b> 到达 ${Math.round(ev[0])}µs,
+      dur=<b>${ev[1]}µs</b> = 等待 <b style="color:#c05621">${ev[1]-s.wG}µs</b> + 走线 <b style="color:#2b6cb0">${s.wG}µs</b>
+      | 本集合 δ=<b>${Math.round(s.lastT-s.first)}µs</b>,最早:${ARDATA.ranks[s.firstR].label},最后到:<b style="color:#c53030">${ARDATA.ranks[s.lastR].label}·pid${ARDATA.perRank[s.lastR].pid}</b>(红▼)`;
+  }else{
+    const L=70,R=24;const c=Math.floor((mx-L)/(TLCV.width-L-R)*win().n);
+    if(c<0||c>=win().n){return;}
+    if(c!==hovC){hovC=c;drawScatter();}
+    const row=win().events[c],s=collStats(c);
+    const w0m=med(row.slice(0,8).map(x=>x[0])),w1m=med(row.slice(8).map(x=>x[0]));
+    $("hov").innerHTML=`AR#${win().i0+c}:δ=<b>${Math.round(s.lastT-s.first)}µs</b>,
+      最后到:<b style="color:#c53030">${ARDATA.ranks[s.lastR].label}·pid${ARDATA.perRank[s.lastR].pid}</b>(红圈)。
+      节点内到达中位:worker-0 比全局最早者晚 <b>${Math.round(w0m-Math.min(...row.map(x=>x[0])))}µs</b>,
+      worker-1 晚 <b>${Math.round(w1m-Math.min(...row.map(x=>x[0])))}µs</b> —— 青线贴底=整队,紫线抬高=拖尾。`;
+  }});
+$("mini").addEventListener("mousedown",e=>{if(mode!=="tl")return;
+  const rect=$("mini").getBoundingClientRect();const[a,b]=fullRange();
+  const t=a+(e.clientX-rect.left-118)/($("mini").width-132)*(b-a);
+  vw.x0=t-vw.vwid/2;clampView();drawA();ndrag=true;});
+window.addEventListener("mousemove",e=>{if(ndrag&&mode==="tl"){
+  const rect=$("mini").getBoundingClientRect();const[a,b]=fullRange();
+  const t=a+(e.clientX-rect.left-118)/($("mini").width-132)*(b-a);
+  vw.x0=t-vw.vwid/2;clampView();drawA();}});
+window.addEventListener("mouseup",()=>ndrag=null);
+$("pgL").onclick=()=>{vw.x0-=vw.vwid*0.8;clampView();drawA();};
+$("pgR").onclick=()=>{vw.x0+=vw.vwid*0.8;clampView();drawA();};
+$("modeTL").onclick=()=>{mode="tl";$("modeTL").classList.add("on");$("modeSC").classList.remove("on");$("mini").style.display="block";hovC=-1;drawA();};
+$("modeSC").onclick=()=>{mode="sc";$("modeSC").classList.add("on");$("modeTL").classList.remove("on");$("mini").style.display="none";hovC=-1;drawA();};
+
+// ---------- 视图 B:单集合,从 0 开始的完整时间线 ----------
+let animT=Infinity, rafId=null, lastDom=600;
+function drawOne(){
+  const cv=$("one"),ctx=cv.getContext("2d");ctx.clearRect(0,0,cv.width,cv.height);
+  const c=+$("ci").value, row=win().events[c], wG=collW(c);
+  const arr=row.map((e,i)=>({ts:e[0],dur:e[1],i})).sort((a,b)=>a.ts-b.ts);
+  const t0=arr[0].ts, last=arr[15];
+  const Rl=t=>t-t0;                                   // 相对"最早者到达"的时刻
+  const lastR=Rl(last.ts), endR=Math.max(...row.map(e=>Rl(e[0]+e[1])));
+  const dom=lastDom=Math.max(endR,lastR)+60;
+  const L=178,Rm=128,top=100,rowH=26,axisY=top+16*rowH+16;
+  const X=t=>L+t/dom*(cv.width-L-Rm);
+  const cur=Math.min(animT,dom);
+  const seg=(y,a,b,col)=>{const b2=Math.min(b,cur);if(b2<=a)return;
+    ctx.fillStyle=col;ctx.fillRect(X(a),y+5,Math.max(1,X(b2)-X(a)),rowH-10);};
+  // 标题
+  ctx.fillStyle="#444";ctx.font="bold 13px sans-serif";
+  ctx.fillText(`AR#${win().i0+c}   0 = 最早的 rank 到达  →  ${Math.round(dom)}µs = 本次集合结束`,L,20);
+  // δ 括线(0 → 最晚者到达)
+  ctx.strokeStyle="#c05621";ctx.lineWidth=2;
+  ctx.beginPath();ctx.moveTo(X(0),64);ctx.lineTo(X(lastR),64);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(X(0),58);ctx.lineTo(X(0),70);ctx.moveTo(X(lastR),58);ctx.lineTo(X(lastR),70);ctx.stroke();
+  ctx.lineWidth=1;
+  ctx.fillStyle="#c05621";ctx.font="bold 12.5px sans-serif";
+  ctx.fillText(`δ = ${Math.round(lastR)}µs(大部队到齐 → 最后 1 名到达,全在等他)`,X(0)+10,52);
+  // 时间刻度
+  ctx.font="11px sans-serif";
+  const tick=dom>900?100:50;
+  for(let t=0;t<=dom;t+=tick){
+    ctx.strokeStyle=t===0?"#888":"#ececec";
+    ctx.beginPath();ctx.moveTo(X(t),76);ctx.lineTo(X(t),axisY+8);ctx.stroke();
+    if(t%(tick*2)<1){ctx.fillStyle="#666";ctx.fillText(String(t),X(t)-10,axisY+24);}
+  }
+  ctx.fillStyle="#666";ctx.fillText("µs",cv.width-Rm+14,axisY+24);
+  // 16 行:灰(未进入)→ 橙(等人)→ 蓝(搬运)
+  arr.forEach((e,k)=>{
+    const y=top+k*rowH, r=e.i, rk=ARDATA.ranks[r];
+    seg(y,0,Rl(e.ts),"#e2e8f0");
+    seg(y,Rl(e.ts),lastR,COL.wait);
+    seg(y,lastR,Rl(e.ts+e.dur),COL.wire);
+    if(cur>=Rl(e.ts)){ctx.fillStyle=NODECOL[rk.node==="worker-0"?0:1];
+      ctx.beginPath();ctx.arc(X(Rl(e.ts)),y+rowH/2,3.5,0,7);ctx.fill();}
+    ctx.fillStyle=NODECOL[rk.node==="worker-0"?0:1];ctx.font="12px sans-serif";
+    ctx.fillText(`第${String(k+1).padStart(2,"0")}到 ${rk.label}·pid${rk.pid}${k===15?" ◀最晚":""}`,6,y+18);
+    ctx.fillStyle="#666";ctx.font="11.5px sans-serif";
+    ctx.fillText(`等 ${e.dur-wG}µs`,cv.width-Rm+12,y+18);
+  });
+  // 红虚线:最后 1 名到达 = 所有橙条到此为止
+  ctx.strokeStyle="#c53030";ctx.setLineDash([5,4]);ctx.lineWidth=1.8;
+  ctx.beginPath();ctx.moveTo(X(lastR),76);ctx.lineTo(X(lastR),axisY+8);ctx.stroke();
+  ctx.setLineDash([]);ctx.lineWidth=1;
+  ctx.fillStyle="#c53030";ctx.font="bold 12px sans-serif";ctx.textAlign="right";
+  ctx.fillText(`▼ 最后 1 名(${ARDATA.ranks[last.i].label}/pid${ARDATA.ranks[last.i].pid})此刻才到`,X(lastR)-8,90);
+  ctx.textAlign="left";
+  // W 括线(最晚者到达 → 结束)
+  ctx.strokeStyle="#2b6cb0";
+  ctx.beginPath();ctx.moveTo(X(lastR),axisY+34);ctx.lineTo(X(endR),axisY+34);ctx.stroke();
+  ctx.fillStyle="#2b6cb0";ctx.font="12px sans-serif";
+  ctx.fillText(`走线 W = ${Math.round(endR-lastR)}µs(16 方同时搬,同时结束)`,Math.min(X(lastR)-40,cv.width-430),axisY+52);
+  // 最晚一行的灰段标注
+  ctx.fillStyle="#718096";ctx.font="bold 11.5px sans-serif";
+  ctx.fillText(`这 ${Math.round(lastR)}µs 它还没进入本次 AR(灰)—— 其余 15 行的橙条,等的全是这一段`,X(0)+10,top+15*rowH+18);
+  // 播放游标
+  if(cur<dom){
+    ctx.strokeStyle="#3182ce";ctx.lineWidth=2;
+    ctx.beginPath();ctx.moveTo(X(cur),76);ctx.lineTo(X(cur),axisY+8);ctx.stroke();ctx.lineWidth=1;
+    ctx.fillStyle="#3182ce";ctx.font="bold 12.5px sans-serif";
+    ctx.fillText("t = "+Math.round(cur)+"µs",Math.min(X(cur)+5,cv.width-90),70);
+  }
+  const jit=Math.max(...row.map(e=>e[0]+e[1]))-Math.min(...row.map(e=>e[0]+e[1]));
+  const cohortSpan=arr[14].ts-arr[0].ts;
+  $("oneinfo").innerHTML=`AR#${win().i0+c}:<b>前 15 名在 ${Math.max(1,Math.round(cohortSpan))}µs 内到齐(两台机器混在一起),
+   15 张卡各自等了约 ${Math.round(lastR)}µs —— 等的就是最晚那 1 张:${ARDATA.ranks[last.i].label}
+   (pid${ARDATA.ranks[last.i].pid},${ARDATA.ranks[last.i].node}):它的灰段最长、橙段=0(它不用等任何人)。</b>
+   灰=还没进入这次 AR;橙=进入 kernel 后原地自旋等人;蓝=人到齐后 16 方一起搬运
+   (16 个结束时刻极差仅 ${jit.toFixed(0)}µs = 结束同步的直接证据)。`;
+}
+function collW(c){return collStats(c).wG;}
+// ---------- 视图 C ----------
+$("rkbars").innerHTML=ARDATA.perRank.map((p,r)=>{
+  const rk=ARDATA.ranks[r];
+  return `<div class="rkrow"><span class="nm"><span class="${rk.node==="worker-0"?"n0":"n1"}">${rk.label}·pid${p.pid}</span></span>
+  <div class="bar"><i style="left:0;width:${p.waitSharePct/70*100}%;background:${COL.wait}"></i></div>
+  <span>${p.waitSharePct}% <span style="color:#999">(迟到 ${p.lastGlobalPct}%)</span></span></div>`;
+}).join("");
+function drawHist(){
+  const cv=$("hist"),ctx=cv.getContext("2d");ctx.clearRect(0,0,cv.width,cv.height);
+  const H=ARDATA.deltaHist,bins=H.bins,edges=H.edges;
+  const mx=Math.max(...bins),bw=(cv.width-50)/bins.length;
+  ctx.fillStyle="#f6ad55";
+  bins.forEach((b,i)=>{const h=b/mx*(cv.height-40);ctx.fillRect(25+i*bw,cv.height-22-h,bw-1,h);});
+  ctx.fillStyle="#666";ctx.font="11px sans-serif";
+  [0,.25,.5,.75,1].forEach(f=>{const i=Math.round(f*(bins.length-1));
+    ctx.fillText((edges[i]/1000).toFixed(1)+"ms",25+i*bw-12,cv.height-6);});
+  ctx.fillText("δ(每次 AR 的到达散布,41,538 个样本;右尾截到 99.5%)",25,14);
+  ctx.strokeStyle="#c05621";ctx.beginPath();
+  const ci=Math.floor(M.deltaP50/edges[bins.length]*bins.length);
+  ctx.moveTo(25+ci*bw,18);ctx.lineTo(25+ci*bw,cv.height-22);ctx.stroke();
+  ctx.fillStyle="#c05621";ctx.fillText("p50="+M.deltaP50+"µs",25+ci*bw+3,26);
+}
+// ---------- 控件 ----------
+$("winbtns").innerHTML=ARDATA.windows.map((w,i)=>`<button class="wbtn${i===curW?" on":""}" data-i="${i}">${w.name}</button>`).join("");
+document.querySelectorAll(".wbtn").forEach(b=>b.onclick=()=>{curW=+b.dataset.i;
+  document.querySelectorAll(".wbtn").forEach(x=>x.classList.toggle("on",+x.dataset.i===curW));
+  defView();drawA();drawOne();
+  const W=win();
+  $("wininfo").innerHTML=`<b>${W.name}</b>:第 ${W.i0}–${W.i0+W.n-1} 个 AR(共 ${M.nCollectives} 个),
+   覆盖 ${(W.spanUs/1000).toFixed(1)}ms,AR 间隔中位 ${W.medianGapUs}µs(≈ 161 次/步 ÷ 117ms 步长的节奏)`;
+});
+{
+  const W=win();
+  $("wininfo").innerHTML=`<b>${W.name}</b>:第 ${W.i0}–${W.i0+W.n-1} 个 AR(共 ${M.nCollectives} 个),
+   覆盖 ${(W.spanUs/1000).toFixed(1)}ms,AR 间隔中位 ${W.medianGapUs}µs(≈ 161 次/步 ÷ 117ms 步长的节奏)`;
+}
+$("ci").oninput=()=>{animT=Infinity;drawOne();};
+$("play").onclick=()=>{cancelAnimationFrame(rafId);$("play").disabled=true;$("stopb").disabled=false;
+  const t0=performance.now(),D=5200;animT=0;drawOne();
+  const step=n=>{const f=Math.min(1,(n-t0)/D);animT=f*1.06*lastDom;drawOne();
+    if(f<1)rafId=requestAnimationFrame(step);
+    else{animT=Infinity;drawOne();$("play").disabled=false;$("stopb").disabled=true;}};
+  rafId=requestAnimationFrame(step);};
+$("stopb").onclick=()=>{cancelAnimationFrame(rafId);animT=Infinity;drawOne();$("play").disabled=false;$("stopb").disabled=true;};
+defView();drawA();drawOne();drawHist();
+</script>
+</body>
+</html>

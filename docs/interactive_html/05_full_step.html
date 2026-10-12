@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>⑤ 一步 decode 的 117ms:四象限时间线(§2+§11)</title>
+<style>
+  body{font-family:"Noto Sans SC","Microsoft YaHei",sans-serif;max-width:1060px;margin:0 auto;padding:24px;background:#fafafa;color:#222;line-height:1.55}
+  h1{font-size:22px;color:#2b6cb0} h2{font-size:16px;color:#2b6cb0;margin:16px 0 6px}
+  .panel{background:#fff;border:1px solid #ddd;border-radius:8px;padding:14px 18px;margin:12px 0}
+  button{background:#2b6cb0;color:#fff;border:none;border-radius:5px;padding:7px 18px;margin:3px;font-size:14px;cursor:pointer}
+  input[type=range]{width:180px;vertical-align:middle}
+  canvas{background:#fff;border:1px solid #ccc;border-radius:4px}
+  .note{background:#fff8e1;border-left:4px solid #f6a821;padding:8px 12px;font-size:13px;border-radius:4px;margin:8px 0}
+  .stat{display:inline-block;background:#eef4fb;border-radius:6px;padding:6px 12px;margin:3px;font-size:13.5px}
+  .stat b{color:#2b6cb0}
+  #ops{font-size:13px;max-height:220px;overflow-y:auto;border:1px solid #eee;border-radius:4px;padding:4px}
+  .op{padding:3px 8px;border-radius:3px;display:flex;justify-content:space-between;gap:10px}
+  .op.cur{background:#fff3cd;font-weight:bold}
+  .c-wait{color:#c05621}.c-wire{color:#2b6cb0}.c-comp{color:#2f855a}.c-idle{color:#718096}
+  a{color:#2b6cb0}
+</style>
+</head>
+<body>
+<h1>⑤ 一步 decode = 117ms:一层 1.4ms × 80 层,四色分解</h1>
+<p><a href="index.html">← 返回导航</a> | 数字为 <b>worker-0 视角实测口径</b>(M≈32):AR 每 161 次/步
+(80 层×2 + embedding),单次均值 ≈496µs = <span class="c-wait">等待 ≈404µs</span> + <span class="c-wire">走线 ≈92µs</span>(全局最小时长口径,2026-10-10 修正);
+GEMM 321 个/步共 8.7ms;空闲主要来自 eager 逐 kernel 派发。真实逐事件时间线见 <a href="07_arrival_timeline.html">⑦ 号页</a>。</p>
+
+<div class="panel">
+  <h2>一层的 kernel 序列(真实 kernel 名,宽度∝时长)</h2>
+  <canvas id="cv" width="1000" height="190"></canvas>
+  <button id="play">▶ 播放一层</button><button id="next">下一个 kernel ▸</button><button id="reset">重置</button>
+  <span style="font-size:13px;color:#666">straggler 强度 <span id="sv">1.0</span>×(等待段随之缩放,示意)
+  <input type="range" id="strag" min="0" max="30" value="10"></span>
+  <div id="cur" style="margin-top:6px;font-size:14px"></div>
+</div>
+
+<div class="panel">
+  <h2>整步四象限(80.5 层 × 上面序列 + 头尾)</h2>
+  <div id="agg" style="height:30px;border-radius:5px;overflow:hidden;display:flex"></div>
+  <div id="aggLbl" style="font-size:13px;margin-top:4px"></div>
+  <div id="stats"></div>
+  <div class="note">把 straggler 拖到 0(理想均衡):整步从 117ms 掉到 ~52ms —— <b>等待就是这么大</b>。
+  再注意:即便等降到 0,<span class="c-wire">走线 13%</span> + <span class="c-comp">计算 15%</span> 仍在,
+  这就是"消等待"与"藏走线"两条轴各自的地盘。</div>
+</div>
+<div id="ops"></div>
+<div class="note">口径:层内各 kernel 时长按实测聚合值(8.7ms GEMM、1.3% 注意力、2.3% norm/act、2.7% 其他、空闲 15%)摊到单层,
+尾数四舍五入;乘 80 层后回验 ≈117ms(误差 <3%)。"×80.5" 的 0.5 层 = embedding AR + lm_head + AG 的零头。</div>
+
+<script>
+"use strict";
+const $=id=>document.getElementById(id);
+const CLS={wait:"c-wait",wire:"c-wire",comp:"c-comp",idle:"c-idle"};
+const COL={wait:"#f6ad55",wire:"#2b6cb0",comp:"#2f855a",idle:"#cbd5e0"};
+let stragF=1.0, cur=-1, timer=null;
+function ops(){
+  const w=404*stragF;
+  return [
+    ["fused_add_rms_kernel_opt(残差+RMSNorm)",12,"comp"],
+    ["Cijk_Ailk_Bljk…(QKV 投影 30µs)",30,"comp"],
+    ["rotary_embedding_kernel(RoPE)",6,"comp"],
+    ["KV cache 写入",6,"comp"],
+    ["paged_attention_kernel(注意力)",18,"comp"],
+    ["Cijk…(o_proj 30µs)",30,"comp"],
+    ["ncclDevKernel_AllReduce_Tree_LL①:自旋等人 "+w.toFixed(0)+"µs",w,"wait"],
+    ["ncclDevKernel_AllReduce_Tree_LL①:归并搬运 92µs",92,"wire"],
+    ["fused_add_rms_kernel_opt(残差+RMSNorm②)",12,"comp"],
+    ["Cijk…(gate/up 投影 30µs)",30,"comp"],
+    ["act_and_mul_kernel_opt1(SwiLU·up)",8,"comp"],
+    ["Cijk…(down_proj 30µs)",30,"comp"],
+    ["ncclDevKernel_AllReduce_Tree_LL②:自旋等人 "+w.toFixed(0)+"µs",w,"wait"],
+    ["ncclDevKernel_AllReduce_Tree_LL②:归并搬运 92µs",92,"wire"],
+    ["空闲(派发间隙等)",284,"idle"],
+  ];
+}
+function totals(){
+  const o=ops();const t={wait:0,wire:0,comp:0,idle:0};
+  o.forEach(x=>t[x[2]]+=x[1]);
+  const L=80.5, step=(t.wait+t.wire+t.comp+t.idle)*L;
+  return {t,L,step};
+}
+function draw(){
+  const cv=$("cv"),ctx=cv.getContext("2d");ctx.clearRect(0,0,cv.width,cv.height);
+  const o=ops(),tot=o.reduce((s,x)=>s+x[1],0),X=30,W=cv.width-60;
+  let x=X;
+  o.forEach((op,i)=>{
+    const w=op[1]/tot*W;
+    ctx.fillStyle=COL[op[2]];ctx.fillRect(x,50,Math.max(1,w-1),60);
+    if(i===cur){ctx.strokeStyle="#c05621";ctx.lineWidth=3;ctx.strokeRect(x-1,47,Math.max(2,w+1),66);ctx.lineWidth=1;}
+    x+=w;});
+  ctx.fillStyle="#666";ctx.font="12px sans-serif";
+  ctx.fillText("0µs",X,130);ctx.fillText(tot.toFixed(0)+"µs ≈ 一层",cv.width-120,130);
+  ctx.fillStyle="#222";ctx.font="13px sans-serif";
+  ctx.fillText("橙=等待 蓝=走线 绿=计算 灰=空闲(宽度∝µs)",X,165);
+  // 聚合
+  const {t,L,step}=totals();
+  $("agg").innerHTML=["wait","wire","comp","idle"].map(k=>
+    `<div style="width:${t[k]*L/step*100}%;background:${COL[k]}" title="${k}"></div>`).join("");
+  $("aggLbl").innerHTML=["wait","wire","comp","idle"].map(k=>
+    `<span class="${CLS[k]}">■ ${k==="wait"?"等待":k==="wire"?"走线":k==="comp"?"计算":"空闲"} ${(t[k]*L).toFixed(1)}ms(${(t[k]*L/step*100).toFixed(0)}%)</span>`).join("　");
+  $("stats").innerHTML=`<span class="stat">整步 ≈ <b>${(step/1000).toFixed(1)}ms</b>(实测 117.4ms @ strag=1.0)</span>`+
+    `<span class="stat">AR/步 = <b>161</b> × (等待 ${(t.wait/2).toFixed(0)} + 走线 92)µs</span>`+
+    `<span class="stat">GEMM/步 = <b>321</b> × ~27µs</span>`;
+  // 列表
+  $("ops").innerHTML=`<div style="font-size:13px;color:#666;margin-top:4px">kernel 列表(点"下一个"逐步走):</div>`+
+    o.map((x,i)=>`<div class="op ${i===cur?"cur":""}"><span>${i+1}. ${x[0]}</span><span class="${CLS[x[2]]}">${x[1].toFixed(0)}µs</span></div>`).join("");
+  if(cur>=0)$("cur").innerHTML=`当前:<b>${o[cur][0]}</b> —— <span class="${CLS[o[cur][2]]}">${o[cur][1].toFixed(0)}µs</span>`;
+}
+$("strag").oninput=e=>{stragF=+e.target.value/10;$("sv").textContent=stragF.toFixed(1);cur=-1;draw();};
+$("next").onclick=()=>{const o=ops();cur=(cur+1)%o.length;draw();
+  const el=document.querySelectorAll(".op")[cur];if(el)el.scrollIntoView({block:"nearest"});};
+$("play").onclick=()=>{let i=0;clearInterval(timer);cur=0;draw();
+  timer=setInterval(()=>{i++;if(i>=ops().length){clearInterval(timer);cur=-1;draw();$("cur").textContent="一层播完 ×80 层即整步";}else{cur=i;draw();}},260);};
+$("reset").onclick=()=>{clearInterval(timer);cur=-1;stragF=1.0;$("strag").value=10;$("sv").textContent="1.0";draw();$("cur").textContent="";};
+draw();
+</script>
+</body>
+</html>

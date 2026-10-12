@@ -1,0 +1,25 @@
+[align] 8 ranks, N=57960, skip=5796
+[done] pid921: kernels=493071 busy=93.3% waitCov=0.1% stragIdleShare=83.9%
+[done] pid922: kernels=493071 busy=72.7% waitCov=0.2% stragIdleShare=76.2%
+[done] pid923: kernels=493071 busy=81.6% waitCov=0.1% stragIdleShare=74.6%
+[done] pid924: kernels=493071 busy=90.1% waitCov=0.1% stragIdleShare=79.4%
+[done] pid925: kernels=493071 busy=80.9% waitCov=0.1% stragIdleShare=74.9%
+[done] pid927: kernels=493071 busy=90.6% waitCov=0.2% stragIdleShare=82.6%
+[done] pid930: kernels=493071 busy=92.8% waitCov=0.2% stragIdleShare=81.2%
+[done] pid932: kernels=493071 busy=74.7% waitCov=0.1% stragIdleShare=73.7%
+
+===== B·聚合(8 rank) =====
+busy%: 921:93.3, 922:72.7, 923:81.6, 924:90.1, 925:80.9, 927:90.6, 930:92.8, 932:74.7
+稳态 idle 总量(ms): 921:2461, 922:9902, 923:6174, 924:3736, 925:6659, 927:3083, 930:2615, 932:9892
+B1 wait 非AR覆盖率%(pooled): 921:0.13, 922:0.16, 923:0.08, 924:0.15, 925:0.06, 927:0.15, 930:0.15, 932:0.14
+B2 straggler 迟到段 idle 占比%: 921:83.9, 922:76.2, 923:74.6, 924:79.4, 925:74.9, 927:82.6, 930:81.2, 932:73.7
+B3 pre-AR gap µs(修正口径;straggler 实例 p50/mean,普通实例 p50/mean,AR启动时GPU忙占比%):
+  pid921: 6/10 · 0/22 · 93.4%
+  pid922: 8/9 · 0/16 · 68.6%
+  pid923: 7/8 · 0/73 · 61.3%
+  pid924: 8/8 · 0/15 · 89.5%
+  pid925: 8/11 · 0/111 · 57.7%
+  pid927: 5/10 · 0/17 · 92.5%
+  pid930: 5/38 · 0/12 · 94.9%
+  pid932: 6/7 · 0/24 · 61.3%
+-> /root/private_data/second_hygon/phase6-vllm-deploy/phase6_torch_prof_rdma_20261011_153613/analysis/wait_content_summary.json

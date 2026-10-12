@@ -1,0 +1,265 @@
+{
+ "meta": {
+  "ts": "20261010_212555",
+  "run": "/root/private_data/second_hygon/phase6-vllm-deploy/phase6_torch_prof_rdma_20261009_212123/analysis",
+  "n_collectives": 41538,
+  "anchor_off_us": 7.63623046875,
+  "seed": 20261010,
+  "boot_reps": 200,
+  "elapsed_s": 71.4
+ },
+ "validation": {
+  "wire_mean_us": 91.9,
+  "mean_wait_us": 452.1,
+  "cohort_wait_us": 71.9,
+  "delta_mean_us": 500.1,
+  "delta_p50_us": 534.2,
+  "note": "wire≈92 / mean_wait≈400 / delta_p50≈534 与 REPORT §④ 对账"
+ },
+ "persistence": {
+  "p_stay": 0.977,
+  "run_len_mean": 42.6,
+  "run_len_p90": 140,
+  "run_len_max": 364,
+  "modal_last_slots": [
+   [
+    2,
+    12070,
+    29.1
+   ],
+   [
+    0,
+    5368,
+    12.9
+   ],
+   [
+    6,
+    5167,
+    12.4
+   ]
+  ]
+ },
+ "budget": {
+  "C_slot_us": 110.7,
+  "hide_us": 91.9,
+  "W_bar_us": 91.9,
+  "ar_per_step": 161,
+  "step_us": 117000.0
+ },
+ "curves": [
+  {
+   "k": 1,
+   "wait_a_us": 452.10115579714113,
+   "wait_b_us": 452.10115579714113,
+   "wait_c_us": 452.10115579714113,
+   "extra_floor_us": 0.0,
+   "cost_a_us": 0.0,
+   "net_a_us": 91.85333858153979,
+   "step_extra_a_us": 0.0,
+   "step_extra_a_pct": 0.0,
+   "cost_b_us": 0.0,
+   "net_b_us": 91.85333858153979,
+   "step_extra_b_us": 0.0,
+   "step_extra_b_pct": 0.0,
+   "cost_c_us": 0.0,
+   "net_c_us": 91.85333858153979,
+   "step_extra_c_us": 0.0,
+   "step_extra_c_pct": 0.0
+  },
+  {
+   "k": 2,
+   "wait_a_us": 904.2023115942823,
+   "wait_b_us": 524.0014967025916,
+   "wait_c_us": 895.2778395688736,
+   "extra_floor_us": 91.85333858153979,
+   "cost_a_us": 543.9544943786809,
+   "net_a_us": -452.10115579714113,
+   "step_extra_a_us": 87576.67359496762,
+   "step_extra_a_pct": 74.85185777347661,
+   "cost_b_us": 163.75367948699022,
+   "net_b_us": -71.90034090545043,
+   "step_extra_b_us": 26364.342397405424,
+   "step_extra_b_pct": 22.5336259806884,
+   "cost_c_us": 535.0300223532722,
+   "net_c_us": -443.1766837717324,
+   "step_extra_c_us": 86139.83359887682,
+   "step_extra_c_pct": 73.62378940074942
+  },
+  {
+   "k": 4,
+   "wait_a_us": 1808.4046231885645,
+   "wait_b_us": 667.8021785134923,
+   "wait_c_us": 1781.6312071123384,
+   "extra_floor_us": 275.56001574461936,
+   "cost_a_us": 1631.8634831360428,
+   "net_a_us": -1540.0101445545029,
+   "step_extra_a_us": 262730.0207849029,
+   "step_extra_a_pct": 224.5555733204298,
+   "cost_b_us": 491.26103846097055,
+   "net_b_us": -399.40769987943077,
+   "step_extra_b_us": 79093.02719221626,
+   "step_extra_b_pct": 67.60087794206518,
+   "cost_c_us": 1605.0900670598166,
+   "net_c_us": -1513.2367284782767,
+   "step_extra_c_us": 258419.50079663048,
+   "step_extra_c_pct": 220.87136820224828
+  },
+  {
+   "k": 8,
+   "wait_a_us": 3616.809246377129,
+   "wait_b_us": 955.403542135294,
+   "wait_c_us": 3554.3379421992686,
+   "extra_floor_us": 642.9733700707785,
+   "cost_a_us": 3807.6814606507664,
+   "net_a_us": -3715.8281220692265,
+   "step_extra_a_us": 613036.7151647734,
+   "step_extra_a_pct": 523.9630044143362,
+   "cost_b_us": 1146.2757564089313,
+   "net_b_us": -1054.4224178273917,
+   "step_extra_b_us": 184550.39678183795,
+   "step_extra_b_pct": 157.73538186481875,
+   "cost_c_us": 3745.210156472906,
+   "net_c_us": -3653.356817891366,
+   "step_extra_c_us": 602978.8351921379,
+   "step_extra_c_pct": 515.366525805246
+  },
+  {
+   "k": 16,
+   "wait_a_us": 7233.618492754258,
+   "wait_b_us": 1530.6062693788972,
+   "wait_c_us": 7099.751412373129,
+   "extra_floor_us": 1377.8000787230967,
+   "cost_a_us": 8159.317415680213,
+   "net_a_us": -8067.464077098673,
+   "step_extra_a_us": 1313650.1039245143,
+   "step_extra_a_pct": 1122.777866602149,
+   "cost_b_us": 2456.305192304853,
+   "net_b_us": -2364.451853723313,
+   "step_extra_b_us": 395465.1359610813,
+   "step_extra_b_pct": 338.0043897103259,
+   "cost_c_us": 8025.450335299084,
+   "net_c_us": -7933.596996717544,
+   "step_extra_c_us": 1292097.5039831526,
+   "step_extra_c_pct": 1104.3568410112414
+  },
+  {
+   "k": 32,
+   "wait_a_us": 14467.236985508516,
+   "wait_b_us": 2681.0117238661037,
+   "wait_c_us": 14190.578352720848,
+   "extra_floor_us": 2847.4534960277333,
+   "cost_a_us": 16862.589325739107,
+   "net_a_us": -16770.735987157568,
+   "step_extra_a_us": 2714876.8814439964,
+   "step_extra_a_pct": 2320.407590977775,
+   "cost_b_us": 5076.364064096696,
+   "net_b_us": -4984.510725515156,
+   "step_extra_b_us": 817294.614319568,
+   "step_extra_b_pct": 698.5424054013403,
+   "cost_c_us": 16585.93069295144,
+   "net_c_us": -16494.0773543699,
+   "step_extra_c_us": 2670334.8415651815,
+   "step_extra_c_pct": 2282.3374714232323
+  },
+  {
+   "k": 64,
+   "wait_a_us": 28934.473971017032,
+   "wait_b_us": 4981.822632840517,
+   "wait_c_us": 28372.232233416285,
+   "extra_floor_us": 5786.7603306370065,
+   "cost_a_us": 34269.1331458569,
+   "net_a_us": -34177.27980727536,
+   "step_extra_a_us": 5517330.43648296,
+   "step_extra_a_pct": 4715.667039729025,
+   "cost_b_us": 10316.481807680382,
+   "net_b_us": -10224.628469098843,
+   "step_extra_b_us": 1660953.5710365416,
+   "step_extra_b_pct": 1419.6184367833687,
+   "cost_c_us": 33706.89140825615,
+   "net_c_us": -33615.038069674614,
+   "step_extra_c_us": 5426809.51672924,
+   "step_extra_c_pct": 4638.298732247214
+  }
+ ],
+ "ci95_k8": {
+  "wait_a_k8": [
+   3580.7,
+   3653.6
+  ],
+  "wait_b_k8": [
+   934.2,
+   983.9
+  ],
+  "wait_c_k8": [
+   3521.0,
+   3592.9
+  ]
+ },
+ "headline": {
+  "kstar_a": 1,
+  "kstar_b": 1,
+  "kstar_c": 1
+ },
+ "sensitivity": [
+  {
+   "floor_us": 91.9,
+   "floor_tag": "实测RCCL Tree-LL地板",
+   "cohort_us": 71.9,
+   "cohort_tag": "实测残余抖动72µs",
+   "kstar_b": 1,
+   "kstar_c": 1,
+   "net_b_k2": -71.9,
+   "net_c_k2": -443.4
+  },
+  {
+   "floor_us": 91.9,
+   "floor_tag": "实测RCCL Tree-LL地板",
+   "cohort_us": 0.0,
+   "cohort_tag": "零残余抖动(理论上界)",
+   "kstar_b": 2,
+   "kstar_c": 1,
+   "net_b_k2": 0.0,
+   "net_c_k2": -441.7
+  },
+  {
+   "floor_us": 20.0,
+   "floor_tag": "NVSHMEM式乐观地板",
+   "cohort_us": 71.9,
+   "cohort_tag": "实测残余抖动72µs",
+   "kstar_b": 2,
+   "kstar_c": 1,
+   "net_b_k2": 0.0,
+   "net_c_k2": -371.5
+  },
+  {
+   "floor_us": 20.0,
+   "floor_tag": "NVSHMEM式乐观地板",
+   "cohort_us": 0.0,
+   "cohort_tag": "零残余抖动(理论上界)",
+   "kstar_b": 4,
+   "kstar_c": 1,
+   "net_b_k2": 71.9,
+   "net_c_k2": -369.8
+  },
+  {
+   "floor_us": 0.0,
+   "floor_tag": "零地板(理论)",
+   "cohort_us": 71.9,
+   "cohort_tag": "实测残余抖动72µs",
+   "kstar_b": 2,
+   "kstar_c": 1,
+   "net_b_k2": 20.0,
+   "net_c_k2": -351.5
+  },
+  {
+   "floor_us": 0.0,
+   "floor_tag": "零地板(理论)",
+   "cohort_us": 0.0,
+   "cohort_tag": "零残余抖动(理论上界)",
+   "kstar_b": 64,
+   "kstar_c": 1,
+   "net_b_k2": 91.9,
+   "net_c_k2": -349.8
+  }
+ ]
+}

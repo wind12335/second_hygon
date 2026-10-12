@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>交互演示导航 · Llama-3-70B TP16 推理全流程</title>
+<style>
+  body{font-family:"Noto Sans SC","Microsoft YaHei",sans-serif;max-width:960px;margin:0 auto;padding:24px;background:#fafafa;color:#222;line-height:1.7}
+  h1{font-size:26px;border-bottom:3px solid #2b6cb0;padding-bottom:8px}
+  h2{font-size:19px;color:#2b6cb0;margin-top:28px}
+  .card{display:block;background:#fff;border:1px solid #ddd;border-left:5px solid #2b6cb0;border-radius:6px;padding:14px 18px;margin:12px 0;text-decoration:none;color:#222;transition:box-shadow .15s}
+  .card:hover{box-shadow:0 2px 10px rgba(0,0,0,.15)}
+  .card b{color:#2b6cb0}
+  .tag{display:inline-block;font-size:12px;background:#e8f0fe;color:#2b6cb0;border-radius:10px;padding:1px 10px;margin-left:8px;vertical-align:2px}
+  .note{background:#fff8e1;border-left:4px solid #f6a821;padding:10px 14px;border-radius:4px;font-size:14px}
+  code{background:#eee;padding:1px 6px;border-radius:3px;font-size:13px}
+</style>
+</head>
+<body>
+<h1>交互演示导航:Llama-3-70B / vLLM / TP16 双机推理全流程</h1>
+<p>配套文档:<code>docs/相关工作盲区详解_细粒度重叠四系统与三盲区_20261010.md</code>(§9–§16)。
+所有页面纯本地 HTML+JS,浏览器直接打开即可,无外部依赖。<b>橙色=等待,蓝色=走线/通信,绿色=计算,灰色=空闲</b>,整套演示统一配色。</p>
+
+<h2>建议阅读顺序</h2>
+<a class="card" href="01_tokenizer_embedding.html"><b>① 预处理与 Embedding</b>(§10)
+  <span class="tag">分词</span><span class="tag">词表并行</span><span class="tag">第161个AR</span><br>
+  文本 → 分词 → 16 卡各自查 1/16 词表 → AllReduce 求和。可换句子、调 TP、逐步执行。</a>
+<a class="card" href="02_one_layer_gemm.html"><b>② 一层 Transformer 的 11 步解剖</b>(§11)
+  <span class="tag">GEMM形状</span><span class="tag">tile量化</span><span class="tag">真实kernel名</span><br>
+  RMSNorm→QKV→RoPE→注意力→o_proj→AR→…→down→AR,逐算子形状/FLOPs 随 M 与 TP 实时变化;canvas 画出 M=32 填不满 MT64 tile 的浪费。</a>
+<a class="card" href="03_prefill_vs_decode.html"><b>③ Prefill vs Decode + 连续拼批</b>(§12)
+  <span class="tag">TTFT/ITPT</span><span class="tag">continuous batching</span><span class="tag">消息大小</span><br>
+  多请求时间线动画:长 prompt 的 prefill 块 vs 每 step 一个 token 的 decode 刻度;调并发/长度看 batch 动态拼装。</a>
+<a class="card" href="04_allreduce_skew.html"><b>④ 双机 AllReduce 与到达偏斜</b>(§13 + §1.5)
+  <span class="tag">Tree-LL</span><span class="tag">wire/wait分解</span><span class="tag">straggler注入</span><br>
+  16 rank 拓扑 + 两阶段归约动画;每个 rank 拖延迟到滑块,亲眼看"AR 时长 = 等人 + 走线";再开"藏走线"开关验证 min(计算,走线) 天花板。</a>
+<a class="card" href="05_full_step.html"><b>⑤ 一步 decode 的 117ms 全流程</b>(§11 末尾 + §2)
+  <span class="tag">四象限分解</span><span class="tag">80层×161AR</span><br>
+  按本仓 trace 实测比例,把一步拆成 计算/走线/等待/空闲 四色时间线;拖"straggler 强度"看等待吞噬墙钟。</a>
+<a class="card" href="06_where_they_optimize.html"><b>⑥ 四系统优化插入点对比</b>(§14)
+  <span class="tag">Flux</span><span class="tag">FlashOverlap</span><span class="tag">TileLink</span><span class="tag">Syncopate</span><span class="tag">TokenWeave</span><span class="tag">我们</span><br>
+  同一条流水线,逐个开关五大系统+我们的方案,看它们各自"动刀"的位置和已核实的端到端数字。</a>
+<a class="card" href="07_arrival_timeline.html"><b>⑦ 实测到达时间线(全部真实数据)</b>
+  <span class="tag">41,538 AR×16 rank</span><span class="tag">逐事件</span><span class="tag">修正口径</span><br>
+  真实 trace 的时间线/单集合放大/全量统计三视图:谁先到、谁在等、δ 分布;<b>worker-1 整队(散布 4µs)vs worker-0 松散(295µs)</b>,
+  含对初版 REPORT 方向错误的修正说明(等待 55% / 走线 13%)。</a>
+
+<div class="note">数字口径:带<b>实测</b>标签的常数来自 <code>phase6_torch_prof_rdma_20261009_212123</code>(117ms/step、161 AR/step、等待≈55% 墙钟、走线≈13%,2026-10-10 修正口径);
+带<b>示意</b>标签的是教学用简化模型,只保证趋势与机制正确。⑦ 号页全部为逐事件实测数据。</div>
+</body>
+</html>

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>② 一层 Transformer 的 11 步解剖(§11)</title>
+<style>
+  body{font-family:"Noto Sans SC","Microsoft YaHei",sans-serif;max-width:1060px;margin:0 auto;padding:24px;background:#fafafa;color:#222;line-height:1.55}
+  h1{font-size:22px;color:#2b6cb0}
+  .panel{background:#fff;border:1px solid #ddd;border-radius:8px;padding:14px 18px;margin:12px 0}
+  button{background:#2b6cb0;color:#fff;border:none;border-radius:5px;padding:6px 16px;margin:2px;font-size:14px;cursor:pointer}
+  button.on{background:#c05621}
+  input[type=range]{width:200px;vertical-align:middle}
+  table{border-collapse:collapse;width:100%;font-size:13.5px}
+  th,td{border:1px solid #ddd;padding:6px 8px;text-align:left;vertical-align:top}
+  th{background:#eef4fb}
+  .b{display:inline-block;font-size:11px;color:#fff;border-radius:3px;padding:1px 7px;margin-right:4px}
+  .gemm{background:#2f855a}.comm{background:#2b6cb0}.norm{background:#805ad5}.attn{background:#c05621}.elem{background:#718096}
+  .hl{background:#fff3cd}
+  .shape{font-family:Consolas,monospace;font-size:12.5px;color:#22543d}
+  .kn{font-family:Consolas,monospace;font-size:11.5px;color:#555}
+  .note{background:#fff8e1;border-left:4px solid #f6a821;padding:8px 12px;font-size:13px;border-radius:4px;margin:8px 0}
+  canvas{background:#fff;border:1px solid #ccc;border-radius:4px}
+  .stat{display:inline-block;background:#eef4fb;border-radius:6px;padding:8px 14px;margin:4px;font-size:14px}
+  .stat b{color:#2b6cb0;font-size:17px}
+  a{color:#2b6cb0}
+</style>
+</head>
+<body>
+<h1>② 一层 Transformer 的 11 步解剖 —— 形状、FLOPs 与 tile 量化(§11)</h1>
+<p><a href="index.html">← 返回导航</a> | Llama-3-70B:80 层,hidden=8192,64 Q 头 / 8 KV 头(GQA,头维 128),MLP 中间维 28672,词表 128256。kernel 名均取自本仓 trace 实测。</p>
+
+<div class="panel">
+  <b>M(本步 token 数)= <span id="mv"></span></b>
+  <input type="range" id="m" min="0" max="6" value="2"><br>
+  <b>TP = <span id="tpv"></span></b>
+  <button class="tpb">1</button><button class="tpb">2</button><button class="tpb">4</button><button class="tpb">8</button><button class="tpb on">16</button>
+  <span style="color:#666;font-size:13px">(TP=16 时 KV 头复制 2 份:每 rank 1 个 KV 头,这是 8 个 KV 头分给 16 卡的唯一办法)</span>
+  <div style="margin-top:8px" id="stats"></div>
+</div>
+
+<div class="panel" style="overflow-x:auto">
+<table id="tbl">
+  <tr><th>#</th><th>类型</th><th>操作</th><th>在做什么</th><th>TP 切分后形状(单 rank)</th><th>trace 里的 kernel</th></tr>
+</table>
+</div>
+
+<div class="panel">
+  <b>tile 量化:GEMM 的 M 方向被切成 64 行一块</b>(kernel 名 <code>Cijk_Ailk_Bljk_…_MT64x16x128</code> 的 64 即 tile 高)
+  <select id="whichg" style="margin-left:10px">
+    <option value="qkv">QKV 投影</option><option value="o">o_proj</option>
+    <option value="gu">gate/up</option><option value="down">down_proj</option><option value="lm">lm_head</option>
+  </select>
+  <br><canvas id="cv" width="640" height="300"></canvas>
+  <div id="tiletex" style="font-size:14px"></div>
+  <div class="note">M=32 时连<b>一个 tile 都填不满</b>:tile 里 64 行只有 32 行是真数据(绿),其余是空转(红)——
+  这就是"decode 计算塌缩"的微观形态:GEMM 时间不再随 M 线性下降,而是被 tile 地板托住。
+  M 越大(拖到 8000)tile 越满,GEMM 越接近线性扩展 —— prefill 与 decode 的效率差就从这里开始。</div>
+</div>
+
+<div class="note">FLOPs 与字节数为精确算术(模型配置×M);"每步均值"里的 8.7ms GEMM / 87.6ms AR 为 M≈32 窗口实测。</div>
+
+<script>
+"use strict";
+const H=8192, QH=64, KVH=8, D=128, I=28672, V=128256, LAYERS=80;
+const Ms=[8,16,32,64,256,2048,8000];
+let M=32, TP=16;
+const $=id=>document.getElementById(id);
+const fmt=n=>n>=1e9?(n/1e9).toFixed(1)+"G":n>=1e6?(n/1e6).toFixed(1)+"M":n>=1e3?(n/1e3).toFixed(1)+"K":Math.round(n);
+function dims(){
+  const q=QH/TP, kv=Math.max(1,Math.floor(KVH/TP));           // TP=16:8 KV 头÷16 → 1,复制 2 份
+  const qkv=q*D+2*kv*D, rep=TP>8?`(<span style="color:#c05621">KV 复制×2</span>)`:"";
+  return {q,kv,qkv,gu:2*I/TP,down:I/TOPL(),Vr:Math.ceil(V/TP)};
+  function TOPL(){return TP}
+}
+function gemms(d){
+  return [
+    ["QKV 投影", M, H, H, d.qkv, `Cijk_*`],
+    ["o_proj", M, d.q*D, d.q*D, H, `Cijk_*`],
+    ["gate/up(融合)", M, H, H, d.gu, `Cijk_*`],
+    ["down_proj", M, I/TP, I/TP, H, `Cijk_*`],
+  ];
+}
+function render(){
+  const d=dims();
+  $("mv").textContent=M; $("tpv").textContent=TP;
+  const g=gemms(d);
+  const flopsLayer=2*( H*10240 + H*H + 3*H*I );   // 全模型口径(TP 无关):QKV+o+gate/up+down
+  const flopsStep=M*(flopsLayer*LAYERS + 2*H*V);  // + lm_head
+  const commAR=161, arBytes=commAR*M*H*2, agBytes=M*V*2;
+  $("stats").innerHTML=
+    `<span class="stat">GEMM 数/前向 = <b>${LAYERS*4+1}</b>(80层×4+lm_head)</span>`+
+    `<span class="stat">AllReduce = <b>161</b>/步(80×2+embedding)</span>`+
+    `<span class="stat">AllGather = <b>1</b>/步(lm_head logits)</span>`+
+    `<span class="stat">矩阵 FLOPs/步 = <b>${fmt(flopsStep)}</b>(∝M)</span>`+
+    `<span class="stat">AR 消息 = <b>${fmt(arBytes)}B</b> 全部步合计</span>`+
+    `<span class="stat">M=32 实测:GEMM <b>8.7ms</b> / AR <b>87.6ms</b> / 步 <b>117ms</b></span>`;
+  const kvnote=TP>8?"每 rank 1 个 KV 头(复制 2 份)":`每 rank ${d.kv} 个 KV 头`;
+  const rows=[
+    [1,"norm","残差 + RMSNorm","上一层输出加回主干;再除以自身均方根(比 LayerNorm 少减均值,更快)",`[M=${M}, ${H}] 逐元素`,`fused_add_rms_kernel_opt`],
+    [2,"gemm","QKV 投影","一次矩阵乘同时算出本 rank 全部 Q/K/V 头向量",`[${M},8192]×[8192,${d.qkv}]`,g[0][5]],
+    [3,"elem","RoPE 旋转位置编码","按 token 位置旋转 Q/K,内积自带相对位置","逐元素三角函数",`rotary_embedding_kernel`],
+    [4,"elem","写 KV cache","本步 K/V 追加进显存缓存,历史不必重算",`+${2*d.kv*D*2}B/token/层 → 80 层共 ${(2*8*D*2*LAYERS/1024).toFixed(0)}KB/token`,"cache 写入"],
+    [5,"attn","注意力(paged)","Q 对全部历史 K 打分→softmax→加权 V;decode O(L·M),prefill O(M²)",`[M,${d.q}头] 对 [历史L]`,`paged_attention_kernel`],
+    [6,"gemm","o_proj 输出投影","拼回 8192 维 —— 但只是 ${d.q}/64 头的<b>部分和</b>",`[${M},${d.q*D}]×[${d.q*D},8192]`,g[1][5]],
+    [7,"comm","AllReduce ①","16 rank 部分和相加 → 完整输出;kernel=等人+搬运",`消息 ${fmt(M*H*2)}B × 16 rank`,`ncclDevKernel_AllReduce_Tree_LL_Sum_b16`],
+    [8,"norm","残差 + RMSNorm(第二次)","同 #1",`[M,8192] 逐元素`,`fused_add_rms_kernel_opt`],
+    [9,"gemm","gate/up 投影(融合)","两条并行投影,为 SwiGLU 备料;MLP 中间维每 rank ${fmt(I/TP)}",`[${M},8192]×[8192,${d.gu}]`,g[2][5]],
+    [10,"elem","SiLU × up(SwiGLU)","门控支路 x·sigmoid(x) 后逐元素乘 up 支路(软开关)",`[M,${fmt(I/TP)}] 逐元素`,`act_and_mul_kernel_opt1`],
+    [11,"gemm","down_proj + AllReduce ②","投回 8192 维,又是部分和 → 第二次 AR",`[${M},${fmt(I/TP)}]×[${fmt(I/TP)},8192] → AR`,g[3][5]],
+    ["尾","gemm","(80 层后)lm_head + AllGather","词表并行得分 → AG 拼成完整 logits → 采样",`[${M},8192]×[8192,${d.Vr}] → AG [${M},128256]`,`Cijk_* + ncclDevKernel_AllGather…`],
+  ];
+  const badge={"norm":"norm","gemm":"gemm","comm":"comm","attn":"attn","elem":"elem"};
+  const bname={norm:"归一化",gemm:"GEMM",comm:"通信",attn:"注意力",elem:"逐元素"};
+  let h="";
+  rows.forEach(r=>{
+    const hl=(r[0]===7||r[0]===11)?' class="hl"':"";
+    h+=`<tr${hl}><td>${r[0]}</td><td><span class="b ${badge[r[1]]}">${bname[r[1]]}</span></td><td><b>${r[2]}</b></td><td>${r[3]}<br><span style="color:#888;font-size:12px">KV:${kvnote}</span></td><td class="shape">${r[4]}</td><td class="kn">${r[5]}</td></tr>`;
+  });
+  $("tbl").innerHTML=`<tr><th>#</th><th>类型</th><th>操作</th><th>在做什么</th><th>TP 切分后形状(单 rank)</th><th>trace 里的 kernel</th></tr>`+h;
+  drawTile();
+}
+function tileOf(){ // 选中 GEMM 的 (M, N)
+  const d=dims(), s=$("whichg").value;
+  return {qkv:[M,d.qkv],o:[M,H],gu:[M,d.gu],down:[M,H],lm:[M,d.Vr]}[s];
+}
+function drawTile(){
+  const cv=$("cv"), ctx=cv.getContext("2d");
+  ctx.clearRect(0,0,cv.width,cv.height);
+  const [m,n]=tileOf();
+  const TW=64, TN=128;                    // tile:64 行 × 128 列(示意:MT64x16x128 的高×宽方向)
+  const cols=Math.min(Math.ceil(n/TN),8), rows=Math.min(Math.ceil(m/TW),8);
+  const cw=Math.floor((cv.width-120)/cols), ch=Math.floor((cv.height-80)/Math.max(rows,1));
+  ctx.font="13px sans-serif"; ctx.fillStyle="#222";
+  ctx.fillText(`输出矩阵 [M=${m}] × [N=${n.toLocaleString()}](N 方向只画前 ${cols} 列 tile)`,10,20);
+  for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){
+    const x=60+c*cw, y=40+r*ch;
+    const fill=Math.min(1,Math.max(0,(m-r*TW)/TW));   // 该行 tile 的有效行占比
+    ctx.fillStyle="#c6f6d5"; ctx.fillRect(x,y,cw-4,Math.max(1,(ch-4)*fill));
+    if(fill<1){ ctx.fillStyle="#fed7d7"; ctx.fillRect(x,y+(ch-4)*fill,cw-4,(ch-4)*(1-fill)); }
+    ctx.strokeStyle="#999"; ctx.strokeRect(x,y,cw-4,ch-4);
+    if(c===0&&r===0){ ctx.fillStyle="#333"; ctx.fillText("tile 64行",x+4,y+14); }
+  }
+  const util=m/(Math.ceil(m/TW)*TW);
+  $("tiletex").innerHTML=`M=${m}:需要 <b>${Math.ceil(m/TW)}</b> 行 tile → 利用率 <b style="color:${util<1?"#c53030":"#2f855a"}">${(util*100).toFixed(0)}%</b>`+
+    (util<1?`(${TW} 行的 tile 里只有 ${m%TW||TW} 行是真数据)`:"(恰好填满)");
+}
+$("m").oninput=e=>{M=Ms[+e.target.value];render();};
+document.querySelectorAll(".tpb").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll(".tpb").forEach(x=>x.classList.remove("on"));
+  b.classList.add("on"); TP=+b.textContent; render();
+});
+$("whichg").onchange=drawTile;
+render();
+</script>
+</body>
+</html>
